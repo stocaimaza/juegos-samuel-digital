@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><link rel="icon" href="favicon.svg" type="image/svg+xml"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}[hidden]{display:none!important}img{max-width:100%}
+.sd-casa{position:fixed;left:max(10px,env(safe-area-inset-left,0px));bottom:max(10px,env(safe-area-inset-bottom,0px));z-index:50;width:50px;height:50px;border-radius:50%;background:#fff;box-shadow:0 4px 0 #3d86b3;display:flex;align-items:center;justify-content:center;font-size:26px;text-decoration:none}
+.sd-casa:focus-visible{outline:4px solid #ffb627;outline-offset:2px}</style>
+<title>Atrapá la Letra</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap">
+<style>
+/* Layout: niveles arriba, huerta en canvas con la canasta abajo */
+:root{--cielo:#7ec8f0;--panel:#fff;--tinta:#23364a;--sol:#ffb627;--sombra:#3d86b3;
+  --display:"Baloo 2","Comic Sans MS",system-ui,sans-serif;color-scheme:light}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{margin:0;background:var(--cielo);color:var(--tinta);font-family:var(--display);box-sizing:border-box;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:12px;
+  display:flex;flex-direction:column;align-items:center;gap:10px;user-select:none;-webkit-user-select:none}
+button{font-family:var(--display);cursor:pointer;border:none;color:var(--tinta)}
+button:focus-visible{outline:4px solid #fff;outline-offset:2px}
+header{width:100%;max-width:1000px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+h1{margin:0;font-size:clamp(22px,4vw,32px);font-weight:800;color:#fff;text-shadow:0 2px 0 var(--sombra)}
+.pildora{display:flex;gap:4px;background:var(--panel);border-radius:999px;padding:4px;box-shadow:0 3px 0 var(--sombra);flex-wrap:wrap}
+.opc{background:transparent;border-radius:999px;padding:5px 14px;font-size:17px;font-weight:700}
+.opc.on{background:var(--sol)}
+#zona{width:100%;max-width:1000px;flex:1;min-height:0;display:flex;align-items:center;justify-content:center}
+canvas{display:block;border-radius:18px;box-shadow:0 6px 0 var(--sombra);touch-action:none;cursor:none;max-width:100%}
+#festejo{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(35,54,74,.45);z-index:20}
+.card{background:#fff;border-radius:24px;padding:24px 32px;text-align:center;box-shadow:0 8px 0 #c98400;max-width:90vw}
+.card h2{margin:0;font-size:44px;color:var(--sol);text-shadow:0 2px 0 #c98400}
+.card p{font-size:22px;margin:4px 0 16px}
+.grande{background:var(--sol);border-radius:999px;padding:10px 28px;font-size:24px;font-weight:800;box-shadow:0 4px 0 #c98400}
+
+/* ---- Robotito que explica + panel ¿Qué aprendemos? ---- */
+.ayuda-btn{font-family:"Baloo 2","Comic Sans MS",system-ui,sans-serif; border:none; cursor:pointer; background:#fff; border-radius:999px; padding:6px 16px; font-size:18px; font-weight:800; color:#23364a; box-shadow:0 3px 0 #3d86b3}
+#intro{position:fixed; inset:0; z-index:40; display:flex; align-items:center; justify-content:center; background:rgba(35,54,74,.5); padding:16px}
+.intro-card{background:#fff; border-radius:28px; padding:22px 26px; box-shadow:0 8px 0 #c98400; display:flex; gap:18px; align-items:center; max-width:640px; flex-wrap:wrap; justify-content:center; font-family:"Baloo 2","Comic Sans MS",system-ui,sans-serif; color:#23364a}
+.intro-card svg{width:150px; height:auto; flex:none}
+.burbuja{position:relative; background:#fff3d6; border-radius:22px; padding:14px 18px; min-width:0; flex:1 1 260px; text-align:center}
+.burbuja::before{content:""; position:absolute; left:-14px; top:40%; border:10px solid transparent; border-right:14px solid #fff3d6}
+.burbuja h2{margin:0; font-size:clamp(24px,4vw,32px); line-height:1.1; color:#23364a; text-shadow:none}
+.pictos{display:flex; justify-content:center; gap:14px; margin:12px 0 4px; flex-wrap:wrap}
+.pictos div{display:flex; flex-direction:column; align-items:center; font-size:15px; font-weight:700; gap:2px; max-width:90px; line-height:1.1}
+.pictos b{font-size:36px; line-height:1; font-family:"Segoe UI Emoji","Apple Color Emoji",sans-serif}
+#jugar{font-family:inherit; border:none; cursor:pointer; background:#ffb627; border-radius:999px; padding:10px 34px; font-size:26px; font-weight:800; color:#23364a; box-shadow:0 4px 0 #c98400; margin-top:8px}
+#panel{position:fixed; top:0; right:0; bottom:0; width:min(400px,100%); background:#fff; z-index:45; box-shadow:-8px 0 30px rgba(35,54,74,.3); color:#23364a; text-align:left;
+  font-family:"Baloo 2","Comic Sans MS",system-ui,sans-serif; overflow:auto; padding:20px max(20px, env(safe-area-inset-right,0px)) 30px 22px; box-sizing:border-box; transform:translateX(105%); transition:transform .25s}
+#panel.abierto{transform:none}
+#panel h2{margin:0 0 4px; font-size:26px; color:#23364a; text-shadow:none}
+#panel .sub{margin:0 0 6px; color:#4d6175; font-size:19px; font-weight:700}
+#panel h3{margin:16px 0 6px; font-size:16px; letter-spacing:1px; color:#3d86b3; text-transform:uppercase}
+#panel ul{margin:0; padding-left:20px; font-size:17px; line-height:1.4}
+#panel li{margin-bottom:4px}
+.logros{display:grid; gap:8px; margin-top:6px}
+.logros div{display:flex; align-items:center; gap:12px; background:#eef6fb; border-radius:16px; padding:8px 12px; font-size:18px; font-weight:700; line-height:1.2}
+.logros b{font-size:30px; flex:none; font-family:"Segoe UI Emoji","Apple Color Emoji",sans-serif}
+.palabras{display:flex; flex-wrap:wrap; gap:8px}
+.palabras span{background:#fff3d6; border-radius:999px; padding:4px 12px; font-size:18px; font-weight:800}
+.dato{margin:0; font-size:17px; line-height:1.45; background:#f4fbef; border-radius:16px; padding:10px 14px}
+#cerrarPanel{font-family:inherit; border:none; cursor:pointer; position:absolute; top:12px; right:max(12px, env(safe-area-inset-right,0px)); width:40px; height:40px; border-radius:50%; background:#eef6fb; font-size:20px; color:#23364a}
+@media (prefers-reduced-motion:reduce){#panel{transition:none}}
+</style>
+
+<header>
+  <h1>🧺 Atrapá la Letra</h1>
+  <button class="ayuda-btn" id="abrirPanel">📘 ¿Qué aprendemos?</button>
+  <div class="pildora" id="niveles"></div>
+</header>
+<div id="zona"><canvas id="c"></canvas></div>
+
+<div id="festejo" hidden>
+  <div class="card"><h2>¡Muy bien!</h2><div style="font-size:40px">⭐⭐⭐</div><p id="festejoTxt"></p>
+    <button class="grande" id="seguir">Siguiente nivel ▶</button></div>
+</div>
+
+
+<!-- El robotito explica el juego antes de empezar -->
+<div id="intro">
+  <div class="intro-card">
+    <svg viewBox="0 0 120 150" aria-hidden="true">
+      <line x1="60" y1="22" x2="60" y2="8" stroke="#23364a" stroke-width="4"/><circle cx="60" cy="7" r="6" fill="#e4572e"/>
+      <rect x="22" y="22" width="76" height="60" rx="18" fill="#ffb627" stroke="#23364a" stroke-width="4"/>
+      <circle cx="45" cy="48" r="10" fill="#fff"/><circle cx="75" cy="48" r="10" fill="#fff"/>
+      <circle cx="47" cy="49" r="5" fill="#23364a"/><circle cx="77" cy="49" r="5" fill="#23364a"/>
+      <path d="M46 64 Q60 74 74 64" fill="none" stroke="#23364a" stroke-width="4" stroke-linecap="round"/>
+      <rect x="32" y="86" width="56" height="44" rx="12" fill="#ffb627" stroke="#23364a" stroke-width="4"/>
+      <rect x="10" y="92" width="22" height="10" rx="5" fill="#9aa5b1" stroke="#23364a" stroke-width="3" transform="rotate(-30 21 97)"/>
+      <rect x="88" y="92" width="22" height="10" rx="5" fill="#9aa5b1" stroke="#23364a" stroke-width="3" transform="rotate(30 99 97)"/>
+      <rect x="40" y="130" width="14" height="16" rx="4" fill="#9aa5b1" stroke="#23364a" stroke-width="3"/>
+      <rect x="66" y="130" width="14" height="16" rx="4" fill="#9aa5b1" stroke="#23364a" stroke-width="3"/>
+    </svg>
+    <div class="burbuja">
+      <h2>¡Atrapá la fruta con la letra!</h2>
+      <div class="pictos"><div><b>🔤</b>mirá la letra</div><div><b>🧺</b>mové la canasta</div><div><b>🍎</b>¡atrapala!</div></div>
+      <button id="jugar">¡Jugar!</button>
+    </div>
+  </div>
+</div>
+
+<!-- Panel "¿Qué aprendemos?" para los chicos y sus familias -->
+<aside id="panel" aria-label="Qué aprendemos" aria-hidden="true">
+  <button id="cerrarPanel" aria-label="Cerrar">✕</button>
+  <h2>📘 ¿Qué aprendemos?</h2>
+  <p class="sub">Con Atrapá la Letra aprendemos a…</p>
+  <div class="logros"><div><b>🔤</b>Reconocer las letras</div><div><b>🗣️</b>Unir la letra con su sonido: A de Abeja</div><div><b>🔠</b>Conocer mayúsculas y minúsculas</div><div><b>🖱️</b>Mover el mouse rápido y con control</div></div>
+  <h3>Palabras nuevas</h3>
+  <div class="palabras"><span>🔤 letra</span><span>🅰️ vocal</span><span>🔠 mayúscula</span><span>🔡 minúscula</span></div>
+  <h3>¿Sabías que…?</h3>
+  <p class="dato">Las vocales son cinco: <b>A, E, I, O, U</b>, ¡y están en casi todas las palabras! 🗣️</p>
+  <h3>Para charlar en familia</h3>
+  <ul><li>¿Con qué letra empieza tu nombre?</li><li>¿Qué palabra empieza con M?</li><li>¿Cuál es la minúscula de la A?</li></ul>
+  <h3>Para jugar en casa</h3>
+  <p class="dato">👀 <b>Veo veo con letras:</b> "Veo, veo… algo que empieza con la S". ¡Y a adivinar entre todos!</p>
+</aside>
+
+<script>
+// Cada letra con una palabra y un dibujito de ayuda
+const PALABRAS = {
+  A:['Abeja','🐝'], E:['Elefante','🐘'], I:['Isla','🏝️'], O:['Oso','🐻'], U:['Uva','🍇'],
+  M:['Mono','🐵'], S:['Sol','☀️'], P:['Pato','🦆'], L:['Luna','🌙'], T:['Tortuga','🐢'],
+  C:['Casa','🏠'], G:['Gato','🐱'], R:['Ratón','🐭'], F:['Flor','🌸'], B:['Barco','⛵']
+};
+const NIVELES = [
+  {nombre:'Vocales', letras:'AEIOU', minus:false, vel:1.4},
+  {nombre:'Letras', letras:'MSPLTCGRFB', minus:false, vel:1.6},
+  {nombre:'Todas', letras:'AEIOUMSPLTCGRFB', minus:false, vel:1.9},
+  {nombre:'Minúsculas', letras:'AEIOUMSPLT', minus:true, vel:1.6}
+];
+const META = 10;
+const FRUTAS = ['#e4572e','#ffb627','#9b5de5','#5cc96b','#ff8fab'];
+const cv = document.getElementById('c'), ctx = cv.getContext('2d');
+const W = 900, H = 560, CANASTA_Y = 490;
+let nivel = 0, objetivo = 'A', aciertos = 0, caen = [], canastaX = W/2, destinoX = W/2, carteles = [], ultima = 0, jugando = true;
+
+function ajustar(){
+  const z = document.getElementById('zona').getBoundingClientRect();
+  const esc = Math.min(z.width / W, Math.max(260, z.height) / H), dpr = devicePixelRatio || 1;
+  cv.width = W*esc*dpr; cv.height = H*esc*dpr; cv.style.width = W*esc+'px'; cv.style.height = H*esc+'px';
+  ctx.setTransform(esc*dpr,0,0,esc*dpr,0,0);
+}
+function nuevoObjetivo(){
+  const ls = NIVELES[nivel].letras; let l;
+  do { l = ls[Math.floor(Math.random()*ls.length)]; } while (l === objetivo && ls.length > 1);
+  objetivo = l;
+}
+function soltar(){
+  const n = NIVELES[nivel];
+  const hay = caen.some(f=> f.letra === objetivo);
+  const letra = (!hay || Math.random() < .35) ? objetivo : n.letras[Math.floor(Math.random()*n.letras.length)];
+  caen.push({x: 70 + Math.random()*(W-140), y: 120, letra, vel: n.vel + Math.random()*.6, color: FRUTAS[Math.floor(Math.random()*FRUTAS.length)], giro: Math.random()*6, rebota: 0});
+}
+function empezar(){ caen = []; carteles = []; aciertos = 0; objetivo = ''; nuevoObjetivo(); jugando = true; }
+
+// ---------- Dibujo ----------
+function dibujarFruta(f){
+  const x = f.x, y = f.y;
+  ctx.fillStyle = 'rgba(0,0,0,.12)'; ctx.beginPath(); ctx.ellipse(x+4, y+6, 34, 32, 0, 0, Math.PI*2); ctx.fill();
+  const g = ctx.createRadialGradient(x-12, y-12, 4, x, y, 40); g.addColorStop(0,'#ffffff'); g.addColorStop(.2, f.color); g.addColorStop(1, f.color);
+  ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x-10, y, 26, 0, Math.PI*2); ctx.arc(x+10, y, 26, 0, Math.PI*2); ctx.fill();
+  ctx.strokeStyle = '#6b4226'; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(x, y-24); ctx.lineTo(x+3, y-36); ctx.stroke();
+  ctx.fillStyle = '#2e8b57'; ctx.beginPath(); ctx.ellipse(x+12, y-34, 10, 5, -.5, 0, Math.PI*2); ctx.fill();
+  const txt = NIVELES[nivel].minus ? f.letra.toLowerCase() : f.letra;
+  ctx.font = '800 40px "Baloo 2", sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.lineWidth = 6; ctx.strokeStyle = 'rgba(35,54,74,.6)'; ctx.strokeText(txt, x, y+2);
+  ctx.fillStyle = '#ffffff'; ctx.fillText(txt, x, y+2);
+}
+function dibujarCanasta(){
+  const x = canastaX, y = CANASTA_Y;
+  ctx.fillStyle = 'rgba(0,0,0,.15)'; ctx.beginPath(); ctx.ellipse(x, y+46, 76, 10, 0, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#c98a4b'; ctx.beginPath(); ctx.moveTo(x-80, y); ctx.lineTo(x+80, y); ctx.lineTo(x+62, y+44); ctx.lineTo(x-62, y+44); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = '#8a5a2b'; ctx.lineWidth = 3;
+  for (let i=-3;i<=3;i++){ ctx.beginPath(); ctx.moveTo(x+i*22, y); ctx.lineTo(x+i*17, y+44); ctx.stroke(); }
+  for (let j=1;j<3;j++){ ctx.beginPath(); ctx.moveTo(x-80+j*6, y+j*15); ctx.lineTo(x+80-j*6, y+j*15); ctx.stroke(); }
+  ctx.fillStyle = '#8a5a2b'; ctx.fillRect(x-86, y-8, 172, 12);
+}
+function dibujarConsigna(){
+  const [pal, dib] = PALABRAS[objetivo];
+  ctx.fillStyle = 'rgba(255,255,255,.95)'; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(W/2-250, 12, 500, 86, 26) : ctx.rect(W/2-250,12,500,86); ctx.fill();
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillStyle = '#23364a'; ctx.font = '800 32px "Baloo 2", sans-serif'; ctx.fillText('Atrapá la', W/2 - 110, 52);
+  ctx.fillStyle = '#e4572e'; ctx.font = '800 60px "Baloo 2", sans-serif'; ctx.fillText(objetivo, W/2 - 10, 56);
+  ctx.font = '38px "Segoe UI Emoji","Apple Color Emoji",sans-serif'; ctx.fillText(dib, W/2 + 70, 52);
+  ctx.fillStyle = '#23364a'; ctx.font = '700 22px "Baloo 2", sans-serif'; ctx.textAlign = 'left';
+  ctx.fillText(pal, W/2 + 100, 54);
+  ctx.textAlign = 'center';
+  for (let i=0;i<META;i++){ ctx.font = '22px "Segoe UI Emoji","Apple Color Emoji",sans-serif'; ctx.globalAlpha = i < aciertos ? 1 : .3;
+    ctx.fillText('⭐', W/2 - (META-1)*14 + i*28, 116); ctx.globalAlpha = 1; }
+}
+function fondo(){
+  const g = ctx.createLinearGradient(0,0,0,H); g.addColorStop(0,'#8fd3fb'); g.addColorStop(1,'#e2f5ff');
+  ctx.fillStyle = g; ctx.fillRect(0,0,W,H);
+  // árboles de fondo
+  [[60,1],[860,1.1],[250,.7],[660,.8]].forEach(([x,s])=>{
+    ctx.fillStyle = '#8a5a2b'; ctx.fillRect(x-10*s, H-200*s, 20*s, 160*s);
+    ctx.fillStyle = '#5cc96b'; ctx.beginPath(); ctx.arc(x, H-230*s, 80*s, 0, Math.PI*2); ctx.arc(x-55*s, H-190*s, 55*s, 0, Math.PI*2); ctx.arc(x+55*s, H-190*s, 55*s, 0, Math.PI*2); ctx.fill();
+  });
+  ctx.fillStyle = '#9fd96b'; ctx.fillRect(0, H-40, W, 40);
+}
+function cuadro(){
+  fondo();
+  const ahora = performance.now();
+  canastaX += (destinoX - canastaX) * .25;
+  if (jugando){
+    if (caen.length < 4 && ahora - ultima > 1100){ soltar(); ultima = ahora; }
+    for (let i=caen.length-1;i>=0;i--){
+      const f = caen[i];
+      if (f.rebota){ f.y += f.rebota; f.x += f.dx; f.rebota += .5; if (f.y > H+60) caen.splice(i,1); continue; }
+      f.y += f.vel;
+      // ¿cayó en la canasta?
+      if (f.y > CANASTA_Y - 20 && f.y < CANASTA_Y + 20 && Math.abs(f.x - canastaX) < 78){
+        if (f.letra === objetivo){
+          aciertos++; caen.splice(i,1);
+          carteles.push({txt:'¡' + objetivo + '!', x:canastaX, y:CANASTA_Y-40, t0:ahora, color:'#2e8b57'});
+          if (aciertos >= META){ jugando = false; setTimeout(ganar, 600); } else nuevoObjetivo();
+        } else {
+          f.rebota = -9; f.dx = (f.x < canastaX ? -4 : 4);
+          const l = NIVELES[nivel].minus ? f.letra.toLowerCase() : f.letra;
+          carteles.push({txt:'Esa es la ' + l, x:canastaX, y:CANASTA_Y-50, t0:ahora, color:'#e4572e'});
+        }
+        continue;
+      }
+      if (f.y > H + 50) caen.splice(i,1);
+    }
+  }
+  caen.forEach(dibujarFruta);
+  dibujarCanasta();
+  carteles = carteles.filter(c=> ahora - c.t0 < 1200);
+  carteles.forEach(c=>{ const k = (ahora - c.t0)/1200; ctx.globalAlpha = 1-k;
+    ctx.font = '800 30px "Baloo 2", sans-serif'; ctx.textAlign = 'center'; ctx.lineWidth = 6; ctx.strokeStyle = '#fff';
+    ctx.strokeText(c.txt, c.x, c.y - k*40); ctx.fillStyle = c.color; ctx.fillText(c.txt, c.x, c.y - k*40); ctx.globalAlpha = 1; });
+  dibujarConsigna();
+  requestAnimationFrame(cuadro);
+}
+
+// ---------- Mover la canasta: mouse, toque o flechas ----------
+function aX(e){ const r = cv.getBoundingClientRect(); return (e.clientX - r.left) * W / r.width; }
+cv.addEventListener('pointermove', e=>{ destinoX = Math.max(80, Math.min(W-80, aX(e))); });
+cv.addEventListener('pointerdown', e=>{ destinoX = Math.max(80, Math.min(W-80, aX(e))); });
+addEventListener('keydown', e=>{
+  if (e.key === 'ArrowLeft'){ destinoX = Math.max(80, destinoX - 60); e.preventDefault(); }
+  if (e.key === 'ArrowRight'){ destinoX = Math.min(W-80, destinoX + 60); e.preventDefault(); }
+});
+
+function ganar(){
+  const ultimo = nivel === NIVELES.length-1;
+  document.getElementById('festejoTxt').textContent = ultimo ? '¡Terminaste todos los niveles!' : `Pasaste el nivel "${NIVELES[nivel].nombre}"`;
+  document.getElementById('seguir').textContent = ultimo ? 'Jugar otra vez' : 'Siguiente nivel ▶';
+  document.getElementById('festejo').hidden = false;
+}
+document.getElementById('seguir').onclick = ()=>{ document.getElementById('festejo').hidden = true; nivel = (nivel+1) % NIVELES.length; pintarNiveles(); empezar(); };
+function pintarNiveles(){
+  const cont = document.getElementById('niveles'); cont.innerHTML = '';
+  NIVELES.forEach((n,i)=>{ const b = document.createElement('button'); b.className = 'opc' + (i===nivel?' on':''); b.textContent = n.nombre;
+    b.onclick = ()=>{ nivel = i; pintarNiveles(); empezar(); }; cont.appendChild(b); });
+}
+addEventListener('resize', ajustar);
+pintarNiveles(); ajustar(); empezar(); requestAnimationFrame(cuadro);
+
+// ---------- Intro del robotito y panel ¿Qué aprendemos? ----------
+(function(){
+  const intro = document.getElementById('intro'), panel = document.getElementById('panel');
+  if (intro) document.getElementById('jugar').onclick = ()=>{ intro.hidden = true; };
+  document.getElementById('abrirPanel').onclick = ()=>{ panel.classList.add('abierto'); panel.setAttribute('aria-hidden','false'); };
+  document.getElementById('cerrarPanel').onclick = ()=>{ panel.classList.remove('abierto'); panel.setAttribute('aria-hidden','true'); };
+  addEventListener('keydown', e=>{
+    if (e.key === 'Escape') document.getElementById('cerrarPanel').click();
+    if (intro && !intro.hidden && (e.key === 'Enter' || e.key === ' ')){ e.preventDefault(); e.stopImmediatePropagation(); intro.hidden = true; }
+  }, true);
+})();
+</script>
+
+<a class="sd-casa" href="index.html" aria-label="Volver a todos los juegos" title="Todos los juegos">🏠</a>
+</html>

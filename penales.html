@@ -1,0 +1,762 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><link rel="icon" href="favicon.svg" type="image/svg+xml"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}[hidden]{display:none!important}img{max-width:100%}
+.sd-casa{position:fixed;left:max(10px,env(safe-area-inset-left,0px));bottom:max(10px,env(safe-area-inset-bottom,0px));z-index:50;width:50px;height:50px;border-radius:50%;background:#fff;box-shadow:0 4px 0 #3d86b3;display:flex;align-items:center;justify-content:center;font-size:26px;text-decoration:none}
+.sd-casa:focus-visible{outline:4px solid #ffb627;outline-offset:2px}</style>
+<title>Penales Mundialistas</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap">
+<style>
+/* Layout: marcador arriba, cancha en canvas al centro, pantallas de menú superpuestas */
+:root{
+  --noche:#123b6b; --panel:#ffffff; --tinta:#23364a; --celeste:#6cb4ee; --sol:#ffb627; --verde:#5cc96b; --rojo:#e4572e;
+  --display:"Baloo 2","Comic Sans MS",system-ui,sans-serif;
+  color-scheme:light;
+}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{background:var(--noche); color:var(--tinta); font-family:var(--display); box-sizing:border-box;
+  padding-left:max(16px,env(safe-area-inset-left,0px)); padding-right:max(16px,env(safe-area-inset-right,0px)); padding-block:10px;
+  display:flex; flex-direction:column; align-items:center; gap:8px; user-select:none; -webkit-user-select:none}
+button{font-family:var(--display); cursor:pointer; border:none; color:var(--tinta)}
+button:focus-visible{outline:4px solid var(--sol); outline-offset:2px}
+.marcador{width:100%; max-width:900px; display:grid; grid-template-columns:1fr auto 1fr; gap:10px; align-items:center;
+  background:var(--panel); border-radius:16px; padding:6px 14px; box-sizing:border-box; box-shadow:0 4px 0 #0a2445}
+.equipo{display:flex; align-items:center; gap:8px; min-width:0}
+.equipo.der{justify-content:flex-end}
+.nombre{font-size:clamp(16px,2.6vw,22px); font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.bolitas{display:flex; gap:4px; flex-wrap:wrap}
+.b{width:16px; height:16px; border-radius:50%; background:#e3eaf1}
+.b.gol{background:var(--verde)} .b.erro{background:var(--rojo)}
+.tanteador{font-size:clamp(26px,5vw,38px); font-weight:800; font-variant-numeric:tabular-nums}
+.chapa{width:24px; height:24px; border-radius:50%; flex:none; border:2px solid rgba(35,54,74,.2)}
+#juego{position:relative; width:100%; max-width:900px; flex:1; min-height:0; display:flex; align-items:center; justify-content:center}
+canvas{display:block; border-radius:16px; touch-action:none; max-width:100%; cursor:crosshair}
+.capa{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; z-index:3}
+.card{background:var(--panel); border-radius:22px; padding:20px 24px; text-align:center; box-shadow:0 8px 0 #c98400;
+  max-width:min(620px,94%); max-height:94%; overflow:auto; box-sizing:border-box}
+.card h1{margin:0; font-size:clamp(30px,6vw,46px); line-height:1.05; color:var(--celeste); text-shadow:0 2px 0 #3d86b3}
+.card h2{margin:0 0 6px; font-size:clamp(24px,4.5vw,34px)}
+.card p{margin:6px 0 14px; font-size:20px}
+.grande{background:var(--sol); border-radius:999px; padding:10px 26px; font-size:24px; font-weight:800; box-shadow:0 4px 0 #c98400; margin:4px}
+.grande.sec{background:#eef6fb; box-shadow:0 4px 0 #9fb5c8}
+.rivales{display:grid; grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); gap:8px; margin-top:10px}
+.rival{display:flex; align-items:center; gap:8px; background:#eef6fb; border-radius:14px; padding:8px 10px; font-size:18px; font-weight:700; text-align:left}
+.camino{display:flex; flex-direction:column; gap:6px; margin:8px 0 14px}
+.etapa{display:flex; justify-content:space-between; gap:10px; background:#eef6fb; border-radius:12px; padding:6px 14px; font-size:19px}
+.etapa.hecha{background:#dff5e2} .etapa.ahora{background:var(--sol); font-weight:800}
+.copa{font-size:80px; line-height:1}
+@media (prefers-reduced-motion:reduce){*{transition:none!important; animation:none!important}}
+
+/* ---- Robotito que explica + panel ¿Qué aprendemos? ---- */
+.ayuda-btn{font-family:"Baloo 2","Comic Sans MS",system-ui,sans-serif; border:none; cursor:pointer; background:#fff; border-radius:999px; padding:6px 16px; font-size:18px; font-weight:800; color:#23364a; box-shadow:0 3px 0 #3d86b3}
+#intro{position:fixed; inset:0; z-index:40; display:flex; align-items:center; justify-content:center; background:rgba(35,54,74,.5); padding:16px}
+.intro-card{background:#fff; border-radius:28px; padding:22px 26px; box-shadow:0 8px 0 #c98400; display:flex; gap:18px; align-items:center; max-width:640px; flex-wrap:wrap; justify-content:center; font-family:"Baloo 2","Comic Sans MS",system-ui,sans-serif; color:#23364a}
+.intro-card svg{width:150px; height:auto; flex:none}
+.burbuja{position:relative; background:#fff3d6; border-radius:22px; padding:14px 18px; min-width:0; flex:1 1 260px; text-align:center}
+.burbuja::before{content:""; position:absolute; left:-14px; top:40%; border:10px solid transparent; border-right:14px solid #fff3d6}
+.burbuja h2{margin:0; font-size:clamp(24px,4vw,32px); line-height:1.1; color:#23364a; text-shadow:none}
+.pictos{display:flex; justify-content:center; gap:14px; margin:12px 0 4px; flex-wrap:wrap}
+.pictos div{display:flex; flex-direction:column; align-items:center; font-size:15px; font-weight:700; gap:2px; max-width:90px; line-height:1.1}
+.pictos b{font-size:36px; line-height:1; font-family:"Segoe UI Emoji","Apple Color Emoji",sans-serif}
+#jugar{font-family:inherit; border:none; cursor:pointer; background:#ffb627; border-radius:999px; padding:10px 34px; font-size:26px; font-weight:800; color:#23364a; box-shadow:0 4px 0 #c98400; margin-top:8px}
+#panel{position:fixed; top:0; right:0; bottom:0; width:min(400px,100%); background:#fff; z-index:45; box-shadow:-8px 0 30px rgba(35,54,74,.3); color:#23364a; text-align:left;
+  font-family:"Baloo 2","Comic Sans MS",system-ui,sans-serif; overflow:auto; padding:20px max(20px, env(safe-area-inset-right,0px)) 30px 22px; box-sizing:border-box; transform:translateX(105%); transition:transform .25s}
+#panel.abierto{transform:none}
+#panel h2{margin:0 0 4px; font-size:26px; color:#23364a; text-shadow:none}
+#panel .sub{margin:0 0 6px; color:#4d6175; font-size:19px; font-weight:700}
+#panel h3{margin:16px 0 6px; font-size:16px; letter-spacing:1px; color:#3d86b3; text-transform:uppercase}
+#panel ul{margin:0; padding-left:20px; font-size:17px; line-height:1.4}
+#panel li{margin-bottom:4px}
+.logros{display:grid; gap:8px; margin-top:6px}
+.logros div{display:flex; align-items:center; gap:12px; background:#eef6fb; border-radius:16px; padding:8px 12px; font-size:18px; font-weight:700; line-height:1.2}
+.logros b{font-size:30px; flex:none; font-family:"Segoe UI Emoji","Apple Color Emoji",sans-serif}
+.palabras{display:flex; flex-wrap:wrap; gap:8px}
+.palabras span{background:#fff3d6; border-radius:999px; padding:4px 12px; font-size:18px; font-weight:800}
+.dato{margin:0; font-size:17px; line-height:1.45; background:#f4fbef; border-radius:16px; padding:10px 14px}
+#cerrarPanel{font-family:inherit; border:none; cursor:pointer; position:absolute; top:12px; right:max(12px, env(safe-area-inset-right,0px)); width:40px; height:40px; border-radius:50%; background:#eef6fb; font-size:20px; color:#23364a}
+@media (prefers-reduced-motion:reduce){#panel{transition:none}}
+</style>
+
+<div class="marcador">
+  <div class="equipo"><span class="chapa" style="background:linear-gradient(90deg,#6cb4ee 33%,#fff 33% 66%,#6cb4ee 66%)"></span>
+    <span class="nombre">Argentina</span><div class="bolitas" id="bArg"></div></div>
+  <div class="tanteador" id="tanteador">0 - 0</div>
+  <div class="equipo der"><div class="bolitas" id="bRiv"></div><span class="nombre" id="nRiv">Rival</span><span class="chapa" id="cRiv"></span></div>
+</div>
+
+<div id="juego">
+  <canvas id="c"></canvas>
+
+  <div class="capa" id="menu">
+    <div class="card">
+      <h1>⚽ Penales<br>Mundialistas</h1>
+      <p>Jugás con Argentina. ¿Cómo querés jugar?</p>
+      <button class="grande" id="btnCamino">🏆 Camino a la Copa</button>
+      <button class="grande sec" id="btnAmistoso">🤝 Amistoso</button>
+      <p style="margin:14px 0 0"><button class="ayuda-btn" id="abrirPanel">📘 ¿Qué aprendemos?</button></p>
+    </div>
+  </div>
+
+  <div class="capa" id="elegir" hidden>
+    <div class="card">
+      <h2>Elegí el rival</h2>
+      <div class="rivales" id="listaRivales"></div>
+      <p style="margin-top:12px"><button class="grande sec" id="volver1">◀ Volver</button></p>
+    </div>
+  </div>
+
+  <div class="capa" id="previa" hidden>
+    <div class="card">
+      <h2 id="previaTitulo">Fase de grupos</h2>
+      <div class="camino" id="camino"></div>
+      <button class="grande" id="btnJugar">¡A jugar! ▶</button>
+    </div>
+  </div>
+
+  <div class="capa" id="final" hidden>
+    <div class="card">
+      <div class="copa" id="finalIcono">🏆</div>
+      <h2 id="finalTitulo">¡Ganamos!</h2>
+      <p id="finalTexto"></p>
+      <div id="finalBotones"></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Panel "¿Qué aprendemos?" para los chicos y sus familias -->
+<aside id="panel" aria-label="Qué aprendemos" aria-hidden="true">
+  <button id="cerrarPanel" aria-label="Cerrar">✕</button>
+  <h2>📘 ¿Qué aprendemos?</h2>
+  <p class="sub">Con Penales Mundialistas aprendemos a…</p>
+  <div class="logros"><div><b>🎯</b>Apuntar y medir la fuerza</div><div><b>⏱️</b>Reaccionar a tiempo</div><div><b>🔢</b>Contar los goles y seguir el marcador</div><div><b>🤝</b>Saber ganar y saber perder</div></div>
+  <h3>Palabras nuevas</h3>
+  <div class="palabras"><span>🔢 marcador</span><span>🟰 empate</span><span>💪 fuerza</span><span>⬅️ izquierda</span><span>➡️ derecha</span></div>
+  <h3>¿Sabías que…?</h3>
+  <p class="dato">En una tanda de penales cada equipo patea cinco. Si empatan, siguen de a uno hasta que alguien erra: eso se llama <b>muerte súbita</b>. ⚽</p>
+  <h3>Para charlar en familia</h3>
+  <ul><li>¿Cuántos goles hiciste?</li><li>¿Quién iba ganando? ¿Por cuánto?</li><li>¿Qué hacemos cuando perdemos un partido?</li></ul>
+  <h3>Para jugar en casa</h3>
+  <p class="dato">🧦 <b>Penales en casa:</b> una pelota de medias, un arco con dos zapatillas y el marcador anotado en un papel. ¡Turnarse para patear y atajar!</p>
+</aside>
+
+<script>
+// ---------- Datos ----------
+const ARG = {nombre:'Argentina', c1:'#6cb4ee', c2:'#ffffff', rayas:true, short:'#1d1d1d', medias:'#ffffff'};
+const RIVALES = {
+  mex:{nombre:'México', c1:'#1f7a3a', c2:'#ffffff'},
+  aus:{nombre:'Australia', c1:'#ffcd00', c2:'#00843d'},
+  ned:{nombre:'Países Bajos', c1:'#f36c21', c2:'#1d1d1d'},
+  cro:{nombre:'Croacia', c1:'#e4202c', c2:'#ffffff', cuadros:true},
+  fra:{nombre:'Francia', c1:'#1f3a93', c2:'#ffffff'},
+  bra:{nombre:'Brasil', c1:'#ffdf00', c2:'#009c3b'},
+  ale:{nombre:'Alemania', c1:'#ffffff', c2:'#1d1d1d'},
+  esp:{nombre:'España', c1:'#c60b1e', c2:'#ffc400'},
+  uru:{nombre:'Uruguay', c1:'#7cc3ec', c2:'#1d1d1d'},
+  ing:{nombre:'Inglaterra', c1:'#ffffff', c2:'#1b2a5a'},
+  jap:{nombre:'Japón', c1:'#1b3d8f', c2:'#ffffff'},
+  por:{nombre:'Portugal', c1:'#b0172a', c2:'#046a38'}
+};
+// Camino a la Copa: cada partido es un poco más difícil
+const CAMINO = [
+  {etapa:'Fase de grupos', r:'mex'}, {etapa:'Octavos de final', r:'aus'},
+  {etapa:'Cuartos de final', r:'ned'}, {etapa:'Semifinal', r:'cro'}, {etapa:'Final', r:'fra'}
+];
+const ARQ_ARG = '#9b5de5', ARQ_RIV = '#ffb627';
+
+// ---------- Canvas ----------
+const cv = document.getElementById('c'), ctx = cv.getContext('2d');
+const W = 800, H = 500;
+const ARCO = {x1:220, x2:580, y1:90, y2:230};   // palos y travesaño (línea de gol en y2)
+const RED  = {x1:244, x2:556, y1:108, y2:206};  // fondo de la red, más lejos
+const PUNTO = {x:400, y:440};                   // punto del penal
+function ajustar(){
+  const caja = document.getElementById('juego').getBoundingClientRect();
+  const esc = Math.min(caja.width / W, Math.max(240, caja.height) / H);
+  const dpr = devicePixelRatio || 1;
+  cv.width = W*esc*dpr; cv.height = H*esc*dpr; cv.style.width = W*esc+'px'; cv.style.height = H*esc+'px';
+  ctx.setTransform(esc*dpr,0,0,esc*dpr,0,0);
+}
+function aCancha(e){ const r = cv.getBoundingClientRect(); return [(e.clientX-r.left)*W/r.width, (e.clientY-r.top)*H/r.height]; }
+
+// Perspectiva: todo se achica hacia el arco
+const FUGA = 600;
+const kp = y => (y + FUGA) / (ARCO.y2 + FUGA);
+const xp = (x0, y) => 400 + (x0 - 400) * kp(y);
+
+// ---------- Estado ----------
+let modo = 'camino', etapa = 0, rival = null, dif = 0;
+let goles = {arg:[], riv:[]}, quien = 'arg';
+let fase = 'menu';            // apuntar | potencia | atajar | anim | resultado | fin
+let mira = {x:400, y:160}, potencia = 0, potT0 = 0, hoverX = 400;
+let pelota = null, arquero = {x:400, ang:0, salto:0, brazos:0};
+let pateador = {x:285, y:530, paso:0, patada:0};
+let mensaje = '', grande = false, msgT0 = 0, timerAtajar = 0, tAtajar0 = 0;
+let papelitos = [], flash = 0, sacudirHasta = 0, onda = null;
+
+// ---------- Fondo del estadio (se dibuja una sola vez) ----------
+const fondo = document.createElement('canvas'); fondo.width = W*2; fondo.height = H*2;
+function banderaArg(f, x, y, w, h){
+  f.fillStyle = '#6cb4ee'; f.fillRect(x, y, w, h);
+  f.fillStyle = '#ffffff'; f.fillRect(x, y+h/3, w, h/3);
+  f.fillStyle = '#f6b40e'; f.beginPath(); f.arc(x+w/2, y+h/2, h/8, 0, Math.PI*2); f.fill();
+  f.fillStyle = '#5a4a3a'; f.fillRect(x-2, y, 2, h+14);
+}
+function pintarFondo(){
+  const f = fondo.getContext('2d'); f.setTransform(2,0,0,2,0,0);
+  // cielo de noche
+  let g = f.createLinearGradient(0,0,0,170); g.addColorStop(0,'#06152b'); g.addColorStop(1,'#1a4677');
+  f.fillStyle = g; f.fillRect(0,0,W,200);
+  // tribunas por filas, con hinchas (la mayoría de celeste y blanco)
+  let semilla = 7; const azar = ()=> (semilla = (semilla*16807) % 2147483647) / 2147483647;
+  for (let fila=0; fila<10; fila++){
+    const y = 22 + fila*14.5;
+    f.fillStyle = fila%2 ? '#14365e' : '#183f6c'; f.fillRect(0, y, W, 14.5);
+    for (let x = 3 + (fila%2)*5; x < W; x += 9.5){
+      const r = azar();
+      const ropa = r < .62 ? (azar() < .5 ? '#6cb4ee' : '#ffffff') : ['#ffb627','#e4572e','#9aa5b1','#23364a'][Math.floor(azar()*4)];
+      f.fillStyle = ropa; f.fillRect(x-3.5, y+6.5, 7, 8);
+      f.fillStyle = ['#f1c27d','#c68642','#e0ac69','#8d5524'][Math.floor(azar()*4)];
+      f.beginPath(); f.arc(x, y+4.5, 2.7, 0, Math.PI*2); f.fill();
+    }
+  }
+  [[110,30],[300,52],[520,28],[690,60]].forEach(([x,y])=>banderaArg(f, x, y, 44, 26));
+  // reflectores con halo
+  [[40,6],[760,6]].forEach(([x,y])=>{
+    const r = f.createRadialGradient(x,y,2,x,y,170); r.addColorStop(0,'rgba(255,252,225,.85)'); r.addColorStop(1,'rgba(255,252,225,0)');
+    f.fillStyle = r; f.fillRect(x-170, y-170, 340, 340);
+    f.fillStyle = '#fffbe6'; for (let i=0;i<4;i++) f.fillRect(x-22+i*12, y, 9, 7);
+  });
+  // carteles LED detrás del arco
+  f.fillStyle = '#0b2240'; f.fillRect(0,170,W,28);
+  for (let i=0;i<4;i++){
+    const x = i*200; g = f.createLinearGradient(x,170,x,196); g.addColorStop(0,'#1f5fa3'); g.addColorStop(1,'#123b6b');
+    f.fillStyle = g; f.fillRect(x+3, 172, 194, 23);
+    f.fillStyle = i%2 ? '#ffb627' : '#ffffff'; f.font = '800 15px "Baloo 2", "Comic Sans MS", sans-serif'; f.textAlign = 'center';
+    f.fillText(i%2 ? 'SAMUEL DIGITAL' : '¡VAMOS ARGENTINA!', x+100, 189);
+  }
+  // césped en perspectiva, con franjas que se juntan hacia el fondo
+  f.fillStyle = '#3f9a43'; f.fillRect(0,198,W,H-198);
+  for (let i=-14; i<14; i++){
+    const a = 400 + i*64, b = a + 64;
+    f.fillStyle = (i+100)%2 ? '#4aab4e' : '#56ba58';
+    f.beginPath(); f.moveTo(xp(a,198),198); f.lineTo(xp(b,198),198); f.lineTo(xp(b,H),H); f.lineTo(xp(a,H),H); f.closePath(); f.fill();
+  }
+  // luz sobre el pasto y viñeta en los bordes
+  g = f.createRadialGradient(400,340,30,400,340,470); g.addColorStop(0,'rgba(255,255,230,.14)'); g.addColorStop(1,'rgba(0,10,30,.28)');
+  f.fillStyle = g; f.fillRect(0,198,W,H-198);
+  // líneas de cal
+  f.strokeStyle = 'rgba(255,255,255,.92)'; f.lineWidth = 3;
+  f.beginPath(); f.moveTo(0,ARCO.y2); f.lineTo(W,ARCO.y2); f.stroke();
+  f.lineWidth = 3.6; f.beginPath(); f.moveTo(0,335); f.lineTo(W,335); f.stroke();
+  f.lineWidth = 4.5; f.beginPath(); f.moveTo(30,470); f.quadraticCurveTo(400,520,770,470); f.stroke();
+  f.fillStyle = '#ffffff'; f.beginPath(); f.ellipse(PUNTO.x, PUNTO.y+10, 10, 4, 0, 0, Math.PI*2); f.fill();
+}
+
+// ---------- Arco y red ----------
+function mallaCuadro(p0,p1,p2,p3,nu,nv){
+  // p0-p1 arriba, p3-p2 abajo: líneas interpoladas
+  ctx.beginPath();
+  for (let i=0;i<=nu;i++){ const t=i/nu;
+    ctx.moveTo(p0[0]+(p1[0]-p0[0])*t, p0[1]+(p1[1]-p0[1])*t); ctx.lineTo(p3[0]+(p2[0]-p3[0])*t, p3[1]+(p2[1]-p3[1])*t); }
+  for (let j=0;j<=nv;j++){ const t=j/nv;
+    ctx.moveTo(p0[0]+(p3[0]-p0[0])*t, p0[1]+(p3[1]-p0[1])*t); ctx.lineTo(p1[0]+(p2[0]-p1[0])*t, p1[1]+(p2[1]-p1[1])*t); }
+  ctx.stroke();
+}
+function dibujarArco(){
+  const A = ARCO, R = RED;
+  // sombra del arco sobre el pasto
+  ctx.fillStyle = 'rgba(0,30,10,.22)';
+  ctx.beginPath(); ctx.moveTo(A.x1, A.y2); ctx.lineTo(A.x2, A.y2); ctx.lineTo(A.x2+30, A.y2+16); ctx.lineTo(A.x1+30, A.y2+16); ctx.fill();
+  // fondo blanco translúcido de la red
+  ctx.fillStyle = 'rgba(255,255,255,.12)';
+  ctx.fillRect(R.x1, R.y1, R.x2-R.x1, R.y2-R.y1);
+  ctx.strokeStyle = 'rgba(255,255,255,.42)'; ctx.lineWidth = 1;
+  mallaCuadro([R.x1,R.y1],[R.x2,R.y1],[R.x2,R.y2],[R.x1,R.y2], 24, 8);   // red del fondo
+  mallaCuadro([A.x1,A.y1],[A.x2,A.y1],[R.x2,R.y1],[R.x1,R.y1], 24, 2);   // techo
+  mallaCuadro([A.x1,A.y1],[R.x1,R.y1],[R.x1,R.y2],[A.x1,A.y2], 2, 9);    // lateral izq
+  mallaCuadro([R.x2,R.y1],[A.x2,A.y1],[A.x2,A.y2],[R.x2,R.y2], 2, 9);    // lateral der
+  // la red se mueve cuando entra la pelota
+  if (onda){
+    const k = (performance.now() - onda.t0) / 700;
+    if (k > 1) onda = null;
+    else for (let i=0;i<3;i++){
+      const kk = k - i*.12; if (kk <= 0) continue;
+      ctx.strokeStyle = `rgba(255,255,255,${(1-kk)*.8})`; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.ellipse(onda.x, onda.y, 10 + kk*70, 6 + kk*40, 0, 0, Math.PI*2); ctx.stroke();
+    }
+  }
+  // palos con volumen
+  const palo = (x1,y1,x2,y2)=>{
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = '#b9c4cf'; ctx.lineWidth = 11; ctx.beginPath(); ctx.moveTo(x1+1.5,y1+1.5); ctx.lineTo(x2+1.5,y2+1.5); ctx.stroke();
+    ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 8; ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+  };
+  palo(A.x1, A.y2, A.x1, A.y1); palo(A.x2, A.y2, A.x2, A.y1); palo(A.x1, A.y1, A.x2, A.y1);
+}
+
+// ---------- Jugadores ----------
+function camiseta(x,y,w,h,eq){
+  ctx.save();
+  ctx.beginPath(); ctx.moveTo(x+6,y); ctx.lineTo(x+w-6,y); ctx.quadraticCurveTo(x+w,y,x+w,y+8); ctx.lineTo(x+w-2,y+h); ctx.lineTo(x+2,y+h); ctx.lineTo(x,y+8); ctx.quadraticCurveTo(x,y,x+6,y); ctx.closePath();
+  ctx.clip();
+  ctx.fillStyle = eq.c1; ctx.fillRect(x,y,w,h);
+  if (eq.rayas){ ctx.fillStyle = eq.c2; for (let i=1;i<5;i+=2) ctx.fillRect(x+i*w/5, y, w/5, h); }
+  if (eq.cuadros){ ctx.fillStyle = eq.c2; const s = w/5; for (let i=0;i<5;i++) for (let j=0;j<Math.ceil(h/s);j++) if ((i+j)%2) ctx.fillRect(x+i*s, y+j*s, s, s); }
+  if (!eq.rayas && !eq.cuadros){ ctx.fillStyle = eq.c2; ctx.fillRect(x, y, w, 5); ctx.fillRect(x, y+h-5, w, 5); }
+  // sombreado para dar volumen
+  const g = ctx.createLinearGradient(x,0,x+w,0); g.addColorStop(0,'rgba(0,0,0,.22)'); g.addColorStop(.35,'rgba(255,255,255,.08)'); g.addColorStop(1,'rgba(0,0,0,.25)');
+  ctx.fillStyle = g; ctx.fillRect(x,y,w,h);
+  ctx.restore();
+}
+function miembro(x1,y1,x2,y2,ancho,color){
+  ctx.strokeStyle = color; ctx.lineWidth = ancho; ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+}
+function dibujarArquero(color){
+  const {x, ang, salto, brazos} = arquero;
+  const t = performance.now()/260;
+  const vivo = (fase==='apuntar'||fase==='potencia'||fase==='atajar') ? Math.sin(t)*5 : 0;   // se mueve sobre la línea
+  ctx.fillStyle = 'rgba(0,20,0,.28)'; ctx.beginPath(); ctx.ellipse(x+vivo, ARCO.y2+3, 30 - salto*.3, 7, 0, 0, Math.PI*2); ctx.fill();
+  ctx.save();
+  ctx.translate(x + vivo, ARCO.y2 - 2 - salto); ctx.rotate(ang);
+  // piernas: botín, media y pantalón
+  const flex = Math.abs(Math.sin(t))*3;
+  miembro(-8,-40, -14,-6+flex, 10, '#f1c27d');
+  miembro(8,-40, 14,-6+flex, 10, '#f1c27d');
+  miembro(-12,-22, -14,-6+flex, 11, '#1d1d1d');
+  miembro(12,-22, 14,-6+flex, 11, '#1d1d1d');
+  ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.ellipse(-16,-3+flex,8,4,0,0,Math.PI*2); ctx.ellipse(16,-3+flex,8,4,0,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#23364a'; ctx.fillRect(-19,-50,38,14);
+  // buzo
+  camiseta(-21,-92,42,44,{c1:color, c2:'#23364a'});
+  ctx.fillStyle = '#23364a'; ctx.font = '800 20px "Baloo 2", sans-serif'; ctx.textAlign = 'center'; ctx.fillText('1', 0, -62);
+  // brazos: abiertos esperando, arriba cuando se tira
+  const mx = 44 - brazos*18, my = -64 - brazos*62;
+  miembro(-18,-86, -mx, my, 10, color);
+  miembro(18,-86, mx, my, 10, color);
+  ctx.fillStyle = '#e8ff7a'; ctx.strokeStyle = '#23364a'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.arc(-mx, my, 8, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+  ctx.beginPath(); ctx.arc(mx, my, 8, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+  // cabeza
+  ctx.fillStyle = '#f1c27d'; ctx.beginPath(); ctx.arc(0,-104,13,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#3b2716'; ctx.beginPath(); ctx.arc(0,-107,13,Math.PI*1.05,Math.PI*1.95); ctx.fill();
+  ctx.fillStyle = '#23364a'; ctx.beginPath(); ctx.arc(-4.5,-103,2.2,0,Math.PI*2); ctx.arc(4.5,-103,2.2,0,Math.PI*2); ctx.fill();
+  ctx.strokeStyle = '#23364a'; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.arc(0,-99,4, .2*Math.PI, .8*Math.PI); ctx.stroke();
+  ctx.restore();
+}
+function dibujarPateador(eq){
+  const {x, y, paso, patada} = pateador;
+  const bob = Math.sin(paso*Math.PI*4) * 4;
+  const short = eq.short || (eq.c2 === eq.c1 ? '#1d1d1d' : eq.c2);
+  const medias = eq.medias || eq.c1;
+  ctx.fillStyle = 'rgba(0,20,0,.3)'; ctx.beginPath(); ctx.ellipse(x, y+4, 44, 11, 0, 0, Math.PI*2); ctx.fill();
+  ctx.save(); ctx.translate(x, y + bob); ctx.scale(1.25, 1.25);
+  // piernas (la derecha patea)
+  const zancada = Math.sin(paso*Math.PI*4) * 8;
+  const pieDx = 14 + patada*26, pieDy = -4 - patada*26;
+  miembro(-10,-48, -14 - zancada, -6, 12, '#f1c27d');
+  miembro(-12,-26, -14 - zancada, -6, 13, medias);
+  miembro(10,-48, pieDx + zancada*.5, pieDy, 12, '#f1c27d');
+  miembro(12,-26, pieDx + zancada*.5, pieDy, 13, medias);
+  ctx.fillStyle = '#1d1d1d';
+  ctx.beginPath(); ctx.ellipse(-15 - zancada, -2, 9, 5, 0, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(pieDx + zancada*.5 + 2, pieDy + 3, 9, 5, -patada*.6, 0, Math.PI*2); ctx.fill();
+  // pantalón
+  ctx.fillStyle = short; ctx.fillRect(-22,-62,44,22);
+  // brazos
+  miembro(-22,-112, -32,-74 + zancada*.6, 10, eq.c1);
+  miembro(22,-112, 32 + patada*8,-74 - zancada*.6, 10, eq.c1);
+  ctx.fillStyle = '#f1c27d';
+  ctx.beginPath(); ctx.arc(-33,-71 + zancada*.6, 6, 0, Math.PI*2); ctx.arc(33 + patada*8,-71 - zancada*.6, 6, 0, Math.PI*2); ctx.fill();
+  // camiseta de espaldas con el 10
+  camiseta(-25,-120,50,60,eq);
+  ctx.font = '800 30px "Baloo 2", sans-serif'; ctx.textAlign = 'center';
+  ctx.lineWidth = 4; ctx.strokeStyle = eq.rayas ? '#ffffff' : eq.c1; ctx.strokeText('10', 0, -76);
+  ctx.fillStyle = eq.rayas ? '#23364a' : eq.c2; ctx.fillText('10', 0, -76);
+  // cabeza de espaldas (pelo)
+  ctx.fillStyle = '#f1c27d'; ctx.fillRect(-6,-126,12,8);
+  ctx.fillStyle = '#4a2f1a'; ctx.beginPath(); ctx.arc(0,-138,15,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#5c3b22'; ctx.beginPath(); ctx.arc(-4,-142,8,0,Math.PI*2); ctx.fill();
+  ctx.restore();
+}
+
+// ---------- Pelota ----------
+function pentagono(cx,cy,s,rot){
+  ctx.beginPath();
+  for (let i=0;i<5;i++){ const a = rot + i*2*Math.PI/5 - Math.PI/2; const px = cx + Math.cos(a)*s, py = cy + Math.sin(a)*s; i ? ctx.lineTo(px,py) : ctx.moveTo(px,py); }
+  ctx.closePath(); ctx.fill();
+}
+function radioPelota(gy){ return Math.max(5, 6 + 8.5 * (gy - ARCO.y2) / (PUNTO.y - ARCO.y2)); }
+function dibujarPelota(p){
+  const r = radioPelota(p.gy), x = p.x, y = p.gy - p.h;
+  // sombra en el pasto: más chica y suave cuanto más alto va
+  const a = Math.max(.08, .32 - p.h/500);
+  ctx.fillStyle = `rgba(0,20,0,${a})`; ctx.beginPath(); ctx.ellipse(x, p.gy + r*.3, r*1.1, r*.38, 0, 0, Math.PI*2); ctx.fill();
+  ctx.save(); ctx.translate(x, y);
+  const g = ctx.createRadialGradient(-r*.35, -r*.35, r*.1, 0, 0, r); g.addColorStop(0,'#ffffff'); g.addColorStop(1,'#cfd8e2');
+  ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0,0,r,0,Math.PI*2); ctx.fill();
+  ctx.clip();
+  ctx.rotate(p.giro); ctx.fillStyle = '#23364a';
+  pentagono(0,0,r*.36,0);
+  for (let i=0;i<5;i++){ const ang = i*2*Math.PI/5 - Math.PI/2; pentagono(Math.cos(ang)*r*.95, Math.sin(ang)*r*.95, r*.33, Math.PI/5); }
+  ctx.restore();
+  ctx.strokeStyle = 'rgba(35,54,74,.55)'; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI*2); ctx.stroke();
+}
+
+// ---------- Interfaz dentro de la cancha ----------
+function dibujarMira(){
+  const pul = 1 + Math.sin(performance.now()/160)*.12;
+  // línea punteada del tiro
+  ctx.setLineDash([6,8]); ctx.strokeStyle = 'rgba(255,255,255,.7)'; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.moveTo(PUNTO.x, PUNTO.y-8); ctx.quadraticCurveTo((PUNTO.x+mira.x)/2, (PUNTO.y+mira.y)/2 - 30, mira.x, mira.y); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 6; ctx.beginPath(); ctx.arc(mira.x, mira.y, 17*pul, 0, Math.PI*2); ctx.stroke();
+  ctx.strokeStyle = '#e4572e'; ctx.lineWidth = 3.5; ctx.beginPath(); ctx.arc(mira.x, mira.y, 17*pul, 0, Math.PI*2); ctx.stroke();
+  ctx.fillStyle = '#e4572e'; ctx.beginPath(); ctx.arc(mira.x, mira.y, 4, 0, Math.PI*2); ctx.fill();
+}
+function capsula(x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+function dibujarBarraPotencia(){
+  const x = 712, y = 255, w = 38, h = 200;
+  ctx.fillStyle = 'rgba(6,21,43,.75)'; capsula(x-10, y-38, w+20, h+50, 20); ctx.fill();
+  ctx.save(); capsula(x, y, w, h, 14); ctx.clip();
+  const tramos = [[0,.35,'#9aa5b1'],[.35,.55,'#ffe14d'],[.55,.85,'#5cc96b'],[.85,.92,'#ffb627'],[.92,1,'#e4572e']];
+  tramos.forEach(([a,b,c])=>{ ctx.fillStyle = c; ctx.fillRect(x, y+h-b*h, w, (b-a)*h); });
+  const g = ctx.createLinearGradient(x,0,x+w,0); g.addColorStop(0,'rgba(255,255,255,.35)'); g.addColorStop(.5,'rgba(255,255,255,0)'); g.addColorStop(1,'rgba(0,0,0,.2)');
+  ctx.fillStyle = g; ctx.fillRect(x,y,w,h);
+  ctx.restore();
+  const py = y + h - potencia*h;
+  ctx.fillStyle = '#ffffff'; ctx.strokeStyle = '#23364a'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(x-16,py-11); ctx.lineTo(x+2,py); ctx.lineTo(x-16,py+11); ctx.closePath(); ctx.fill(); ctx.stroke();
+  ctx.fillRect(x-2, py-2.5, w+4, 5);
+  ctx.fillStyle = '#ffffff'; ctx.font = '800 17px "Baloo 2", sans-serif'; ctx.textAlign = 'center'; ctx.fillText('FUERZA', x+w/2, y-14);
+}
+function dibujarZonasAtajar(){
+  const cols = [[ARCO.x1,340],[340,460],[460,ARCO.x2]], sel = columna(hoverX);
+  cols.forEach(([a,b],i)=>{
+    ctx.fillStyle = i === sel ? 'rgba(255,182,39,.45)' : 'rgba(255,255,255,.16)';
+    capsula(a+6, ARCO.y1+8, b-a-12, ARCO.y2-ARCO.y1-16, 14); ctx.fill();
+    ctx.font = '36px "Segoe UI Emoji", "Apple Color Emoji", sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('🧤', (a+b)/2, 158);
+    ctx.fillStyle = '#ffffff'; ctx.font = '800 28px "Baloo 2", sans-serif'; ctx.fillText(['◀','▼','▶'][i], (a+b)/2, 196);
+  });
+  const k = Math.max(0, 1 - (performance.now()-tAtajar0)/timerAtajar);
+  ctx.fillStyle = 'rgba(6,21,43,.6)'; capsula(ARCO.x1, 244, ARCO.x2-ARCO.x1, 14, 7); ctx.fill();
+  ctx.fillStyle = k > .35 ? '#5cc96b' : '#e4572e'; capsula(ARCO.x1+2, 246, Math.max(10,(ARCO.x2-ARCO.x1-4)*k), 10, 5); ctx.fill();
+}
+function cartel(){
+  if (!mensaje) return;
+  ctx.textAlign = 'center';
+  if (grande){
+    const k = Math.min(1, (performance.now()-msgT0)/220);
+    const esc = 1 + (1-k)*.6;
+    ctx.save(); ctx.translate(400, 300); ctx.scale(esc, esc);
+    ctx.font = '800 46px "Baloo 2", sans-serif';
+    ctx.lineJoin = 'round'; ctx.lineWidth = 10; ctx.strokeStyle = '#06152b'; ctx.strokeText(mensaje, 0, 0);
+    ctx.fillStyle = msgColor; ctx.fillText(mensaje, 0, 0);
+    ctx.restore();
+  } else {
+    ctx.font = '700 22px "Baloo 2", sans-serif';
+    const w = ctx.measureText(mensaje).width + 36;
+    ctx.fillStyle = 'rgba(6,21,43,.78)'; capsula(400-w/2, 268, w, 40, 20); ctx.fill();
+    ctx.fillStyle = '#ffffff'; ctx.fillText(mensaje, 400, 296);
+  }
+}
+let msgColor = '#ffe14d';
+function decir(txt, esGrande, color){ mensaje = txt; grande = !!esGrande; msgT0 = performance.now(); msgColor = color || '#ffe14d'; }
+
+// Papelitos celestes y blancos
+function festejo(){
+  flash = 1;
+  for (let i=0;i<120;i++) papelitos.push({
+    x: Math.random()*W, y: -10 - Math.random()*200, vx:(Math.random()-.5)*2, vy: 2 + Math.random()*3,
+    a: Math.random()*6, va:(Math.random()-.5)*.3, c: ['#6cb4ee','#ffffff','#6cb4ee','#ffe14d'][i%4], s: 5 + Math.random()*5
+  });
+}
+function dibujarPapelitos(){
+  papelitos = papelitos.filter(p=> p.y < H + 20);
+  papelitos.forEach(p=>{
+    p.x += p.vx + Math.sin(p.y/30); p.y += p.vy; p.a += p.va;
+    ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.a); ctx.fillStyle = p.c; ctx.fillRect(-p.s/2, -p.s/4, p.s, p.s/2); ctx.restore();
+  });
+}
+
+// ---------- Cuadro a cuadro ----------
+function cuadro(){
+  const ahora = performance.now();
+  ctx.save();
+  if (ahora < sacudirHasta) ctx.translate((Math.random()-.5)*10, (Math.random()-.5)*7);
+  ctx.drawImage(fondo, 0, 0, W, H);
+  dibujarArco();
+  const kitArq = quien === 'arg' ? ARQ_RIV : ARQ_ARG;
+  const p = pelota || {x:PUNTO.x, gy:PUNTO.y, h:0, giro:0};
+  // si la pelota ya está dentro del arco, va detrás del arquero
+  if (p.gy < ARCO.y2 - 1){ dibujarPelota(p); dibujarArquero(kitArq); }
+  else { dibujarArquero(kitArq); dibujarPelota(p); }
+  if (rival) dibujarPateador(quien === 'arg' ? ARG : rival);
+  if (fase === 'apuntar') dibujarMira();
+  if (fase === 'potencia'){
+    dibujarMira();
+    potencia = (Math.sin((ahora-potT0)/(700 - dif*250)*Math.PI - Math.PI/2)+1)/2;
+    dibujarBarraPotencia();
+  }
+  if (fase === 'atajar'){ dibujarZonasAtajar(); if (ahora - tAtajar0 > timerAtajar) atajar(1); }
+  dibujarPapelitos();
+  if (flash > 0){ ctx.fillStyle = `rgba(255,255,255,${flash*.5})`; ctx.fillRect(0,0,W,H); flash = Math.max(0, flash - .06); }
+  cartel();
+  ctx.restore();
+  requestAnimationFrame(cuadro);
+}
+
+// ---------- Reglas de la tanda ----------
+function suma(a){ return a.filter(Boolean).length; }
+function turno(){ return goles.arg.length === goles.riv.length ? 'arg' : 'riv'; }
+function decidido(){
+  const ga = suma(goles.arg), gr = suma(goles.riv), na = goles.arg.length, nr = goles.riv.length;
+  if (na <= 5 && nr <= 5 && !(na === 5 && nr === 5)){
+    if (ga > gr + (5 - nr)) return 'arg';
+    if (gr > ga + (5 - na)) return 'riv';
+    return null;
+  }
+  if (na === nr && ga !== gr) return ga > gr ? 'arg' : 'riv';   // muerte súbita
+  return null;
+}
+function actualizarMarcador(){
+  document.getElementById('tanteador').textContent = suma(goles.arg) + ' - ' + suma(goles.riv);
+  const pintar = (id, arr)=>{
+    const n = Math.max(5, arr.length);
+    document.getElementById(id).innerHTML = Array.from({length:n},(_,i)=> `<span class="b ${i<arr.length ? (arr[i]?'gol':'erro') : ''}"></span>`).join('');
+  };
+  pintar('bArg', goles.arg); pintar('bRiv', goles.riv);
+}
+
+// ---------- Resultado de cada tiro ----------
+function columna(x){ return x < 340 ? 0 : x > 460 ? 2 : 1; }
+const PIES = [338, 400, 462];   // dónde apoya los pies el arquero al tirarse
+function resultado(tx, ty, colArquero, debil, quienPatea){
+  if (ty < ARCO.y1 - 6) return 'arriba';
+  if (tx < ARCO.x1 - 6 || tx > ARCO.x2 + 6) return 'afuera';
+  if (tx < ARCO.x1 + 8 || tx > ARCO.x2 - 8 || ty < ARCO.y1 + 8) return 'palo';
+  const col = columna(tx);
+  let atajo = col === colArquero;
+  if (atajo && quienPatea === 'arg' && col !== 1 && ty < 128 && Math.abs(tx-400) > 125 && !debil) atajo = false; // al ángulo
+  if (!atajo && debil && Math.abs(col-colArquero) === 1 && Math.random() < .5) atajo = true;                     // tiro flojo
+  return atajo ? 'atajada' : 'gol';
+}
+// Recorrido de la pelota: puntos sobre el pasto (gy) y altura (h)
+function recorrido(r, tx, ty, col, debil){
+  const ini = {x:PUNTO.x, gy:PUNTO.y, h:0};
+  const vuelo = debil ? 780 : 470, arco = debil ? 6 : 20;
+  if (r === 'atajada'){
+    // la pelota pega en el cuerpo/guantes del arquero y sale despedida
+    let hx, hy;
+    if (col === 1){ hx = 400 + (tx-400)*.4; hy = Math.min(200, Math.max(120, ty)); }
+    else { const s = col === 0 ? -1 : 1; const d = Math.min(115, Math.max(45, Math.abs(tx - PIES[col]) / .91)); hx = PIES[col] + s*.91*d; hy = ARCO.y2 - .41*d - 14; }
+    const lado = col === 0 ? -1 : col === 2 ? 1 : (Math.random() < .5 ? -1 : 1);
+    return [ini,
+      {x:hx, gy:ARCO.y2+2, h:ARCO.y2+2-hy, dur:vuelo, arco, alLlegar:()=>{ sacudirHasta = performance.now()+220; }},
+      {x:hx + lado*190, gy:300, h:0, dur:480, arco:50, suave:true}];
+  }
+  if (r === 'palo'){
+    const travesano = ty < ARCO.y1 + 8 && tx > ARCO.x1 + 8 && tx < ARCO.x2 - 8;
+    const hx = travesano ? tx : (tx < 400 ? ARCO.x1 : ARCO.x2), hy = travesano ? ARCO.y1 : ty;
+    const fin = travesano ? {x: tx + (Math.random()-.5)*120, gy:340, h:0, dur:600, arco:110, suave:true}
+                          : {x: hx + (hx < 400 ? -120 : 120), gy:300, h:0, dur:520, arco:40, suave:true};
+    return [ini, {x:hx, gy:ARCO.y2, h:ARCO.y2-hy, dur:vuelo, arco, alLlegar:()=>{ sacudirHasta = performance.now()+260; }}, fin];
+  }
+  if (r === 'afuera'){
+    const s = tx < 400 ? -1 : 1;
+    return [ini, {x:tx, gy:ARCO.y2, h:ARCO.y2-ty, dur:vuelo, arco}, {x:tx + s*50, gy:200, h:ARCO.y2-ty+10, dur:260}];
+  }
+  if (r === 'arriba'){
+    return [ini, {x:tx, gy:ARCO.y2, h:ARCO.y2-ty, dur:vuelo, arco}, {x:tx, gy:198, h:ARCO.y2-ty+60, dur:300}];
+  }
+  // gol: entra y empuja la red del fondo
+  const bx = 400 + (tx-400)*.86, by = RED.y2 - (ARCO.y2-ty)*.7;
+  return [ini, {x:tx, gy:ARCO.y2, h:ARCO.y2-ty, dur:vuelo, arco},
+    {x:bx, gy:RED.y2, h:RED.y2-by, dur:150, alLlegar:()=>{ onda = {x:bx, y:by, t0:performance.now()}; }},
+    {x:bx, gy:RED.y2-2, h:0, dur:420, suave:true}];
+}
+function animarPelota(claves, alTerminar){
+  let i = 0, tSeg = performance.now();
+  pelota = {x:claves[0].x, gy:claves[0].gy, h:claves[0].h, giro:0};
+  (function paso(t){
+    const a = claves[i], b = claves[i+1];
+    const k = Math.min(1, (t - tSeg) / b.dur), e = b.suave ? 1 - Math.pow(1-k, 2) : k;
+    pelota.x = a.x + (b.x - a.x)*e; pelota.gy = a.gy + (b.gy - a.gy)*e;
+    pelota.h = Math.max(0, a.h + (b.h - a.h)*e + (b.arco || 0)*Math.sin(e*Math.PI));
+    pelota.giro += i === 0 ? .45 : .2;
+    if (k >= 1){ b.alLlegar && b.alLlegar(); i++; tSeg = t; if (i >= claves.length - 1) return alTerminar(); }
+    requestAnimationFrame(paso);
+  })(tSeg);
+}
+function zambullida(col){
+  const t0 = performance.now() + 30, dest = PIES[col];
+  (function p(t){
+    const k = Math.max(0, Math.min(1, (t - t0)/360)), e = 1 - Math.pow(1-k, 3);
+    arquero.x = 400 + (dest - 400)*e;
+    arquero.ang = col === 0 ? -1.15*e : col === 2 ? 1.15*e : 0;
+    arquero.salto = col === 1 ? Math.sin(Math.min(1, k*1.1)*Math.PI)*36 : Math.sin(e*Math.PI*.85)*18;
+    arquero.brazos = e;
+    if (k < 1) requestAnimationFrame(p);
+  })(performance.now());
+}
+function ejecutarTiro(tx, ty, colArquero, debil){
+  fase = 'anim'; mensaje = '';
+  const r = resultado(tx, ty, colArquero, debil, quien);
+  const t0 = performance.now();
+  // carrera del pateador hasta la pelota
+  (function carrera(t){
+    const k = Math.min(1, (t - t0)/420);
+    pateador.x = 285 + 62*k; pateador.y = 530 - 28*k; pateador.paso = k;
+    if (k < 1) return requestAnimationFrame(carrera);
+    pateador.patada = 1; setTimeout(()=>{ pateador.patada = .4; }, 260);
+    zambullida(colArquero);
+    animarPelota(recorrido(r, tx, ty, colArquero, debil), ()=> finTiro(r));
+  })(t0);
+}
+function finTiro(r){
+  const gol = r === 'gol';
+  goles[quien].push(gol); actualizarMarcador();
+  const nuestro = quien === 'arg';
+  const textos = {gol: nuestro ? '¡GOOOOL!' : 'Gol de ' + rival.nombre,
+    atajada: nuestro ? '¡Atajó el arquero!' : '¡ATAJASTE!',
+    afuera:'¡Afuera!', arriba:'¡Por arriba!', palo:'¡En el palo!'};
+  const bueno = nuestro === gol;   // gol nuestro o tiro errado del rival
+  decir(textos[r], true, bueno ? '#ffe14d' : '#ffffff');
+  if ((nuestro && gol) || (!nuestro && r === 'atajada')) festejo();
+  fase = 'resultado';
+  setTimeout(siguienteTurno, 1700);
+}
+function siguienteTurno(){
+  pelota = null; arquero = {x:400, ang:0, salto:0, brazos:0}; pateador = {x:285, y:530, paso:0, patada:0}; mensaje = '';
+  const d = decidido();
+  if (d) return terminarPartido(d === 'arg');
+  quien = turno();
+  if (quien === 'arg'){ fase = 'apuntar'; mira = {x:400, y:160}; decir('Hacé clic en el arco para apuntar'); }
+  else { fase = 'atajar'; timerAtajar = 3800 - dif*1200; tAtajar0 = performance.now(); decir('¡Atajá! Elegí hacia dónde tirarte'); }
+}
+function patearAhora(){
+  if (fase !== 'potencia') return;
+  const p = potencia;
+  let ty = mira.y, tx = mira.x;
+  if (p > .92) ty = ARCO.y1 - 40 - (p-.92)*400;            // demasiada fuerza: por arriba
+  else if (p > .85) ty = Math.max(ARCO.y1 - 10, ty - 35);   // al límite: puede dar en el travesaño
+  tx += (Math.random()-.5) * (p < .55 ? 30 : 14);
+  const debil = p < .35;
+  // el arquero rival adivina más seguido en las rondas difíciles
+  const adivina = Math.random() < (.22 + dif*.38);
+  const colArq = adivina ? columna(mira.x) : Math.floor(Math.random()*3);
+  ejecutarTiro(tx, ty, colArq, debil);
+}
+function atajar(col){
+  if (fase !== 'atajar') return;
+  let tx, ty;
+  if (Math.random() < .17 - dif*.08){                        // a veces el rival erra
+    if (Math.random() < .5){ tx = 300 + Math.random()*200; ty = 55; }
+    else { tx = Math.random() < .5 ? 195 : 605; ty = 160; }
+  } else {
+    const c = Math.floor(Math.random()*3);
+    tx = [270, 400, 530][c] + (Math.random()-.5)*60; ty = 115 + Math.random()*100;
+  }
+  ejecutarTiro(tx, ty, col, false);
+}
+
+// ---------- Entrada ----------
+function limitarMira(x,y){ return {x: Math.max(ARCO.x1-20, Math.min(ARCO.x2+20, x)), y: Math.max(ARCO.y1-20, Math.min(ARCO.y2-10, y))}; }
+cv.addEventListener('pointermove', e=>{
+  const [x,y] = aCancha(e); hoverX = x;
+  if (fase === 'apuntar') mira = limitarMira(x,y);
+});
+cv.addEventListener('pointerdown', e=>{
+  const [x,y] = aCancha(e);
+  if (fase === 'apuntar'){ mira = limitarMira(x,y); fase = 'potencia'; potT0 = performance.now(); decir('¡Hacé clic cuando la flecha esté en verde!'); }
+  else if (fase === 'potencia') patearAhora();
+  else if (fase === 'atajar') atajar(columna(x));
+});
+addEventListener('keydown', e=>{
+  const k = e.key;
+  if (fase === 'apuntar'){
+    const paso = 20;
+    if (k==='ArrowLeft') mira.x = Math.max(ARCO.x1-20, mira.x-paso);
+    if (k==='ArrowRight') mira.x = Math.min(ARCO.x2+20, mira.x+paso);
+    if (k==='ArrowUp') mira.y = Math.max(ARCO.y1-20, mira.y-paso);
+    if (k==='ArrowDown') mira.y = Math.min(ARCO.y2-10, mira.y+paso);
+    if (k===' '||k==='Enter'){ fase = 'potencia'; potT0 = performance.now(); decir('¡Apretá cuando la flecha esté en verde!'); }
+    if (k.startsWith('Arrow')||k===' ') e.preventDefault();
+  } else if (fase === 'potencia' && (k===' '||k==='Enter')){ e.preventDefault(); patearAhora(); }
+  else if (fase === 'atajar'){
+    const m = {ArrowLeft:0, ArrowDown:1, ArrowUp:1, ArrowRight:2}[k];
+    if (m !== undefined){ e.preventDefault(); atajar(m); }
+  }
+});
+
+// ---------- Pantallas ----------
+const $ = id => document.getElementById(id);
+function mostrar(id){ ['menu','elegir','previa','final'].forEach(x=> $(x).hidden = x !== id); }
+function chapa(eq){ return eq.cuadros ? `repeating-conic-gradient(${eq.c1} 0 25%, ${eq.c2} 0 50%) 0 0/12px 12px` : `linear-gradient(135deg, ${eq.c1} 55%, ${eq.c2} 55%)`; }
+
+function empezarPartido(r, d){
+  rival = r; dif = d; goles = {arg:[], riv:[]};
+  $('nRiv').textContent = r.nombre; $('cRiv').style.background = chapa(r);
+  actualizarMarcador(); mostrar(null); siguienteTurno();
+}
+function terminarPartido(gano){
+  fase = 'fin'; mensaje = '';
+  const res = `${suma(goles.arg)} a ${suma(goles.riv)}`;
+  const bot = $('finalBotones'); bot.innerHTML = '';
+  const boton = (txt, fn, sec)=>{ const b = document.createElement('button'); b.className = 'grande' + (sec?' sec':''); b.textContent = txt; b.onclick = fn; bot.appendChild(b); };
+  if (gano && modo === 'camino' && etapa === CAMINO.length-1){
+    $('finalIcono').textContent = '🏆'; $('finalTitulo').textContent = '¡ARGENTINA CAMPEÓN DEL MUNDO!';
+    $('finalTexto').textContent = `Le ganaste la final a ${rival.nombre} por ${res}.`;
+    festejo(); festejo();
+    boton('Jugar otra vez', ()=>{ etapa = 0; previa(); }); boton('Menú', ()=>mostrar('menu'), true);
+  } else if (gano){
+    $('finalIcono').textContent = '🎉'; $('finalTitulo').textContent = '¡Ganamos!';
+    $('finalTexto').textContent = `Argentina le ganó ${res} a ${rival.nombre}.`;
+    if (modo === 'camino') boton(`Siguiente: ${CAMINO[etapa+1].etapa} ▶`, ()=>{ etapa++; previa(); });
+    else boton('Otro amistoso', ()=>mostrar('elegir'));
+    boton('Menú', ()=>mostrar('menu'), true);
+  } else {
+    $('finalIcono').textContent = '😢'; $('finalTitulo').textContent = 'Esta vez no se dio';
+    $('finalTexto').textContent = `${rival.nombre} ganó ${suma(goles.riv)} a ${suma(goles.arg)}. ¡Vamos por la revancha!`;
+    boton('Revancha', ()=> modo==='camino' ? previa() : empezarPartido(rival, dif));
+    boton('Menú', ()=>mostrar('menu'), true);
+  }
+  mostrar('final');
+}
+function previa(){
+  $('previaTitulo').textContent = CAMINO[etapa].etapa;
+  $('camino').innerHTML = CAMINO.map((c,i)=>
+    `<div class="etapa ${i<etapa?'hecha':i===etapa?'ahora':''}"><span>${c.etapa}</span><span>${i<etapa?'✔ ':''}${RIVALES[c.r].nombre}</span></div>`).join('');
+  mostrar('previa');
+}
+$('btnCamino').onclick = ()=>{ modo = 'camino'; etapa = 0; previa(); };
+$('btnJugar').onclick = ()=> empezarPartido(RIVALES[CAMINO[etapa].r], etapa/(CAMINO.length-1));
+$('btnAmistoso').onclick = ()=>{ modo = 'amistoso'; mostrar('elegir'); };
+$('volver1').onclick = ()=> mostrar('menu');
+$('listaRivales').innerHTML = Object.entries(RIVALES).map(([k,r])=>
+  `<button class="rival" data-k="${k}"><span class="chapa" style="background:${chapa(r)}"></span>${r.nombre}</button>`).join('');
+$('listaRivales').querySelectorAll('.rival').forEach(b=> b.onclick = ()=> empezarPartido(RIVALES[b.dataset.k], .4));
+
+addEventListener('resize', ajustar);
+pintarFondo();
+(document.fonts ? document.fonts.ready : Promise.resolve()).then(pintarFondo).catch(()=>{});
+ajustar(); actualizarMarcador(); requestAnimationFrame(cuadro);
+
+// ---------- Intro del robotito y panel ¿Qué aprendemos? ----------
+(function(){
+  const intro = document.getElementById('intro'), panel = document.getElementById('panel');
+  if (intro) document.getElementById('jugar').onclick = ()=>{ intro.hidden = true; };
+  document.getElementById('abrirPanel').onclick = ()=>{ panel.classList.add('abierto'); panel.setAttribute('aria-hidden','false'); };
+  document.getElementById('cerrarPanel').onclick = ()=>{ panel.classList.remove('abierto'); panel.setAttribute('aria-hidden','true'); };
+  addEventListener('keydown', e=>{
+    if (e.key === 'Escape') document.getElementById('cerrarPanel').click();
+    if (intro && !intro.hidden && (e.key === 'Enter' || e.key === ' ')){ e.preventDefault(); e.stopImmediatePropagation(); intro.hidden = true; }
+  }, true);
+})();
+</script>
+
+<a class="sd-casa" href="index.html" aria-label="Volver a todos los juegos" title="Todos los juegos">🏠</a>
+</html>

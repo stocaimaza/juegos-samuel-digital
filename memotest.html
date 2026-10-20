@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><link rel="icon" href="favicon.svg" type="image/svg+xml"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}[hidden]{display:none!important}img{max-width:100%}
+.sd-casa{position:fixed;left:max(10px,env(safe-area-inset-left,0px));bottom:max(10px,env(safe-area-inset-bottom,0px));z-index:50;width:50px;height:50px;border-radius:50%;background:#fff;box-shadow:0 4px 0 #3d86b3;display:flex;align-items:center;justify-content:center;font-size:26px;text-decoration:none}
+.sd-casa:focus-visible{outline:4px solid #ffb627;outline-offset:2px}</style>
+<title>Memotest del Robotito</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap">
+<style>
+/* Layout: barra de tema y nivel arriba, tablero de cartas centrado que se adapta al ancho */
+:root{--cielo:#7ec8f0;--panel:#fff;--tinta:#23364a;--sol:#ffb627;--sombra:#3d86b3;--verde:#5cc96b;
+  --display:"Baloo 2","Comic Sans MS",system-ui,sans-serif;color-scheme:light}
+[hidden]{display:none!important}
+html,body{min-height:100%}
+body{margin:0;background:var(--cielo);color:var(--tinta);font-family:var(--display);box-sizing:border-box;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:12px;
+  user-select:none;-webkit-user-select:none}
+button{font-family:var(--display);cursor:pointer;border:none;color:var(--tinta)}
+button:focus-visible{outline:4px solid #fff;outline-offset:2px}
+header{max-width:1000px;margin:0 auto 12px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+h1{margin:0;font-size:clamp(22px,4vw,32px);font-weight:800;color:#fff;text-shadow:0 2px 0 var(--sombra)}
+.barras{display:flex;gap:10px;flex-wrap:wrap}
+.pildora{display:flex;gap:4px;background:var(--panel);border-radius:999px;padding:4px;box-shadow:0 3px 0 var(--sombra);flex-wrap:wrap}
+.opc{background:transparent;border-radius:999px;padding:5px 14px;font-size:17px;font-weight:700}
+.opc.on{background:var(--sol)}
+.info{max-width:1000px;margin:0 auto 10px;display:flex;justify-content:center;gap:16px;font-size:22px;font-weight:800;color:#fff;text-shadow:0 2px 0 var(--sombra)}
+#tablero{max-width:1000px;margin:0 auto;display:grid;gap:12px;justify-content:center}
+.carta{perspective:700px;background:none;padding:0;width:var(--t);height:calc(var(--t)*1.2)}
+.cara{position:absolute;inset:0;border-radius:16px;backface-visibility:hidden;-webkit-backface-visibility:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:transform .45s}
+.dentro{position:relative;width:100%;height:100%}
+.dorso{background:var(--sol);box-shadow:0 5px 0 #c98400;background-image:radial-gradient(circle at 20% 20%,rgba(255,255,255,.35) 0 10%,transparent 11%),radial-gradient(circle at 80% 75%,rgba(255,255,255,.25) 0 8%,transparent 9%)}
+.frente{background:#fff;box-shadow:0 5px 0 var(--sombra);transform:rotateY(180deg);font-size:calc(var(--t)*.55);line-height:1}
+.carta.vuelta .dorso{transform:rotateY(-180deg)}
+.carta.vuelta .frente{transform:rotateY(0)}
+.carta.par .frente{background:#e3f7e5;box-shadow:0 5px 0 #3e9b4b}
+.num{font-size:calc(var(--t)*.5);font-weight:800}
+.puntos{display:flex;flex-wrap:wrap;gap:3px;justify-content:center;max-width:80%}
+.puntos i{width:calc(var(--t)*.09);height:calc(var(--t)*.09);border-radius:50%;background:var(--tinta)}
+.pais{font-size:calc(var(--t)*.14);font-weight:800;margin-top:2px}
+#festejo{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(35,54,74,.45);z-index:20}
+.card{background:#fff;border-radius:24px;padding:24px 32px;text-align:center;box-shadow:0 8px 0 #c98400;max-width:90vw}
+.card h2{margin:0;font-size:44px;color:var(--sol);text-shadow:0 2px 0 #c98400}
+.card p{font-size:22px;margin:4px 0 16px}
+.grande{background:var(--sol);border-radius:999px;padding:10px 28px;font-size:24px;font-weight:800;box-shadow:0 4px 0 #c98400}
+@media (prefers-reduced-motion:reduce){.cara{transition:none}}
+
+/* ---- Robotito que explica + panel ¿Qué aprendemos? ---- */
+.ayuda-btn{font-family:"Baloo 2","Comic Sans MS",system-ui,sans-serif; border:none; cursor:pointer; background:#fff; border-radius:999px; padding:6px 16px; font-size:18px; font-weight:800; color:#23364a; box-shadow:0 3px 0 #3d86b3}
+#intro{position:fixed; inset:0; z-index:40; display:flex; align-items:center; justify-content:center; background:rgba(35,54,74,.5); padding:16px}
+.intro-card{background:#fff; border-radius:28px; padding:22px 26px; box-shadow:0 8px 0 #c98400; display:flex; gap:18px; align-items:center; max-width:640px; flex-wrap:wrap; justify-content:center; font-family:"Baloo 2","Comic Sans MS",system-ui,sans-serif; color:#23364a}
+.intro-card svg{width:150px; height:auto; flex:none}
+.burbuja{position:relative; background:#fff3d6; border-radius:22px; padding:14px 18px; min-width:0; flex:1 1 260px; text-align:center}
+.burbuja::before{content:""; position:absolute; left:-14px; top:40%; border:10px solid transparent; border-right:14px solid #fff3d6}
+.burbuja h2{margin:0; font-size:clamp(24px,4vw,32px); line-height:1.1; color:#23364a; text-shadow:none}
+.pictos{display:flex; justify-content:center; gap:14px; margin:12px 0 4px; flex-wrap:wrap}
+.pictos div{display:flex; flex-direction:column; align-items:center; font-size:15px; font-weight:700; gap:2px; max-width:90px; line-height:1.1}
+.pictos b{font-size:36px; line-height:1; font-family:"Segoe UI Emoji","Apple Color Emoji",sans-serif}
+#jugar{font-family:inherit; border:none; cursor:pointer; background:#ffb627; border-radius:999px; padding:10px 34px; font-size:26px; font-weight:800; color:#23364a; box-shadow:0 4px 0 #c98400; margin-top:8px}
+#panel{position:fixed; top:0; right:0; bottom:0; width:min(400px,100%); background:#fff; z-index:45; box-shadow:-8px 0 30px rgba(35,54,74,.3); color:#23364a; text-align:left;
+  font-family:"Baloo 2","Comic Sans MS",system-ui,sans-serif; overflow:auto; padding:20px max(20px, env(safe-area-inset-right,0px)) 30px 22px; box-sizing:border-box; transform:translateX(105%); transition:transform .25s}
+#panel.abierto{transform:none}
+#panel h2{margin:0 0 4px; font-size:26px; color:#23364a; text-shadow:none}
+#panel .sub{margin:0 0 6px; color:#4d6175; font-size:19px; font-weight:700}
+#panel h3{margin:16px 0 6px; font-size:16px; letter-spacing:1px; color:#3d86b3; text-transform:uppercase}
+#panel ul{margin:0; padding-left:20px; font-size:17px; line-height:1.4}
+#panel li{margin-bottom:4px}
+.logros{display:grid; gap:8px; margin-top:6px}
+.logros div{display:flex; align-items:center; gap:12px; background:#eef6fb; border-radius:16px; padding:8px 12px; font-size:18px; font-weight:700; line-height:1.2}
+.logros b{font-size:30px; flex:none; font-family:"Segoe UI Emoji","Apple Color Emoji",sans-serif}
+.palabras{display:flex; flex-wrap:wrap; gap:8px}
+.palabras span{background:#fff3d6; border-radius:999px; padding:4px 12px; font-size:18px; font-weight:800}
+.dato{margin:0; font-size:17px; line-height:1.45; background:#f4fbef; border-radius:16px; padding:10px 14px}
+#cerrarPanel{font-family:inherit; border:none; cursor:pointer; position:absolute; top:12px; right:max(12px, env(safe-area-inset-right,0px)); width:40px; height:40px; border-radius:50%; background:#eef6fb; font-size:20px; color:#23364a}
+@media (prefers-reduced-motion:reduce){#panel{transition:none}}
+</style>
+
+<header>
+  <h1>🃏 Memotest</h1>
+  <button class="ayuda-btn" id="abrirPanel">📘 ¿Qué aprendemos?</button>
+  <div class="barras">
+    <div class="pildora" id="temas"></div>
+    <div class="pildora" id="niveles"></div>
+  </div>
+</header>
+<div class="info"><span id="pares">Pares: 0 de 4</span><span id="intentos">Intentos: 0</span></div>
+<div id="tablero"></div>
+
+<div id="festejo" hidden>
+  <div class="card"><h2>¡Ganaste!</h2><div style="font-size:40px">⭐⭐⭐</div><p id="festejoTxt"></p><button class="grande" id="otraVez">Jugar otra vez</button></div>
+</div>
+
+
+<!-- El robotito explica el juego antes de empezar -->
+<div id="intro">
+  <div class="intro-card">
+    <svg viewBox="0 0 120 150" aria-hidden="true">
+      <line x1="60" y1="22" x2="60" y2="8" stroke="#23364a" stroke-width="4"/><circle cx="60" cy="7" r="6" fill="#e4572e"/>
+      <rect x="22" y="22" width="76" height="60" rx="18" fill="#ffb627" stroke="#23364a" stroke-width="4"/>
+      <circle cx="45" cy="48" r="10" fill="#fff"/><circle cx="75" cy="48" r="10" fill="#fff"/>
+      <circle cx="47" cy="49" r="5" fill="#23364a"/><circle cx="77" cy="49" r="5" fill="#23364a"/>
+      <path d="M46 64 Q60 74 74 64" fill="none" stroke="#23364a" stroke-width="4" stroke-linecap="round"/>
+      <rect x="32" y="86" width="56" height="44" rx="12" fill="#ffb627" stroke="#23364a" stroke-width="4"/>
+      <rect x="10" y="92" width="22" height="10" rx="5" fill="#9aa5b1" stroke="#23364a" stroke-width="3" transform="rotate(-30 21 97)"/>
+      <rect x="88" y="92" width="22" height="10" rx="5" fill="#9aa5b1" stroke="#23364a" stroke-width="3" transform="rotate(30 99 97)"/>
+      <rect x="40" y="130" width="14" height="16" rx="4" fill="#9aa5b1" stroke="#23364a" stroke-width="3"/>
+      <rect x="66" y="130" width="14" height="16" rx="4" fill="#9aa5b1" stroke="#23364a" stroke-width="3"/>
+    </svg>
+    <div class="burbuja">
+      <h2>¡Encontrá las cartas iguales!</h2>
+      <div class="pictos"><div><b>🃏</b>dá vuelta dos</div><div><b>👀</b>acordate</div><div><b>✅</b>iguales = par</div></div>
+      <button id="jugar">¡Jugar!</button>
+    </div>
+  </div>
+</div>
+
+<!-- Panel "¿Qué aprendemos?" para los chicos y sus familias -->
+<aside id="panel" aria-label="Qué aprendemos" aria-hidden="true">
+  <button id="cerrarPanel" aria-label="Cerrar">✕</button>
+  <h2>📘 ¿Qué aprendemos?</h2>
+  <p class="sub">Con Memotest aprendemos a…</p>
+  <div class="logros"><div><b>🧠</b>Ejercitar la memoria</div><div><b>👀</b>Prestar atención</div><div><b>🔍</b>Encontrar lo igual y lo diferente</div><div><b>⏳</b>Tener paciencia y concentrarnos</div></div>
+  <h3>Palabras nuevas</h3>
+  <div class="palabras"><span>👯 par</span><span>🟰 igual</span><span>↔️ diferente</span><span>🧠 recordar</span></div>
+  <h3>¿Sabías que…?</h3>
+  <p class="dato">La memoria es como un músculo: ¡cuanto más la usamos jugando, más fuerte se pone! 💪</p>
+  <h3>Para charlar en familia</h3>
+  <ul><li>¿Qué truco usaste para acordarte dónde estaba cada carta?</li><li>¿Qué carta te costó más encontrar?</li><li>¿Cuántos intentos necesitaste?</li></ul>
+  <h3>Para jugar en casa</h3>
+  <p class="dato">🥄 <b>¿Qué cambió?:</b> poner 5 objetos en la mesa, mirarlos, cerrar los ojos mientras alguien saca o mueve uno, y adivinar qué cambió.</p>
+</aside>
+
+<script>
+// Camisetas inventadas con los colores de cada país
+const PAISES = [
+  ['Argentina','#6cb4ee','#ffffff','rayas'],['Brasil','#ffdf00','#009c3b'],['Francia','#1f3a93','#ffffff'],
+  ['Croacia','#e4202c','#ffffff','cuadros'],['Alemania','#ffffff','#1d1d1d'],['España','#c60b1e','#ffc400'],
+  ['Uruguay','#7cc3ec','#1d1d1d'],['México','#1f7a3a','#ffffff'],['Países Bajos','#f36c21','#1d1d1d'],
+  ['Japón','#1b3d8f','#ffffff'],['Portugal','#b0172a','#046a38'],['Inglaterra','#ffffff','#1b2a5a']
+];
+function camisetaSVG([nombre,c1,c2,dibujo], i){
+  const forma = 'M30 8 L44 4 Q50 12 56 4 L70 8 L92 26 L80 40 L72 33 L72 92 L28 92 L28 33 L20 40 L8 26 Z';
+  let relleno = c1, defs = '';
+  if (dibujo==='rayas'){ defs = `<pattern id="p${i}" width="16" height="10" patternUnits="userSpaceOnUse"><rect width="8" height="10" fill="${c1}"/><rect x="8" width="8" height="10" fill="${c2}"/></pattern>`; relleno = `url(#p${i})`; }
+  if (dibujo==='cuadros'){ defs = `<pattern id="p${i}" width="16" height="16" patternUnits="userSpaceOnUse"><rect width="16" height="16" fill="${c2}"/><rect width="8" height="8" fill="${c1}"/><rect x="8" y="8" width="8" height="8" fill="${c1}"/></pattern>`; relleno = `url(#p${i})`; }
+  return `<svg viewBox="0 0 100 100" style="width:72%;height:auto"><defs>${defs}</defs>
+    <path d="${forma}" fill="${relleno}" stroke="#23364a" stroke-width="3" stroke-linejoin="round"/>
+    ${dibujo ? '' : `<path d="M8 26 L20 40 M92 26 L80 40" stroke="${c2}" stroke-width="5"/><path d="M44 4 Q50 12 56 4" fill="none" stroke="${c2}" stroke-width="5"/>`}
+  </svg><div class="pais">${nombre}</div>`;
+}
+const TEMAS = {
+  animales: {nombre:'Animales', items:['🐶','🐱','🐰','🦊','🐻','🐼','🐸','🐵','🦁','🐷','🐮','🐔']},
+  frutas:   {nombre:'Frutas', items:['🍎','🍌','🍇','🍓','🍉','🍍','🍒','🍐','🍑','🥝','🍋','🥕']},
+  numeros:  {nombre:'Números', items:[1,2,3,4,5,6,7,8,9,10]},
+  camisetas:{nombre:'Camisetas', items:PAISES}
+};
+const NIVELES = [{pares:4, cols:4}, {pares:6, cols:4}, {pares:8, cols:4}, {pares:10, cols:5}];
+let tema = 'animales', nivel = 0, abiertas = [], bloqueado = false, encontrados = 0, intentos = 0;
+
+function contenido(item, i){
+  if (tema === 'numeros') return `<div class="num">${item}</div><div class="puntos">${'<i></i>'.repeat(item)}</div>`;
+  if (tema === 'camisetas') return camisetaSVG(item, i);
+  return item;
+}
+function mezclar(a){ for (let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+
+function armar(){
+  const n = NIVELES[nivel];
+  const elegidos = mezclar([...TEMAS[tema].items.keys()]).slice(0, n.pares);
+  const mazo = mezclar([...elegidos, ...elegidos]);
+  const tab = document.getElementById('tablero');
+  // tamaño de carta según el espacio disponible
+  const filas = Math.ceil(mazo.length / n.cols);
+  const ancho = Math.min(window.innerWidth - 40, 1000), alto = window.innerHeight - 150;
+  const t = Math.max(56, Math.min(150, (ancho - (n.cols-1)*12) / n.cols, (alto - (filas-1)*12) / filas / 1.2));
+  tab.style.setProperty('--t', t + 'px');
+  tab.style.gridTemplateColumns = `repeat(${n.cols}, ${t}px)`;
+  tab.innerHTML = '';
+  mazo.forEach((idx, k)=>{
+    const b = document.createElement('button');
+    b.className = 'carta'; b.dataset.id = idx; b.setAttribute('aria-label','Carta');
+    b.innerHTML = `<div class="dentro"><div class="cara dorso"><span style="font-size:calc(var(--t)*.42)">🤖</span></div><div class="cara frente">${contenido(TEMAS[tema].items[idx], k)}</div></div>`;
+    b.onclick = ()=> tocar(b);
+    tab.appendChild(b);
+  });
+  abiertas = []; bloqueado = false; encontrados = 0; intentos = 0; marcador();
+}
+function marcador(){
+  document.getElementById('pares').textContent = `Pares: ${encontrados} de ${NIVELES[nivel].pares}`;
+  document.getElementById('intentos').textContent = `Intentos: ${intentos}`;
+}
+function tocar(b){
+  if (bloqueado || b.classList.contains('vuelta')) return;
+  b.classList.add('vuelta'); abiertas.push(b);
+  if (abiertas.length < 2) return;
+  intentos++;
+  const [a, c] = abiertas;
+  if (a.dataset.id === c.dataset.id){
+    a.classList.add('par'); c.classList.add('par'); abiertas = []; encontrados++;
+    if (encontrados === NIVELES[nivel].pares) setTimeout(ganar, 600);
+  } else {
+    bloqueado = true;
+    setTimeout(()=>{ a.classList.remove('vuelta'); c.classList.remove('vuelta'); abiertas = []; bloqueado = false; }, 1000);
+  }
+  marcador();
+}
+function ganar(){
+  document.getElementById('festejoTxt').textContent = `Encontraste todos los pares en ${intentos} intentos.`;
+  document.getElementById('festejo').hidden = false;
+}
+document.getElementById('otraVez').onclick = ()=>{ document.getElementById('festejo').hidden = true; armar(); };
+
+// Botones de tema y nivel
+function botones(id, lista, actual, alElegir){
+  const cont = document.getElementById(id); cont.innerHTML = '';
+  lista.forEach(([valor, txt])=>{
+    const b = document.createElement('button'); b.className = 'opc' + (valor===actual()?' on':''); b.textContent = txt;
+    b.onclick = ()=>{ alElegir(valor); cont.querySelectorAll('.opc').forEach(x=>x.classList.toggle('on', x===b)); armar(); };
+    cont.appendChild(b);
+  });
+}
+botones('temas', Object.entries(TEMAS).map(([k,v])=>[k,v.nombre]), ()=>tema, v=>tema=v);
+botones('niveles', NIVELES.map((_,i)=>[i, 'Nivel '+(i+1)]), ()=>nivel, v=>nivel=v);
+let tRes; addEventListener('resize', ()=>{ clearTimeout(tRes); tRes = setTimeout(()=>{
+  const t = document.getElementById('tablero'), n = NIVELES[nivel], filas = Math.ceil(n.pares*2/n.cols);
+  const s = Math.max(56, Math.min(150, (Math.min(innerWidth-40,1000)-(n.cols-1)*12)/n.cols, (innerHeight-150-(filas-1)*12)/filas/1.2));
+  t.style.setProperty('--t', s+'px'); t.style.gridTemplateColumns = `repeat(${n.cols}, ${s}px)`;
+}, 150); });
+armar();
+
+// ---------- Intro del robotito y panel ¿Qué aprendemos? ----------
+(function(){
+  const intro = document.getElementById('intro'), panel = document.getElementById('panel');
+  if (intro) document.getElementById('jugar').onclick = ()=>{ intro.hidden = true; };
+  document.getElementById('abrirPanel').onclick = ()=>{ panel.classList.add('abierto'); panel.setAttribute('aria-hidden','false'); };
+  document.getElementById('cerrarPanel').onclick = ()=>{ panel.classList.remove('abierto'); panel.setAttribute('aria-hidden','true'); };
+  addEventListener('keydown', e=>{
+    if (e.key === 'Escape') document.getElementById('cerrarPanel').click();
+    if (intro && !intro.hidden && (e.key === 'Enter' || e.key === ' ')){ e.preventDefault(); e.stopImmediatePropagation(); intro.hidden = true; }
+  }, true);
+})();
+</script>
+
+<a class="sd-casa" href="index.html" aria-label="Volver a todos los juegos" title="Todos los juegos">🏠</a>
+</html>

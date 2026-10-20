@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><link rel="icon" href="favicon.svg" type="image/svg+xml"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}[hidden]{display:none!important}img{max-width:100%}
+.sd-casa{position:fixed;left:max(10px,env(safe-area-inset-left,0px));bottom:max(10px,env(safe-area-inset-bottom,0px));z-index:50;width:50px;height:50px;border-radius:50%;background:#fff;box-shadow:0 4px 0 #3d86b3;display:flex;align-items:center;justify-content:center;font-size:26px;text-decoration:none}
+.sd-casa:focus-visible{outline:4px solid #ffb627;outline-offset:2px}</style>
+<title>Rompecabezas del Robotito</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap">
+<style>
+/* Layout: dibujos y tamaños arriba, mesa de trabajo en canvas con el tablero y las piezas sueltas */
+:root{--cielo:#7ec8f0;--panel:#fff;--tinta:#23364a;--sol:#ffb627;--sombra:#3d86b3;
+  --display:"Baloo 2","Comic Sans MS",system-ui,sans-serif;color-scheme:light}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{margin:0;background:var(--cielo);color:var(--tinta);font-family:var(--display);box-sizing:border-box;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:12px;
+  display:flex;flex-direction:column;align-items:center;gap:10px;user-select:none;-webkit-user-select:none}
+button,label.opc{font-family:var(--display);cursor:pointer;border:none;color:var(--tinta)}
+button:focus-visible{outline:4px solid #fff;outline-offset:2px}
+header{width:100%;max-width:1060px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+h1{margin:0;font-size:clamp(22px,4vw,32px);font-weight:800;color:#fff;text-shadow:0 2px 0 var(--sombra)}
+.barras{display:flex;gap:8px;flex-wrap:wrap}
+.pildora{display:flex;gap:4px;background:var(--panel);border-radius:999px;padding:4px;box-shadow:0 3px 0 var(--sombra);flex-wrap:wrap;align-items:center}
+.opc{background:transparent;border-radius:999px;padding:5px 12px;font-size:16px;font-weight:700}
+.opc.on{background:var(--sol)}
+#zona{width:100%;max-width:1060px;flex:1;min-height:0;display:flex;align-items:center;justify-content:center}
+canvas{display:block;border-radius:18px;box-shadow:0 6px 0 var(--sombra);touch-action:none;max-width:100%}
+#festejo{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(35,54,74,.45);z-index:20}
+.card{background:#fff;border-radius:24px;padding:24px 32px;text-align:center;box-shadow:0 8px 0 #c98400;max-width:90vw}
+.card h2{margin:0;font-size:44px;color:var(--sol);text-shadow:0 2px 0 #c98400}
+.card p{font-size:22px;margin:4px 0 16px}
+.grande{background:var(--sol);border-radius:999px;padding:10px 28px;font-size:24px;font-weight:800;box-shadow:0 4px 0 #c98400}
+
+/* ---- Robotito que explica + panel ¿Qué aprendemos? ---- */
+.ayuda-btn{font-family:"Baloo 2","Comic Sans MS",system-ui,sans-serif; border:none; cursor:pointer; background:#fff; border-radius:999px; padding:6px 16px; font-size:18px; font-weight:800; color:#23364a; box-shadow:0 3px 0 #3d86b3}
+#intro{position:fixed; inset:0; z-index:40; display:flex; align-items:center; justify-content:center; background:rgba(35,54,74,.5); padding:16px}
+.intro-card{background:#fff; border-radius:28px; padding:22px 26px; box-shadow:0 8px 0 #c98400; display:flex; gap:18px; align-items:center; max-width:640px; flex-wrap:wrap; justify-content:center; font-family:"Baloo 2","Comic Sans MS",system-ui,sans-serif; color:#23364a}
+.intro-card svg{width:150px; height:auto; flex:none}
+.burbuja{position:relative; background:#fff3d6; border-radius:22px; padding:14px 18px; min-width:0; flex:1 1 260px; text-align:center}
+.burbuja::before{content:""; position:absolute; left:-14px; top:40%; border:10px solid transparent; border-right:14px solid #fff3d6}
+.burbuja h2{margin:0; font-size:clamp(24px,4vw,32px); line-height:1.1; color:#23364a; text-shadow:none}
+.pictos{display:flex; justify-content:center; gap:14px; margin:12px 0 4px; flex-wrap:wrap}
+.pictos div{display:flex; flex-direction:column; align-items:center; font-size:15px; font-weight:700; gap:2px; max-width:90px; line-height:1.1}
+.pictos b{font-size:36px; line-height:1; font-family:"Segoe UI Emoji","Apple Color Emoji",sans-serif}
+#jugar{font-family:inherit; border:none; cursor:pointer; background:#ffb627; border-radius:999px; padding:10px 34px; font-size:26px; font-weight:800; color:#23364a; box-shadow:0 4px 0 #c98400; margin-top:8px}
+#panel{position:fixed; top:0; right:0; bottom:0; width:min(400px,100%); background:#fff; z-index:45; box-shadow:-8px 0 30px rgba(35,54,74,.3); color:#23364a; text-align:left;
+  font-family:"Baloo 2","Comic Sans MS",system-ui,sans-serif; overflow:auto; padding:20px max(20px, env(safe-area-inset-right,0px)) 30px 22px; box-sizing:border-box; transform:translateX(105%); transition:transform .25s}
+#panel.abierto{transform:none}
+#panel h2{margin:0 0 4px; font-size:26px; color:#23364a; text-shadow:none}
+#panel .sub{margin:0 0 6px; color:#4d6175; font-size:19px; font-weight:700}
+#panel h3{margin:16px 0 6px; font-size:16px; letter-spacing:1px; color:#3d86b3; text-transform:uppercase}
+#panel ul{margin:0; padding-left:20px; font-size:17px; line-height:1.4}
+#panel li{margin-bottom:4px}
+.logros{display:grid; gap:8px; margin-top:6px}
+.logros div{display:flex; align-items:center; gap:12px; background:#eef6fb; border-radius:16px; padding:8px 12px; font-size:18px; font-weight:700; line-height:1.2}
+.logros b{font-size:30px; flex:none; font-family:"Segoe UI Emoji","Apple Color Emoji",sans-serif}
+.palabras{display:flex; flex-wrap:wrap; gap:8px}
+.palabras span{background:#fff3d6; border-radius:999px; padding:4px 12px; font-size:18px; font-weight:800}
+.dato{margin:0; font-size:17px; line-height:1.45; background:#f4fbef; border-radius:16px; padding:10px 14px}
+#cerrarPanel{font-family:inherit; border:none; cursor:pointer; position:absolute; top:12px; right:max(12px, env(safe-area-inset-right,0px)); width:40px; height:40px; border-radius:50%; background:#eef6fb; font-size:20px; color:#23364a}
+@media (prefers-reduced-motion:reduce){#panel{transition:none}}
+</style>
+
+<header>
+  <h1>🧩 Rompecabezas</h1>
+  <button class="ayuda-btn" id="abrirPanel">📘 ¿Qué aprendemos?</button>
+  <div class="barras">
+    <div class="pildora" id="dibujos"></div>
+    <div class="pildora" id="tamanos"></div>
+    <div class="pildora"><button class="opc on" id="ayuda">👀 Ayuda</button></div>
+  </div>
+</header>
+<div id="zona"><canvas id="c"></canvas></div>
+<input type="file" id="archivo" accept="image/*" hidden>
+
+<div id="festejo" hidden>
+  <div class="card"><h2>¡Lo armaste!</h2><div style="font-size:40px">⭐⭐⭐</div><p id="festejoTxt">Rompecabezas completo</p>
+    <button class="grande" id="otro">Otro rompecabezas</button></div>
+</div>
+
+
+<!-- El robotito explica el juego antes de empezar -->
+<div id="intro">
+  <div class="intro-card">
+    <svg viewBox="0 0 120 150" aria-hidden="true">
+      <line x1="60" y1="22" x2="60" y2="8" stroke="#23364a" stroke-width="4"/><circle cx="60" cy="7" r="6" fill="#e4572e"/>
+      <rect x="22" y="22" width="76" height="60" rx="18" fill="#ffb627" stroke="#23364a" stroke-width="4"/>
+      <circle cx="45" cy="48" r="10" fill="#fff"/><circle cx="75" cy="48" r="10" fill="#fff"/>
+      <circle cx="47" cy="49" r="5" fill="#23364a"/><circle cx="77" cy="49" r="5" fill="#23364a"/>
+      <path d="M46 64 Q60 74 74 64" fill="none" stroke="#23364a" stroke-width="4" stroke-linecap="round"/>
+      <rect x="32" y="86" width="56" height="44" rx="12" fill="#ffb627" stroke="#23364a" stroke-width="4"/>
+      <rect x="10" y="92" width="22" height="10" rx="5" fill="#9aa5b1" stroke="#23364a" stroke-width="3" transform="rotate(-30 21 97)"/>
+      <rect x="88" y="92" width="22" height="10" rx="5" fill="#9aa5b1" stroke="#23364a" stroke-width="3" transform="rotate(30 99 97)"/>
+      <rect x="40" y="130" width="14" height="16" rx="4" fill="#9aa5b1" stroke="#23364a" stroke-width="3"/>
+      <rect x="66" y="130" width="14" height="16" rx="4" fill="#9aa5b1" stroke="#23364a" stroke-width="3"/>
+    </svg>
+    <div class="burbuja">
+      <h2>¡Armemos el dibujo!</h2>
+      <div class="pictos"><div><b>🧩</b>agarrá una pieza</div><div><b>➡️</b>llevala a su lugar</div><div><b>✨</b>¡encaja sola!</div></div>
+      <button id="jugar">¡Jugar!</button>
+    </div>
+  </div>
+</div>
+
+<!-- Panel "¿Qué aprendemos?" para los chicos y sus familias -->
+<aside id="panel" aria-label="Qué aprendemos" aria-hidden="true">
+  <button id="cerrarPanel" aria-label="Cerrar">✕</button>
+  <h2>📘 ¿Qué aprendemos?</h2>
+  <p class="sub">Con Rompecabezas aprendemos a…</p>
+  <div class="logros"><div><b>👀</b>Observar formas y colores</div><div><b>🧩</b>Ver cómo las partes forman un todo</div><div><b>🤔</b>Probar hasta encontrar el lugar</div><div><b>🖱️</b>Arrastrar con precisión</div></div>
+  <h3>Palabras nuevas</h3>
+  <div class="palabras"><span>🧩 pieza</span><span>📐 esquina</span><span>▭ borde</span><span>⬆️ arriba</span><span>⬇️ abajo</span></div>
+  <h3>¿Sabías que…?</h3>
+  <p class="dato">Un buen truco es empezar por las <b>esquinas</b>: ¡son las piezas más fáciles de ubicar! 📐</p>
+  <h3>Para charlar en familia</h3>
+  <ul><li>¿Por qué pieza empezaste?</li><li>¿Cómo supiste dónde iba cada una?</li><li>¿Te ayudó ver el dibujo de fondo?</li></ul>
+  <h3>Para jugar en casa</h3>
+  <p class="dato">✂️ <b>Rompecabezas casero:</b> cortar en pedazos un dibujo o la tapa de una caja de cereales y armarlo en familia.</p>
+</aside>
+
+<script>
+const cv = document.getElementById('c'), ctx = cv.getContext('2d');
+const W = 1000, H = 600;
+const TAB = {x:30, y:75, w:600, h:450};      // tablero
+const MESA = {x:660, y:20, w:320, h:560};    // donde arrancan las piezas sueltas
+const TAMANOS = [[2,2],[3,2],[3,3],[4,3]];
+let tam = 0, dibujo = 0, ayuda = true, imagen = null, piezas = [], agarrada = null, terminado = false;
+
+function ajustar(){
+  const z = document.getElementById('zona').getBoundingClientRect();
+  const esc = Math.min(z.width / W, Math.max(260, z.height) / H), dpr = devicePixelRatio || 1;
+  cv.width = W*esc*dpr; cv.height = H*esc*dpr; cv.style.width = W*esc+'px'; cv.style.height = H*esc+'px';
+  ctx.setTransform(esc*dpr,0,0,esc*dpr,0,0);
+}
+
+// ---------- Dibujos para armar (se pintan con código) ----------
+function lienzo(){ const c = document.createElement('canvas'); c.width = 600; c.height = 450; return [c, c.getContext('2d')]; }
+function robot(g, x, y, s, color){
+  g.save(); g.translate(x,y); g.scale(s,s);
+  g.strokeStyle = '#23364a'; g.lineWidth = 6;
+  g.beginPath(); g.moveTo(0,-90); g.lineTo(0,-115); g.stroke();
+  g.fillStyle = '#e4572e'; g.beginPath(); g.arc(0,-120,10,0,Math.PI*2); g.fill();
+  g.fillStyle = '#9aa5b1'; g.fillRect(-35,60,24,60); g.fillRect(11,60,24,60); g.strokeRect(-35,60,24,60); g.strokeRect(11,60,24,60);
+  g.fillStyle = color; g.beginPath(); g.roundRect ? g.roundRect(-55,-5,110,75,20) : g.rect(-55,-5,110,75); g.fill(); g.stroke();
+  g.beginPath(); g.roundRect ? g.roundRect(-70,-92,140,92,28) : g.rect(-70,-92,140,92); g.fill(); g.stroke();
+  g.fillStyle = '#fff'; g.beginPath(); g.arc(-28,-50,17,0,Math.PI*2); g.arc(28,-50,17,0,Math.PI*2); g.fill();
+  g.fillStyle = '#23364a'; g.beginPath(); g.arc(-25,-48,8,0,Math.PI*2); g.arc(31,-48,8,0,Math.PI*2); g.fill();
+  g.beginPath(); g.arc(0,-28,16,.15*Math.PI,.85*Math.PI); g.stroke();
+  g.restore();
+}
+function sol(g,x,y,r){
+  g.fillStyle = '#ffe14d'; g.strokeStyle = '#ffb627'; g.lineWidth = 8;
+  for (let i=0;i<12;i++){ const a = i*Math.PI/6; g.beginPath(); g.moveTo(x+Math.cos(a)*r*1.2, y+Math.sin(a)*r*1.2); g.lineTo(x+Math.cos(a)*r*1.6, y+Math.sin(a)*r*1.6); g.stroke(); }
+  g.beginPath(); g.arc(x,y,r,0,Math.PI*2); g.fill();
+}
+function nube(g,x,y,s){ g.fillStyle = '#fff'; g.beginPath(); g.arc(x,y,28*s,0,Math.PI*2); g.arc(x+34*s,y-14*s,34*s,0,Math.PI*2); g.arc(x+68*s,y,26*s,0,Math.PI*2); g.fill(); }
+function flor(g,x,y,c){ g.strokeStyle = '#2e8b57'; g.lineWidth = 5; g.beginPath(); g.moveTo(x,y); g.lineTo(x,y+40); g.stroke();
+  g.fillStyle = c; for (let i=0;i<6;i++){ const a=i*Math.PI/3; g.beginPath(); g.arc(x+Math.cos(a)*13, y+Math.sin(a)*13, 10, 0, Math.PI*2); g.fill(); }
+  g.fillStyle = '#ffe14d'; g.beginPath(); g.arc(x,y,9,0,Math.PI*2); g.fill(); }
+function pelota(g,x,y,r){ g.fillStyle = '#fff'; g.strokeStyle = '#23364a'; g.lineWidth = 3; g.beginPath(); g.arc(x,y,r,0,Math.PI*2); g.fill(); g.stroke();
+  g.fillStyle = '#23364a'; g.beginPath(); for (let i=0;i<5;i++){ const a = i*2*Math.PI/5 - Math.PI/2; const px=x+Math.cos(a)*r*.38, py=y+Math.sin(a)*r*.38; i?g.lineTo(px,py):g.moveTo(px,py);} g.fill(); }
+
+const DIBUJOS = [
+  {nombre:'Plaza', pintar(){ const [c,g] = lienzo();
+    g.fillStyle = '#8fd3fb'; g.fillRect(0,0,600,450); g.fillStyle = '#9fd96b'; g.fillRect(0,300,600,150);
+    sol(g, 500, 80, 42); nube(g, 60, 80, 1); nube(g, 260, 50, .8);
+    g.fillStyle = '#8a5a2b'; g.fillRect(70,190,28,140); g.fillStyle = '#5cc96b'; g.beginPath(); g.arc(84,170,70,0,Math.PI*2); g.fill();
+    g.fillStyle = '#e4572e'; [[60,150],[110,180],[90,120]].forEach(([x,y])=>{ g.beginPath(); g.arc(x,y,9,0,Math.PI*2); g.fill(); });
+    flor(g, 200, 350, '#ff8fab'); flor(g, 250, 370, '#9b5de5'); flor(g, 520, 360, '#3fa7f5');
+    robot(g, 380, 245, 1, '#ffb627'); return c; }},
+  {nombre:'Casita', pintar(){ const [c,g] = lienzo();
+    g.fillStyle = '#ffd6a5'; g.fillRect(0,0,600,450); g.fillStyle = '#9fd96b'; g.fillRect(0,320,600,130);
+    sol(g, 90, 80, 40); nube(g, 380, 70, 1);
+    g.fillStyle = '#fff'; g.fillRect(200,200,220,150); g.strokeStyle = '#23364a'; g.lineWidth = 5; g.strokeRect(200,200,220,150);
+    g.fillStyle = '#e4572e'; g.beginPath(); g.moveTo(180,205); g.lineTo(310,100); g.lineTo(440,205); g.closePath(); g.fill(); g.stroke();
+    g.fillStyle = '#8a5a2b'; g.fillRect(285,270,50,80); g.strokeRect(285,270,50,80);
+    g.fillStyle = '#8fd3fb'; g.fillRect(222,228,46,40); g.fillRect(352,228,46,40); g.strokeRect(222,228,46,40); g.strokeRect(352,228,46,40);
+    g.fillStyle = '#c98a4b'; g.fillRect(360,120,30,50);
+    flor(g, 90, 360, '#e4572e'); flor(g, 140, 380, '#ffb627'); flor(g, 500, 360, '#9b5de5'); flor(g, 545, 380, '#ff8fab');
+    return c; }},
+  {nombre:'Penal', pintar(){ const [c,g] = lienzo();
+    g.fillStyle = '#1a4677'; g.fillRect(0,0,600,170);
+    for (let i=0;i<300;i++){ g.fillStyle = ['#6cb4ee','#ffffff','#ffb627','#e4572e'][i%4]; g.beginPath(); g.arc((i*37)%600, 20 + (i*13)%140, 5, 0, Math.PI*2); g.fill(); }
+    for (let i=0;i<8;i++){ g.fillStyle = i%2 ? '#4caf50' : '#58bd5a'; g.fillRect(0,170+i*35,600,35); }
+    g.strokeStyle = '#fff'; g.lineWidth = 10; g.beginPath(); g.moveTo(130,290); g.lineTo(130,140); g.lineTo(470,140); g.lineTo(470,290); g.stroke();
+    g.strokeStyle = 'rgba(255,255,255,.5)'; g.lineWidth = 2; for (let x=140;x<470;x+=20){ g.beginPath(); g.moveTo(x,145); g.lineTo(x,290); g.stroke(); }
+    for (let y=150;y<290;y+=20){ g.beginPath(); g.moveTo(135,y); g.lineTo(465,y); g.stroke(); }
+    g.fillStyle = '#fff'; g.fillRect(0,288,600,5);
+    pelota(g, 300, 390, 34);
+    g.save(); g.translate(170,330); g.fillStyle = '#6cb4ee'; g.fillRect(0,0,70,90); g.fillStyle = '#fff'; g.fillRect(14,0,14,90); g.fillRect(42,0,14,90);
+    g.fillStyle = '#23364a'; g.font = '800 40px "Baloo 2", sans-serif'; g.textAlign = 'center'; g.fillText('10', 35, 60); g.restore();
+    return c; }},
+  {nombre:'Pixel', pintar(){ const [c,g] = lienzo();
+    const d = ['................','.......RR.......','.......KK.......','...KKKKKKKKKK...','..KYYYYYYYYYYK..','..KYYYYYYYYYYK..','..KYWWWYYWWWYK..','..KYWKWYYWKWYK..','..KYWWWYYWWWYK..','..KYYYYYYYYYYK..','..KYYKYYYYKYYK..','..KYYYKKKKYYYK..','..KYYYYYYYYYYK..','...KKKKKKKKKK...','................','................'];
+    const M = {R:'#e4572e',Y:'#ffb627',K:'#23364a',W:'#ffffff'};
+    g.fillStyle = '#9b5de5'; g.fillRect(0,0,600,450);
+    for (let y=0;y<16;y++) for (let x=0;x<16;x++){ const ch = d[y][x]; g.fillStyle = ch==='.' ? (((x+y)%2)?'#a771ea':'#b285ef') : M[ch]; g.fillRect(75+x*28, 1+y*28, 28, 28); }
+    return c; }}
+];
+
+// ---------- Armar las piezas ----------
+function cargar(){
+  imagen = DIBUJOS[dibujo] ? DIBUJOS[dibujo].pintar() : imagen;
+  const [cols, filas] = TAMANOS[tam], pw = TAB.w/cols, ph = TAB.h/filas;
+  piezas = [];
+  for (let f=0; f<filas; f++) for (let c=0; c<cols; c++){
+    piezas.push({sx:c*pw, sy:f*ph, w:pw, h:ph, ox:TAB.x + c*pw, oy:TAB.y + f*ph,
+      x: MESA.x + Math.random()*Math.max(10, MESA.w - pw), y: MESA.y + Math.random()*Math.max(10, MESA.h - ph), lista:false});
+  }
+  // mezclar el orden de apilado
+  piezas.sort(()=>Math.random()-.5);
+  terminado = false;
+}
+function cuadro(){
+  ctx.fillStyle = '#eaf6ff'; ctx.fillRect(0,0,W,H);
+  // mesa de madera clara para las piezas sueltas
+  ctx.fillStyle = '#ffe9c7'; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(MESA.x-10, MESA.y-6, MESA.w+20, MESA.h+12, 18) : ctx.rect(MESA.x-10,MESA.y-6,MESA.w+20,MESA.h+12); ctx.fill();
+  // tablero
+  ctx.fillStyle = '#ffffff'; ctx.fillRect(TAB.x-6, TAB.y-6, TAB.w+12, TAB.h+12);
+  if (ayuda && imagen){ ctx.globalAlpha = .22; ctx.drawImage(imagen, TAB.x, TAB.y, TAB.w, TAB.h); ctx.globalAlpha = 1; }
+  const [cols, filas] = TAMANOS[tam];
+  ctx.strokeStyle = 'rgba(61,134,179,.35)'; ctx.lineWidth = 2; ctx.setLineDash([8,6]);
+  for (let c=0;c<=cols;c++){ ctx.beginPath(); ctx.moveTo(TAB.x + c*TAB.w/cols, TAB.y); ctx.lineTo(TAB.x + c*TAB.w/cols, TAB.y+TAB.h); ctx.stroke(); }
+  for (let f=0;f<=filas;f++){ ctx.beginPath(); ctx.moveTo(TAB.x, TAB.y + f*TAB.h/filas); ctx.lineTo(TAB.x+TAB.w, TAB.y + f*TAB.h/filas); ctx.stroke(); }
+  ctx.setLineDash([]);
+  ctx.fillStyle = '#3d86b3'; ctx.font = '800 22px "Baloo 2", sans-serif'; ctx.textAlign = 'left';
+  ctx.fillText(terminado ? '¡Completo!' : 'Arrastrá las piezas al tablero', TAB.x, 50);
+  // primero las piezas ya ubicadas, después las sueltas encima
+  piezas.filter(p=>p.lista).forEach(p=> pieza(p, false));
+  piezas.filter(p=>!p.lista).forEach(p=> pieza(p, p === agarrada));
+  requestAnimationFrame(cuadro);
+}
+function pieza(p, levantada){
+  if (!imagen) return;
+  ctx.save();
+  if (!p.lista){ ctx.shadowColor = 'rgba(35,54,74,.35)'; ctx.shadowBlur = levantada ? 22 : 8; ctx.shadowOffsetY = levantada ? 10 : 4; }
+  ctx.drawImage(imagen, p.sx, p.sy, p.w, p.h, p.x, p.y, p.w, p.h);
+  ctx.restore();
+  if (!p.lista){ ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 4; ctx.strokeRect(p.x+2, p.y+2, p.w-4, p.h-4); }
+}
+
+// ---------- Arrastrar ----------
+function aMesa(e){ const r = cv.getBoundingClientRect(); return [(e.clientX-r.left)*W/r.width, (e.clientY-r.top)*H/r.height]; }
+let dx = 0, dy = 0;
+cv.addEventListener('pointerdown', e=>{
+  const [x,y] = aMesa(e);
+  for (let i=piezas.length-1;i>=0;i--){
+    const p = piezas[i];
+    if (p.lista || x < p.x || x > p.x+p.w || y < p.y || y > p.y+p.h) continue;
+    agarrada = p; dx = x - p.x; dy = y - p.y;
+    piezas.splice(i,1); piezas.push(p);            // la pieza agarrada queda arriba de todo
+    cv.setPointerCapture(e.pointerId); break;
+  }
+});
+cv.addEventListener('pointermove', e=>{
+  const [x,y] = aMesa(e);
+  if (agarrada){ agarrada.x = Math.max(-agarrada.w/2, Math.min(W-agarrada.w/2, x - dx)); agarrada.y = Math.max(-agarrada.h/2, Math.min(H-agarrada.h/2, y - dy)); }
+  cv.style.cursor = agarrada ? 'grabbing' : (piezas.some(p=>!p.lista && x>p.x && x<p.x+p.w && y>p.y && y<p.y+p.h) ? 'grab' : 'default');
+});
+addEventListener('pointerup', ()=>{
+  if (!agarrada) return;
+  const p = agarrada; agarrada = null;
+  // si está cerca de su lugar, encaja sola (generoso para los más chicos)
+  if (Math.hypot(p.x - p.ox, p.y - p.oy) < Math.min(p.w, p.h) * .35){ p.x = p.ox; p.y = p.oy; p.lista = true; }
+  if (piezas.every(q=>q.lista)){ terminado = true; setTimeout(()=> document.getElementById('festejo').hidden = false, 500); }
+});
+
+// ---------- Botones ----------
+function pildora(id, lista, actual, alElegir){
+  const cont = document.getElementById(id); cont.innerHTML = '';
+  lista.forEach(([v, txt])=>{
+    const b = document.createElement('button'); b.className = 'opc' + (v===actual()?' on':''); b.textContent = txt;
+    b.onclick = ()=>{ if (alElegir(v) === false) return; cont.querySelectorAll('.opc').forEach(x=>x.classList.toggle('on', x===b)); cargar(); };
+    cont.appendChild(b);
+  });
+}
+pildora('dibujos', [...DIBUJOS.map((d,i)=>[i, d.nombre]), [-1, '📷 Mi imagen']], ()=>dibujo, v=>{
+  if (v === -1){ document.getElementById('archivo').click(); return false; }
+  dibujo = v;
+});
+pildora('tamanos', TAMANOS.map((t,i)=>[i, `${t[0]*t[1]} piezas`]), ()=>tam, v=>{ tam = v; });
+document.getElementById('ayuda').onclick = e=>{ ayuda = !ayuda; e.currentTarget.classList.toggle('on', ayuda); };
+document.getElementById('otro').onclick = ()=>{
+  document.getElementById('festejo').hidden = true;
+  if (dibujo >= 0){ dibujo = (dibujo + 1) % DIBUJOS.length; pildora('dibujos', [...DIBUJOS.map((d,i)=>[i, d.nombre]), [-1, '📷 Mi imagen']], ()=>dibujo, v=>{ if (v===-1){ document.getElementById('archivo').click(); return false; } dibujo = v; }); }
+  cargar();
+};
+// Imagen propia del docente: se recorta para llenar el tablero
+document.getElementById('archivo').addEventListener('change', e=>{
+  const f = e.target.files[0]; if (!f) return;
+  const img = new Image();
+  img.onload = ()=>{
+    const [c,g] = lienzo(); const s = Math.max(600/img.width, 450/img.height);
+    g.drawImage(img, (600 - img.width*s)/2, (450 - img.height*s)/2, img.width*s, img.height*s);
+    imagen = c; dibujo = -2;
+    document.querySelectorAll('#dibujos .opc').forEach((b,i,arr)=> b.classList.toggle('on', i === arr.length-1));
+    const [cols, filas] = TAMANOS[tam], pw = TAB.w/cols, ph = TAB.h/filas; piezas = [];
+    for (let fi=0; fi<filas; fi++) for (let co=0; co<cols; co++) piezas.push({sx:co*pw, sy:fi*ph, w:pw, h:ph, ox:TAB.x+co*pw, oy:TAB.y+fi*ph,
+      x: MESA.x + Math.random()*Math.max(10, MESA.w-pw), y: MESA.y + Math.random()*Math.max(10, MESA.h-ph), lista:false});
+    piezas.sort(()=>Math.random()-.5); terminado = false;
+  };
+  img.src = URL.createObjectURL(f); e.target.value = '';
+});
+addEventListener('resize', ajustar);
+ajustar(); cargar(); requestAnimationFrame(cuadro);
+(document.fonts ? document.fonts.ready : Promise.resolve()).then(()=>{ if (dibujo === 2) imagen = DIBUJOS[2].pintar(); });
+
+// ---------- Intro del robotito y panel ¿Qué aprendemos? ----------
+(function(){
+  const intro = document.getElementById('intro'), panel = document.getElementById('panel');
+  if (intro) document.getElementById('jugar').onclick = ()=>{ intro.hidden = true; };
+  document.getElementById('abrirPanel').onclick = ()=>{ panel.classList.add('abierto'); panel.setAttribute('aria-hidden','false'); };
+  document.getElementById('cerrarPanel').onclick = ()=>{ panel.classList.remove('abierto'); panel.setAttribute('aria-hidden','true'); };
+  addEventListener('keydown', e=>{
+    if (e.key === 'Escape') document.getElementById('cerrarPanel').click();
+    if (intro && !intro.hidden && (e.key === 'Enter' || e.key === ' ')){ e.preventDefault(); e.stopImmediatePropagation(); intro.hidden = true; }
+  }, true);
+})();
+</script>
+
+<a class="sd-casa" href="index.html" aria-label="Volver a todos los juegos" title="Todos los juegos">🏠</a>
+</html>

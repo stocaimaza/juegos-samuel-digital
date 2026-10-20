@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><link rel="icon" href="favicon.svg" type="image/svg+xml"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}[hidden]{display:none!important}img{max-width:100%}
+.sd-casa{position:fixed;left:max(10px,env(safe-area-inset-left,0px));bottom:max(10px,env(safe-area-inset-bottom,0px));z-index:50;width:50px;height:50px;border-radius:50%;background:#fff;box-shadow:0 4px 0 #3d86b3;display:flex;align-items:center;justify-content:center;font-size:26px;text-decoration:none}
+.sd-casa:focus-visible{outline:4px solid #ffb627;outline-offset:2px}</style>
+<title>Boceto Libre</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap">
+<style>
+/* Layout: herramientas en una barra arriba, hoja grande debajo ocupando el resto de la pantalla */
+:root{
+  --cielo:#7ec8f0; --panel:#ffffff; --tinta:#23364a; --sol:#ffb627; --sombra:#3d86b3;
+  --display:"Baloo 2","Comic Sans MS",system-ui,sans-serif;
+  color-scheme:light;
+}
+html,body{height:100%}
+body{background:var(--cielo); color:var(--tinta); font-family:var(--display); box-sizing:border-box;
+  padding-left:max(16px,env(safe-area-inset-left,0px)); padding-right:max(16px,env(safe-area-inset-right,0px)); padding-block:12px;
+  display:flex; flex-direction:column; gap:10px; user-select:none; -webkit-user-select:none}
+header{display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; max-width:1100px; width:100%; margin:0 auto}
+h1{margin:0; font-size:clamp(22px,4vw,32px); font-weight:800; color:#fff; text-shadow:0 2px 0 var(--sombra)}
+.barra{max-width:1100px; width:100%; margin:0 auto; background:var(--panel); border-radius:18px; padding:8px; box-shadow:0 4px 0 var(--sombra);
+  display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:center; box-sizing:border-box}
+.grupo{display:flex; gap:6px; flex-wrap:wrap; align-items:center}
+.sep{width:2px; align-self:stretch; background:#e3eef6; border-radius:2px}
+button{font-family:var(--display); cursor:pointer; border:none; color:var(--tinta)}
+button:focus-visible{outline:4px solid var(--sombra); outline-offset:2px}
+.color{width:42px; height:42px; border-radius:50%; border:3px solid rgba(35,54,74,.15)}
+.color.on{border:4px solid var(--tinta); transform:scale(1.12)}
+.h{width:52px; height:52px; border-radius:14px; background:#eef6fb; font-size:26px; display:flex; align-items:center; justify-content:center}
+.h.on{background:var(--sol); box-shadow:inset 0 -3px 0 #c98400}
+.punto{background:var(--tinta); border-radius:50%; display:block}
+.hoja{flex:1; min-height:0; max-width:1100px; width:100%; margin:0 auto; background:var(--panel); border-radius:18px; box-shadow:0 6px 0 var(--sombra); overflow:hidden}
+canvas{width:100%; height:100%; display:block; touch-action:none; cursor:crosshair}
+#seguro{position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(35,54,74,.45); z-index:5}
+#seguro .card{background:var(--panel); border-radius:24px; padding:22px 28px; text-align:center; box-shadow:0 8px 0 #c98400}
+#seguro p{font-size:26px; font-weight:800; margin:0 0 14px}
+.si,.no{border-radius:999px; padding:10px 26px; font-size:22px; font-weight:800; margin:0 6px}
+.si{background:#e4572e; color:#fff; box-shadow:0 4px 0 #a83a1b}
+.no{background:#eef6fb; box-shadow:0 4px 0 var(--sombra)}
+
+/* ---- Robotito que explica + panel ¿Qué aprendemos? ---- */
+.ayuda-btn{font-family:"Baloo 2","Comic Sans MS",system-ui,sans-serif; border:none; cursor:pointer; background:#fff; border-radius:999px; padding:6px 16px; font-size:18px; font-weight:800; color:#23364a; box-shadow:0 3px 0 #3d86b3}
+#intro{position:fixed; inset:0; z-index:40; display:flex; align-items:center; justify-content:center; background:rgba(35,54,74,.5); padding:16px}
+.intro-card{background:#fff; border-radius:28px; padding:22px 26px; box-shadow:0 8px 0 #c98400; display:flex; gap:18px; align-items:center; max-width:640px; flex-wrap:wrap; justify-content:center; font-family:"Baloo 2","Comic Sans MS",system-ui,sans-serif; color:#23364a}
+.intro-card svg{width:150px; height:auto; flex:none}
+.burbuja{position:relative; background:#fff3d6; border-radius:22px; padding:14px 18px; min-width:0; flex:1 1 260px; text-align:center}
+.burbuja::before{content:""; position:absolute; left:-14px; top:40%; border:10px solid transparent; border-right:14px solid #fff3d6}
+.burbuja h2{margin:0; font-size:clamp(24px,4vw,32px); line-height:1.1; color:#23364a; text-shadow:none}
+.pictos{display:flex; justify-content:center; gap:14px; margin:12px 0 4px; flex-wrap:wrap}
+.pictos div{display:flex; flex-direction:column; align-items:center; font-size:15px; font-weight:700; gap:2px; max-width:90px; line-height:1.1}
+.pictos b{font-size:36px; line-height:1; font-family:"Segoe UI Emoji","Apple Color Emoji",sans-serif}
+#jugar{font-family:inherit; border:none; cursor:pointer; background:#ffb627; border-radius:999px; padding:10px 34px; font-size:26px; font-weight:800; color:#23364a; box-shadow:0 4px 0 #c98400; margin-top:8px}
+#panel{position:fixed; top:0; right:0; bottom:0; width:min(400px,100%); background:#fff; z-index:45; box-shadow:-8px 0 30px rgba(35,54,74,.3); color:#23364a; text-align:left;
+  font-family:"Baloo 2","Comic Sans MS",system-ui,sans-serif; overflow:auto; padding:20px max(20px, env(safe-area-inset-right,0px)) 30px 22px; box-sizing:border-box; transform:translateX(105%); transition:transform .25s}
+#panel.abierto{transform:none}
+#panel h2{margin:0 0 4px; font-size:26px; color:#23364a; text-shadow:none}
+#panel .sub{margin:0 0 6px; color:#4d6175; font-size:19px; font-weight:700}
+#panel h3{margin:16px 0 6px; font-size:16px; letter-spacing:1px; color:#3d86b3; text-transform:uppercase}
+#panel ul{margin:0; padding-left:20px; font-size:17px; line-height:1.4}
+#panel li{margin-bottom:4px}
+.logros{display:grid; gap:8px; margin-top:6px}
+.logros div{display:flex; align-items:center; gap:12px; background:#eef6fb; border-radius:16px; padding:8px 12px; font-size:18px; font-weight:700; line-height:1.2}
+.logros b{font-size:30px; flex:none; font-family:"Segoe UI Emoji","Apple Color Emoji",sans-serif}
+.palabras{display:flex; flex-wrap:wrap; gap:8px}
+.palabras span{background:#fff3d6; border-radius:999px; padding:4px 12px; font-size:18px; font-weight:800}
+.dato{margin:0; font-size:17px; line-height:1.45; background:#f4fbef; border-radius:16px; padding:10px 14px}
+#cerrarPanel{font-family:inherit; border:none; cursor:pointer; position:absolute; top:12px; right:max(12px, env(safe-area-inset-right,0px)); width:40px; height:40px; border-radius:50%; background:#eef6fb; font-size:20px; color:#23364a}
+@media (prefers-reduced-motion:reduce){#panel{transition:none}}
+</style>
+
+<header><h1>✏️ Boceto Libre</h1>
+  <button class="ayuda-btn" id="abrirPanel">📘 ¿Qué aprendemos?</button></header>
+
+<div class="barra">
+  <div class="grupo" id="paleta"></div>
+  <div class="sep"></div>
+  <div class="grupo" id="grosores">
+    <button class="h" data-g="6" aria-label="Fino"><span class="punto" style="width:8px;height:8px"></span></button>
+    <button class="h on" data-g="16" aria-label="Mediano"><span class="punto" style="width:16px;height:16px"></span></button>
+    <button class="h" data-g="34" aria-label="Grueso"><span class="punto" style="width:28px;height:28px"></span></button>
+  </div>
+  <div class="sep"></div>
+  <div class="grupo">
+    <button class="h" id="goma" aria-label="Goma" title="Goma">🧽</button>
+    <button class="h" id="deshacer" aria-label="Deshacer" title="Deshacer">↩️</button>
+    <button class="h" id="nueva" aria-label="Hoja nueva" title="Hoja nueva">📄</button>
+  </div>
+</div>
+
+<div class="hoja" id="hoja"><canvas id="c"></canvas></div>
+
+<div id="seguro" hidden>
+  <div class="card"><p>¿Empezar una hoja nueva?</p>
+    <button class="si" id="si">Sí</button><button class="no" id="no">No</button></div>
+</div>
+
+
+<!-- El robotito explica el juego antes de empezar -->
+<div id="intro">
+  <div class="intro-card">
+    <svg viewBox="0 0 120 150" aria-hidden="true">
+      <line x1="60" y1="22" x2="60" y2="8" stroke="#23364a" stroke-width="4"/><circle cx="60" cy="7" r="6" fill="#e4572e"/>
+      <rect x="22" y="22" width="76" height="60" rx="18" fill="#ffb627" stroke="#23364a" stroke-width="4"/>
+      <circle cx="45" cy="48" r="10" fill="#fff"/><circle cx="75" cy="48" r="10" fill="#fff"/>
+      <circle cx="47" cy="49" r="5" fill="#23364a"/><circle cx="77" cy="49" r="5" fill="#23364a"/>
+      <path d="M46 64 Q60 74 74 64" fill="none" stroke="#23364a" stroke-width="4" stroke-linecap="round"/>
+      <rect x="32" y="86" width="56" height="44" rx="12" fill="#ffb627" stroke="#23364a" stroke-width="4"/>
+      <rect x="10" y="92" width="22" height="10" rx="5" fill="#9aa5b1" stroke="#23364a" stroke-width="3" transform="rotate(-30 21 97)"/>
+      <rect x="88" y="92" width="22" height="10" rx="5" fill="#9aa5b1" stroke="#23364a" stroke-width="3" transform="rotate(30 99 97)"/>
+      <rect x="40" y="130" width="14" height="16" rx="4" fill="#9aa5b1" stroke="#23364a" stroke-width="3"/>
+      <rect x="66" y="130" width="14" height="16" rx="4" fill="#9aa5b1" stroke="#23364a" stroke-width="3"/>
+    </svg>
+    <div class="burbuja">
+      <h2>¡Dibujá lo que quieras!</h2>
+      <div class="pictos"><div><b>🎨</b>colores</div><div><b>✏️</b>fino o grueso</div><div><b>🧽</b>goma</div><div><b>↩️</b>volver</div></div>
+      <button id="jugar">¡Jugar!</button>
+    </div>
+  </div>
+</div>
+
+<!-- Panel "¿Qué aprendemos?" para los chicos y sus familias -->
+<aside id="panel" aria-label="Qué aprendemos" aria-hidden="true">
+  <button id="cerrarPanel" aria-label="Cerrar">✕</button>
+  <h2>📘 ¿Qué aprendemos?</h2>
+  <p class="sub">Con Boceto Libre aprendemos a…</p>
+  <div class="logros"><div><b>🖌️</b>Expresarnos dibujando</div><div><b>🖱️</b>Hacer líneas y formas con el mouse</div><div><b>🌈</b>Elegir colores y grosores</div><div><b>💡</b>Imaginar y crear</div></div>
+  <h3>Palabras nuevas</h3>
+  <div class="palabras"><span>〰️ línea</span><span>✏️ trazo</span><span>➖ fino</span><span>⬛ grueso</span><span>🧽 goma</span></div>
+  <h3>¿Sabías que…?</h3>
+  <p class="dato">Muchos dibujos animados y videojuegos se dibujan en la computadora, ¡con herramientas parecidas a estas! 🎬</p>
+  <h3>Para charlar en familia</h3>
+  <ul><li>¿Qué dibujaste?</li><li>¿Qué colores elegiste? ¿Por qué?</li><li>¿Qué le agregarías a tu dibujo?</li></ul>
+  <h3>Para jugar en casa</h3>
+  <p class="dato">👆 <b>Dibujo en la espalda:</b> con el dedo, dibujar una forma en la espalda de alguien de la familia y que adivine qué es. ¡Después cambian!</p>
+</aside>
+
+<script>
+const COLORES = ['#23364a','#e4572e','#ff8fab','#ffb627','#ffe14d','#5cc96b','#2e8b57','#3fa7f5','#1f4fd1','#9b5de5','#8a5a2b'];
+// El dibujo vive en una hoja fija de 1600x1000; la pantalla solo la muestra escalada
+const W = 1600, H = 1000;
+const hoja = document.createElement('canvas'); hoja.width = W; hoja.height = H;
+const hctx = hoja.getContext('2d');
+const cv = document.getElementById('c'), ctx = cv.getContext('2d');
+let color = COLORES[0], grosor = 16, goma = false, trazando = false, ultimo = null, historia = [];
+
+function blanco(){ hctx.fillStyle = '#ffffff'; hctx.fillRect(0,0,W,H); }
+blanco();
+
+// Paleta
+const pal = document.getElementById('paleta');
+COLORES.forEach((c,i)=>{
+  const b = document.createElement('button'); b.className = 'color' + (i===0?' on':''); b.style.background = c; b.setAttribute('aria-label','Color '+c);
+  b.onclick = ()=>{ color = c; goma = false; document.getElementById('goma').classList.remove('on');
+    pal.querySelectorAll('.color').forEach(x=>x.classList.remove('on')); b.classList.add('on'); };
+  pal.appendChild(b);
+});
+document.querySelectorAll('[data-g]').forEach(b=>b.onclick = ()=>{
+  grosor = +b.dataset.g; document.querySelectorAll('[data-g]').forEach(x=>x.classList.toggle('on', x===b));
+});
+document.getElementById('goma').onclick = e=>{ goma = !goma; e.currentTarget.classList.toggle('on', goma); };
+
+// Mostrar la hoja ajustada al espacio disponible, sin deformarla
+let esc = 1, ox = 0, oy = 0;
+function ajustar(){
+  const r = document.getElementById('hoja').getBoundingClientRect(), dpr = devicePixelRatio||1;
+  cv.width = r.width*dpr; cv.height = r.height*dpr;
+  esc = Math.min(r.width/W, r.height/H); ox = (r.width - W*esc)/2; oy = (r.height - H*esc)/2;
+  mostrar();
+}
+function mostrar(){
+  const dpr = devicePixelRatio||1;
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.fillStyle = '#eef6fb'; ctx.fillRect(0,0,cv.width,cv.height);
+  ctx.drawImage(hoja, ox, oy, W*esc, H*esc);
+}
+function aHoja(e){ const r = cv.getBoundingClientRect(); return [(e.clientX-r.left-ox)/esc, (e.clientY-r.top-oy)/esc]; }
+
+// Trazo
+function trazo(a,b){
+  hctx.strokeStyle = goma ? '#ffffff' : color;
+  hctx.lineWidth = goma ? grosor*2 : grosor; hctx.lineCap = 'round'; hctx.lineJoin = 'round';
+  hctx.beginPath(); hctx.moveTo(a[0],a[1]); hctx.lineTo(b[0],b[1]); hctx.stroke();
+}
+cv.addEventListener('pointerdown', e=>{
+  historia.push(hctx.getImageData(0,0,W,H)); if (historia.length>20) historia.shift();
+  trazando = true; ultimo = aHoja(e); cv.setPointerCapture(e.pointerId);
+  trazo(ultimo, [ultimo[0]+0.01, ultimo[1]]); mostrar();
+});
+cv.addEventListener('pointermove', e=>{
+  if (!trazando) return; const p = aHoja(e); trazo(ultimo,p); ultimo = p; mostrar();
+});
+addEventListener('pointerup', ()=>{ trazando = false; });
+
+document.getElementById('deshacer').onclick = ()=>{ if (historia.length){ hctx.putImageData(historia.pop(),0,0); mostrar(); } };
+addEventListener('keydown', e=>{ if ((e.ctrlKey||e.metaKey) && e.key==='z'){ e.preventDefault(); document.getElementById('deshacer').click(); } });
+
+// Hoja nueva, con confirmación para no perder el dibujo por accidente
+document.getElementById('nueva').onclick = ()=>{ document.getElementById('seguro').hidden = false; };
+document.getElementById('no').onclick = ()=>{ document.getElementById('seguro').hidden = true; };
+document.getElementById('si').onclick = ()=>{ historia.push(hctx.getImageData(0,0,W,H)); blanco(); mostrar(); document.getElementById('seguro').hidden = true; };
+
+addEventListener('resize', ajustar);
+ajustar();
+
+// ---------- Intro del robotito y panel ¿Qué aprendemos? ----------
+(function(){
+  const intro = document.getElementById('intro'), panel = document.getElementById('panel');
+  if (intro) document.getElementById('jugar').onclick = ()=>{ intro.hidden = true; };
+  document.getElementById('abrirPanel').onclick = ()=>{ panel.classList.add('abierto'); panel.setAttribute('aria-hidden','false'); };
+  document.getElementById('cerrarPanel').onclick = ()=>{ panel.classList.remove('abierto'); panel.setAttribute('aria-hidden','true'); };
+  addEventListener('keydown', e=>{
+    if (e.key === 'Escape') document.getElementById('cerrarPanel').click();
+    if (intro && !intro.hidden && (e.key === 'Enter' || e.key === ' ')){ e.preventDefault(); e.stopImmediatePropagation(); intro.hidden = true; }
+  }, true);
+})();
+</script>
+
+<a class="sd-casa" href="index.html" aria-label="Volver a todos los juegos" title="Todos los juegos">🏠</a>
+</html>

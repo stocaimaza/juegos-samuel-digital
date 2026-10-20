@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><link rel="icon" href="favicon.svg" type="image/svg+xml"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}[hidden]{display:none!important}img{max-width:100%}
+.sd-casa{position:fixed;left:max(10px,env(safe-area-inset-left,0px));bottom:max(10px,env(safe-area-inset-bottom,0px));z-index:50;width:50px;height:50px;border-radius:50%;background:#fff;box-shadow:0 4px 0 #3d86b3;display:flex;align-items:center;justify-content:center;font-size:26px;text-decoration:none}
+.sd-casa:focus-visible{outline:4px solid #ffb627;outline-offset:2px}</style>
+<title>Seguí la Secuencia</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap">
+<style>
+/* Layout: niveles arriba, tira de la secuencia en el centro y opciones grandes abajo */
+:root{--cielo:#7ec8f0;--panel:#fff;--tinta:#23364a;--sol:#ffb627;--sombra:#3d86b3;--verde:#5cc96b;--rojo:#e4572e;
+  --display:"Baloo 2","Comic Sans MS",system-ui,sans-serif;color-scheme:light}
+[hidden]{display:none!important}
+html,body{min-height:100%}
+body{margin:0;background:var(--cielo);color:var(--tinta);font-family:var(--display);box-sizing:border-box;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:12px;
+  user-select:none;-webkit-user-select:none}
+button{font-family:var(--display);cursor:pointer;border:none;color:var(--tinta)}
+button:focus-visible{outline:4px solid var(--sombra);outline-offset:2px}
+header{max-width:1000px;margin:0 auto 14px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+h1{margin:0;font-size:clamp(22px,4vw,32px);font-weight:800;color:#fff;text-shadow:0 2px 0 var(--sombra)}
+.pildora{display:flex;gap:4px;background:var(--panel);border-radius:999px;padding:4px;box-shadow:0 3px 0 var(--sombra);flex-wrap:wrap}
+.opc{background:transparent;border-radius:999px;padding:5px 14px;font-size:17px;font-weight:700}
+.opc.on{background:var(--sol)}
+main{max-width:1000px;margin:0 auto;display:flex;flex-direction:column;align-items:center;gap:18px}
+.consigna{font-size:clamp(22px,3.5vw,30px);font-weight:800;color:#fff;text-shadow:0 2px 0 var(--sombra);text-align:center;margin:0}
+.estrellas{font-size:28px;letter-spacing:4px}
+.estrellas span{opacity:.3} .estrellas span.si{opacity:1}
+.tira{background:var(--panel);border-radius:24px;padding:16px;box-shadow:0 6px 0 var(--sombra);display:flex;flex-wrap:wrap;gap:10px;justify-content:center;max-width:100%}
+.casilla{width:var(--c);height:var(--c);border-radius:16px;background:#eef6fb;display:flex;align-items:center;justify-content:center}
+.casilla svg{width:78%;height:78%}
+.casilla.falta{background:#fff3d6;border:4px dashed var(--sol);font-size:calc(var(--c)*.55);font-weight:800;color:#c98400}
+.casilla.bien{background:#dff5e2;border:4px solid var(--verde)}
+.opciones{display:flex;gap:16px;flex-wrap:wrap;justify-content:center}
+.opcion{width:calc(var(--c)*1.25);height:calc(var(--c)*1.25);border-radius:22px;background:var(--panel);box-shadow:0 6px 0 var(--sombra);display:flex;align-items:center;justify-content:center;transition:transform .1s}
+.opcion svg{width:72%;height:72%}
+.opcion:hover{transform:translateY(-3px)}
+.opcion.mal{animation:no .4s}
+@keyframes no{25%{transform:translateX(-8px)}50%{transform:translateX(8px)}75%{transform:translateX(-5px)}}
+.aviso{min-height:34px;font-size:24px;font-weight:800;color:#fff;text-shadow:0 2px 0 var(--sombra)}
+#festejo{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(35,54,74,.45);z-index:20}
+.card{background:#fff;border-radius:24px;padding:24px 32px;text-align:center;box-shadow:0 8px 0 #c98400;max-width:90vw}
+.card h2{margin:0;font-size:44px;color:var(--sol);text-shadow:0 2px 0 #c98400}
+.card p{font-size:22px;margin:4px 0 16px}
+.grande{background:var(--sol);border-radius:999px;padding:10px 28px;font-size:24px;font-weight:800;box-shadow:0 4px 0 #c98400}
+@media (prefers-reduced-motion:reduce){.opcion.mal{animation:none}}
+
+/* ---- Robotito que explica + panel ¿Qué aprendemos? ---- */
+.ayuda-btn{font-family:"Baloo 2","Comic Sans MS",system-ui,sans-serif; border:none; cursor:pointer; background:#fff; border-radius:999px; padding:6px 16px; font-size:18px; font-weight:800; color:#23364a; box-shadow:0 3px 0 #3d86b3}
+#intro{position:fixed; inset:0; z-index:40; display:flex; align-items:center; justify-content:center; background:rgba(35,54,74,.5); padding:16px}
+.intro-card{background:#fff; border-radius:28px; padding:22px 26px; box-shadow:0 8px 0 #c98400; display:flex; gap:18px; align-items:center; max-width:640px; flex-wrap:wrap; justify-content:center; font-family:"Baloo 2","Comic Sans MS",system-ui,sans-serif; color:#23364a}
+.intro-card svg{width:150px; height:auto; flex:none}
+.burbuja{position:relative; background:#fff3d6; border-radius:22px; padding:14px 18px; min-width:0; flex:1 1 260px; text-align:center}
+.burbuja::before{content:""; position:absolute; left:-14px; top:40%; border:10px solid transparent; border-right:14px solid #fff3d6}
+.burbuja h2{margin:0; font-size:clamp(24px,4vw,32px); line-height:1.1; color:#23364a; text-shadow:none}
+.pictos{display:flex; justify-content:center; gap:14px; margin:12px 0 4px; flex-wrap:wrap}
+.pictos div{display:flex; flex-direction:column; align-items:center; font-size:15px; font-weight:700; gap:2px; max-width:90px; line-height:1.1}
+.pictos b{font-size:36px; line-height:1; font-family:"Segoe UI Emoji","Apple Color Emoji",sans-serif}
+#jugar{font-family:inherit; border:none; cursor:pointer; background:#ffb627; border-radius:999px; padding:10px 34px; font-size:26px; font-weight:800; color:#23364a; box-shadow:0 4px 0 #c98400; margin-top:8px}
+#panel{position:fixed; top:0; right:0; bottom:0; width:min(400px,100%); background:#fff; z-index:45; box-shadow:-8px 0 30px rgba(35,54,74,.3); color:#23364a; text-align:left;
+  font-family:"Baloo 2","Comic Sans MS",system-ui,sans-serif; overflow:auto; padding:20px max(20px, env(safe-area-inset-right,0px)) 30px 22px; box-sizing:border-box; transform:translateX(105%); transition:transform .25s}
+#panel.abierto{transform:none}
+#panel h2{margin:0 0 4px; font-size:26px; color:#23364a; text-shadow:none}
+#panel .sub{margin:0 0 6px; color:#4d6175; font-size:19px; font-weight:700}
+#panel h3{margin:16px 0 6px; font-size:16px; letter-spacing:1px; color:#3d86b3; text-transform:uppercase}
+#panel ul{margin:0; padding-left:20px; font-size:17px; line-height:1.4}
+#panel li{margin-bottom:4px}
+.logros{display:grid; gap:8px; margin-top:6px}
+.logros div{display:flex; align-items:center; gap:12px; background:#eef6fb; border-radius:16px; padding:8px 12px; font-size:18px; font-weight:700; line-height:1.2}
+.logros b{font-size:30px; flex:none; font-family:"Segoe UI Emoji","Apple Color Emoji",sans-serif}
+.palabras{display:flex; flex-wrap:wrap; gap:8px}
+.palabras span{background:#fff3d6; border-radius:999px; padding:4px 12px; font-size:18px; font-weight:800}
+.dato{margin:0; font-size:17px; line-height:1.45; background:#f4fbef; border-radius:16px; padding:10px 14px}
+#cerrarPanel{font-family:inherit; border:none; cursor:pointer; position:absolute; top:12px; right:max(12px, env(safe-area-inset-right,0px)); width:40px; height:40px; border-radius:50%; background:#eef6fb; font-size:20px; color:#23364a}
+@media (prefers-reduced-motion:reduce){#panel{transition:none}}
+</style>
+
+<header>
+  <h1>🔁 Seguí la Secuencia</h1>
+  <button class="ayuda-btn" id="abrirPanel">📘 ¿Qué aprendemos?</button>
+  <div class="pildora" id="niveles"></div>
+</header>
+<main>
+  <p class="consigna">¿Qué sigue?</p>
+  <div class="estrellas" id="estrellas"></div>
+  <div class="tira" id="tira"></div>
+  <div class="aviso" id="aviso"></div>
+  <div class="opciones" id="opciones"></div>
+</main>
+
+<div id="festejo" hidden>
+  <div class="card"><h2>¡Genial!</h2><div style="font-size:40px">⭐⭐⭐</div><p id="festejoTxt"></p>
+    <button class="grande" id="seguir">Siguiente nivel ▶</button></div>
+</div>
+
+
+<!-- El robotito explica el juego antes de empezar -->
+<div id="intro">
+  <div class="intro-card">
+    <svg viewBox="0 0 120 150" aria-hidden="true">
+      <line x1="60" y1="22" x2="60" y2="8" stroke="#23364a" stroke-width="4"/><circle cx="60" cy="7" r="6" fill="#e4572e"/>
+      <rect x="22" y="22" width="76" height="60" rx="18" fill="#ffb627" stroke="#23364a" stroke-width="4"/>
+      <circle cx="45" cy="48" r="10" fill="#fff"/><circle cx="75" cy="48" r="10" fill="#fff"/>
+      <circle cx="47" cy="49" r="5" fill="#23364a"/><circle cx="77" cy="49" r="5" fill="#23364a"/>
+      <path d="M46 64 Q60 74 74 64" fill="none" stroke="#23364a" stroke-width="4" stroke-linecap="round"/>
+      <rect x="32" y="86" width="56" height="44" rx="12" fill="#ffb627" stroke="#23364a" stroke-width="4"/>
+      <rect x="10" y="92" width="22" height="10" rx="5" fill="#9aa5b1" stroke="#23364a" stroke-width="3" transform="rotate(-30 21 97)"/>
+      <rect x="88" y="92" width="22" height="10" rx="5" fill="#9aa5b1" stroke="#23364a" stroke-width="3" transform="rotate(30 99 97)"/>
+      <rect x="40" y="130" width="14" height="16" rx="4" fill="#9aa5b1" stroke="#23364a" stroke-width="3"/>
+      <rect x="66" y="130" width="14" height="16" rx="4" fill="#9aa5b1" stroke="#23364a" stroke-width="3"/>
+    </svg>
+    <div class="burbuja">
+      <h2>¿Qué sigue?</h2>
+      <div class="pictos"><div><b>👀</b>mirá bien</div><div><b>🔁</b>¿cómo se repite?</div><div><b>👆</b>elegí la que sigue</div></div>
+      <button id="jugar">¡Jugar!</button>
+    </div>
+  </div>
+</div>
+
+<!-- Panel "¿Qué aprendemos?" para los chicos y sus familias -->
+<aside id="panel" aria-label="Qué aprendemos" aria-hidden="true">
+  <button id="cerrarPanel" aria-label="Cerrar">✕</button>
+  <h2>📘 ¿Qué aprendemos?</h2>
+  <p class="sub">Con Seguí la Secuencia aprendemos a…</p>
+  <div class="logros"><div><b>🔁</b>Descubrir patrones que se repiten</div><div><b>🎨</b>Reconocer colores y figuras</div><div><b>🤔</b>Pensar qué viene después</div><div><b>🧠</b>Ordenar y anticipar</div></div>
+  <h3>Palabras nuevas</h3>
+  <div class="palabras"><span>🔁 patrón</span><span>➡️ secuencia</span><span>🔄 repetir</span><span>⚪ círculo</span><span>⬜ cuadrado</span><span>🔺 triángulo</span></div>
+  <h3>¿Sabías que…?</h3>
+  <p class="dato">Los patrones están en todos lados: en las rayas de la camiseta argentina, en los días de la semana ¡y hasta en la música! 🎶</p>
+  <h3>Para charlar en familia</h3>
+  <ul><li>¿Cómo te diste cuenta de qué seguía?</li><li>¿Ves algún patrón en tu ropa o en tu casa?</li><li>¿Te animás a inventar uno?</li></ul>
+  <h3>Para jugar en casa</h3>
+  <p class="dato">👏 <b>Patrones con el cuerpo:</b> palma, palma, rodilla… palma, palma, rodilla. ¡Inventen otros! También se pueden hacer collares con fideos de colores.</p>
+</aside>
+
+<script>
+const COLORES = {rojo:'#e4572e', azul:'#3fa7f5', amarillo:'#ffb627', verde:'#5cc96b', violeta:'#9b5de5', rosa:'#ff8fab'};
+const FORMAS = ['circulo','cuadrado','triangulo','estrella','corazon'];
+// Niveles: largo del patrón, qué cambia (color, forma o las dos) y tipo de patrón
+const NIVELES = [
+  {nombre:'Colores AB',   patrones:['AB'],          cambia:'color'},
+  {nombre:'Colores ABC',  patrones:['ABC'],         cambia:'color'},
+  {nombre:'Formas',       patrones:['AAB','ABB','AB'], cambia:'forma'},
+  {nombre:'Forma y color',patrones:['ABC','AABB','ABAC'], cambia:'ambas'}
+];
+const RONDAS = 8;
+let nivel = 0, ronda = 0, respuesta = null, bloqueado = false;
+
+function svg(el){
+  const c = COLORES[el.color], st = `fill="${c}" stroke="#23364a" stroke-width="5" stroke-linejoin="round"`;
+  const f = {
+    circulo:`<circle cx="50" cy="50" r="38" ${st}/>`,
+    cuadrado:`<rect x="14" y="14" width="72" height="72" rx="10" ${st}/>`,
+    triangulo:`<path d="M50 10 L90 86 L10 86 Z" ${st}/>`,
+    estrella:`<path d="M50 6 L62 37 L95 38 L69 58 L79 91 L50 72 L21 91 L31 58 L5 38 L38 37 Z" ${st}/>`,
+    corazon:`<path d="M50 88 C10 60 6 34 22 20 C34 10 46 16 50 28 C54 16 66 10 78 20 C94 34 90 60 50 88 Z" ${st}/>`
+  }[el.forma];
+  return `<svg viewBox="0 0 100 100">${f}</svg>`;
+}
+function azar(a){ return a[Math.floor(Math.random()*a.length)]; }
+function mezclar(a){ for (let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function igual(a,b){ return a.forma === b.forma && a.color === b.color; }
+
+// Arma un patrón: cada letra (A, B, C) es un elemento distinto
+function nuevaRonda(){
+  const n = NIVELES[nivel], patron = azar(n.patrones);
+  const letras = [...new Set(patron)];
+  const nombresColores = mezclar(Object.keys(COLORES)), formas = mezclar([...FORMAS]);
+  const formaFija = azar(FORMAS), colorFijo = azar(Object.keys(COLORES));
+  const elem = {};
+  letras.forEach((l,i)=>{
+    elem[l] = {forma: n.cambia === 'color' ? formaFija : formas[i], color: n.cambia === 'forma' ? colorFijo : nombresColores[i]};
+  });
+  // largo visible: al menos dos vueltas del patrón y que la que falta caiga en cualquier lugar del patrón
+  const largo = patron.length*2 + Math.floor(Math.random()*patron.length) + (patron.length === 2 ? 2 : 0);
+  const seq = Array.from({length: largo + 1}, (_,i)=> elem[patron[i % patron.length]]);
+  respuesta = seq[largo];
+  // opciones: la correcta + otras del patrón + una distinta
+  const opciones = [respuesta];
+  Object.values(elem).forEach(e=>{ if (!opciones.some(o=>igual(o,e))) opciones.push(e); });
+  while (opciones.length < 3){
+    const extra = {forma: n.cambia === 'color' ? formaFija : azar(FORMAS), color: n.cambia === 'forma' ? colorFijo : azar(Object.keys(COLORES))};
+    if (!opciones.some(o=>igual(o,extra))) opciones.push(extra);
+  }
+  pintar(seq.slice(0, largo), mezclar(opciones.slice(0, 4)));
+}
+function pintar(seq, opciones){
+  const tamano = Math.max(46, Math.min(96, (Math.min(innerWidth, 1000) - 80) / (seq.length + 1) - 10));
+  document.documentElement.style.setProperty('--c', tamano + 'px');
+  document.getElementById('tira').innerHTML = seq.map(e=>`<div class="casilla">${svg(e)}</div>`).join('') + '<div class="casilla falta" id="falta">?</div>';
+  const op = document.getElementById('opciones'); op.innerHTML = '';
+  opciones.forEach(o=>{
+    const b = document.createElement('button'); b.className = 'opcion'; b.innerHTML = svg(o); b.setAttribute('aria-label', `${o.forma} ${o.color}`);
+    b.onclick = ()=> elegir(o, b); op.appendChild(b);
+  });
+  document.getElementById('aviso').textContent = '';
+  estrellas(); bloqueado = false;
+}
+function estrellas(){ document.getElementById('estrellas').innerHTML = Array.from({length:RONDAS},(_,i)=>`<span class="${i<ronda?'si':''}">⭐</span>`).join(''); }
+function elegir(o, b){
+  if (bloqueado) return;
+  if (igual(o, respuesta)){
+    bloqueado = true; ronda++;
+    const f = document.getElementById('falta'); f.className = 'casilla bien'; f.innerHTML = svg(o);
+    document.getElementById('aviso').textContent = ['¡Muy bien!','¡Eso es!','¡Genial!','¡Bárbaro!'][ronda % 4];
+    estrellas();
+    setTimeout(()=>{ if (ronda >= RONDAS) ganar(); else nuevaRonda(); }, 1000);
+  } else {
+    b.classList.remove('mal'); void b.offsetWidth; b.classList.add('mal');
+    document.getElementById('aviso').textContent = 'Mirá bien cómo se repite';
+  }
+}
+function ganar(){
+  const ultimo = nivel === NIVELES.length-1;
+  document.getElementById('festejoTxt').textContent = ultimo ? '¡Terminaste todos los niveles!' : `Pasaste el nivel "${NIVELES[nivel].nombre}"`;
+  document.getElementById('seguir').textContent = ultimo ? 'Jugar otra vez' : 'Siguiente nivel ▶';
+  document.getElementById('festejo').hidden = false;
+}
+document.getElementById('seguir').onclick = ()=>{ document.getElementById('festejo').hidden = true; nivel = (nivel+1) % NIVELES.length; empezar(); };
+function empezar(){ ronda = 0; pintarNiveles(); nuevaRonda(); }
+function pintarNiveles(){
+  const cont = document.getElementById('niveles'); cont.innerHTML = '';
+  NIVELES.forEach((n,i)=>{ const b = document.createElement('button'); b.className = 'opc' + (i===nivel?' on':''); b.textContent = n.nombre;
+    b.onclick = ()=>{ nivel = i; empezar(); }; cont.appendChild(b); });
+}
+empezar();
+
+// ---------- Intro del robotito y panel ¿Qué aprendemos? ----------
+(function(){
+  const intro = document.getElementById('intro'), panel = document.getElementById('panel');
+  if (intro) document.getElementById('jugar').onclick = ()=>{ intro.hidden = true; };
+  document.getElementById('abrirPanel').onclick = ()=>{ panel.classList.add('abierto'); panel.setAttribute('aria-hidden','false'); };
+  document.getElementById('cerrarPanel').onclick = ()=>{ panel.classList.remove('abierto'); panel.setAttribute('aria-hidden','true'); };
+  addEventListener('keydown', e=>{
+    if (e.key === 'Escape') document.getElementById('cerrarPanel').click();
+    if (intro && !intro.hidden && (e.key === 'Enter' || e.key === ' ')){ e.preventDefault(); e.stopImmediatePropagation(); intro.hidden = true; }
+  }, true);
+})();
+</script>
+
+<a class="sd-casa" href="index.html" aria-label="Volver a todos los juegos" title="Todos los juegos">🏠</a>
+</html>

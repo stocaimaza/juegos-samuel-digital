@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><link rel="icon" href="favicon.svg" type="image/svg+xml"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}[hidden]{display:none!important}img{max-width:100%}
+.sd-casa{position:fixed;left:max(10px,env(safe-area-inset-left,0px));bottom:max(10px,env(safe-area-inset-bottom,0px));z-index:50;width:50px;height:50px;border-radius:50%;background:#fff;box-shadow:0 4px 0 #3d86b3;display:flex;align-items:center;justify-content:center;font-size:26px;text-decoration:none}
+.sd-casa:focus-visible{outline:4px solid #ffb627;outline-offset:2px}</style>
+<title>Vestí al Robotito</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap">
+<style>
+/* Layout: escenario con el robotito a la izquierda, ropero de accesorios a la derecha; en celulares se apila */
+:root{--cielo:#7ec8f0;--panel:#fff;--tinta:#23364a;--sol:#ffb627;--sombra:#3d86b3;
+  --display:"Baloo 2","Comic Sans MS",system-ui,sans-serif;
+  --emoji:"Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif;color-scheme:light}
+[hidden]{display:none!important}
+html,body{min-height:100%}
+body{margin:0;background:var(--cielo);color:var(--tinta);font-family:var(--display);box-sizing:border-box;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:12px;
+  user-select:none;-webkit-user-select:none}
+button{font-family:var(--display);cursor:pointer;border:none;color:var(--tinta)}
+button:focus-visible{outline:4px solid var(--sombra);outline-offset:2px}
+header{max-width:1000px;margin:0 auto 12px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+h1{margin:0;font-size:clamp(22px,4vw,32px);font-weight:800;color:#fff;text-shadow:0 2px 0 var(--sombra)}
+.acciones{display:flex;gap:8px}
+.chico{background:var(--panel);border-radius:999px;padding:6px 16px;font-size:18px;font-weight:700;box-shadow:0 3px 0 var(--sombra)}
+main{max-width:1000px;margin:0 auto;display:flex;gap:16px;align-items:flex-start;justify-content:center;flex-wrap:wrap}
+#escenario{position:relative;width:min(420px,90vw);aspect-ratio:3/4;background:linear-gradient(#bfe6fb 0 72%,#9fd96b 72%);border-radius:22px;box-shadow:0 6px 0 var(--sombra);overflow:hidden;touch-action:none}
+#escenario.encima{outline:5px dashed var(--sol);outline-offset:-8px}
+#escenario svg{position:absolute;inset:0;width:100%;height:100%}
+.puesto{position:absolute;transform:translate(-50%,-50%);font-family:var(--emoji);line-height:1;cursor:pointer;animation:pop .3s ease-out;filter:drop-shadow(0 3px 0 rgba(0,0,0,.15))}
+@keyframes pop{from{transform:translate(-50%,-50%) scale(.3)}to{transform:translate(-50%,-50%) scale(1)}}
+.ropero{flex:1;min-width:280px;max-width:520px;background:var(--panel);border-radius:22px;padding:12px;box-shadow:0 6px 0 var(--sombra);display:flex;flex-direction:column;gap:10px}
+.grupo h2{margin:0 0 4px;font-size:18px;color:#3d86b3;letter-spacing:.5px}
+.items{display:flex;flex-wrap:wrap;gap:8px}
+.item{width:64px;height:64px;border-radius:16px;background:#eef6fb;font-family:var(--emoji);font-size:38px;display:flex;align-items:center;justify-content:center;touch-action:none}
+.item:active{transform:scale(.95)}
+.color{width:44px;height:44px;border-radius:50%;border:3px solid rgba(35,54,74,.15)}
+.color.on{border:4px solid var(--tinta)}
+#arrastre{position:fixed;pointer-events:none;font-family:var(--emoji);font-size:54px;transform:translate(-50%,-50%);z-index:30}
+@media (prefers-reduced-motion:reduce){.puesto{animation:none}}
+
+/* ---- Robotito que explica + panel ¿Qué aprendemos? ---- */
+.ayuda-btn{font-family:"Baloo 2","Comic Sans MS",system-ui,sans-serif; border:none; cursor:pointer; background:#fff; border-radius:999px; padding:6px 16px; font-size:18px; font-weight:800; color:#23364a; box-shadow:0 3px 0 #3d86b3}
+#intro{position:fixed; inset:0; z-index:40; display:flex; align-items:center; justify-content:center; background:rgba(35,54,74,.5); padding:16px}
+.intro-card{background:#fff; border-radius:28px; padding:22px 26px; box-shadow:0 8px 0 #c98400; display:flex; gap:18px; align-items:center; max-width:640px; flex-wrap:wrap; justify-content:center; font-family:"Baloo 2","Comic Sans MS",system-ui,sans-serif; color:#23364a}
+.intro-card svg{width:150px; height:auto; flex:none}
+.burbuja{position:relative; background:#fff3d6; border-radius:22px; padding:14px 18px; min-width:0; flex:1 1 260px; text-align:center}
+.burbuja::before{content:""; position:absolute; left:-14px; top:40%; border:10px solid transparent; border-right:14px solid #fff3d6}
+.burbuja h2{margin:0; font-size:clamp(24px,4vw,32px); line-height:1.1; color:#23364a; text-shadow:none}
+.pictos{display:flex; justify-content:center; gap:14px; margin:12px 0 4px; flex-wrap:wrap}
+.pictos div{display:flex; flex-direction:column; align-items:center; font-size:15px; font-weight:700; gap:2px; max-width:90px; line-height:1.1}
+.pictos b{font-size:36px; line-height:1; font-family:"Segoe UI Emoji","Apple Color Emoji",sans-serif}
+#jugar{font-family:inherit; border:none; cursor:pointer; background:#ffb627; border-radius:999px; padding:10px 34px; font-size:26px; font-weight:800; color:#23364a; box-shadow:0 4px 0 #c98400; margin-top:8px}
+#panel{position:fixed; top:0; right:0; bottom:0; width:min(400px,100%); background:#fff; z-index:45; box-shadow:-8px 0 30px rgba(35,54,74,.3); color:#23364a; text-align:left;
+  font-family:"Baloo 2","Comic Sans MS",system-ui,sans-serif; overflow:auto; padding:20px max(20px, env(safe-area-inset-right,0px)) 30px 22px; box-sizing:border-box; transform:translateX(105%); transition:transform .25s}
+#panel.abierto{transform:none}
+#panel h2{margin:0 0 4px; font-size:26px; color:#23364a; text-shadow:none}
+#panel .sub{margin:0 0 6px; color:#4d6175; font-size:19px; font-weight:700}
+#panel h3{margin:16px 0 6px; font-size:16px; letter-spacing:1px; color:#3d86b3; text-transform:uppercase}
+#panel ul{margin:0; padding-left:20px; font-size:17px; line-height:1.4}
+#panel li{margin-bottom:4px}
+.logros{display:grid; gap:8px; margin-top:6px}
+.logros div{display:flex; align-items:center; gap:12px; background:#eef6fb; border-radius:16px; padding:8px 12px; font-size:18px; font-weight:700; line-height:1.2}
+.logros b{font-size:30px; flex:none; font-family:"Segoe UI Emoji","Apple Color Emoji",sans-serif}
+.palabras{display:flex; flex-wrap:wrap; gap:8px}
+.palabras span{background:#fff3d6; border-radius:999px; padding:4px 12px; font-size:18px; font-weight:800}
+.dato{margin:0; font-size:17px; line-height:1.45; background:#f4fbef; border-radius:16px; padding:10px 14px}
+#cerrarPanel{font-family:inherit; border:none; cursor:pointer; position:absolute; top:12px; right:max(12px, env(safe-area-inset-right,0px)); width:40px; height:40px; border-radius:50%; background:#eef6fb; font-size:20px; color:#23364a}
+@media (prefers-reduced-motion:reduce){#panel{transition:none}}
+</style>
+
+<header>
+  <h1>🤖 Vestí al Robotito</h1>
+  <button class="ayuda-btn" id="abrirPanel">📘 ¿Qué aprendemos?</button>
+  <div class="acciones">
+    <button class="chico" id="sorpresa">🎲 Sorpresa</button>
+    <button class="chico" id="sacar">🧹 Sacar todo</button>
+  </div>
+</header>
+
+<main>
+  <div id="escenario">
+    <svg viewBox="0 0 300 400" aria-label="Robotito">
+      <ellipse cx="150" cy="392" rx="90" ry="10" fill="rgba(0,0,0,.15)"/>
+      <!-- antena -->
+      <line x1="150" y1="58" x2="150" y2="30" stroke="#23364a" stroke-width="6"/>
+      <circle cx="150" cy="26" r="10" fill="#e4572e"/>
+      <!-- piernas -->
+      <rect x="112" y="300" width="26" height="72" rx="10" fill="#9aa5b1" stroke="#23364a" stroke-width="5"/>
+      <rect x="162" y="300" width="26" height="72" rx="10" fill="#9aa5b1" stroke="#23364a" stroke-width="5"/>
+      <!-- brazos -->
+      <rect x="52" y="190" width="40" height="22" rx="10" fill="#9aa5b1" stroke="#23364a" stroke-width="5" transform="rotate(20 72 200)"/>
+      <rect x="208" y="190" width="40" height="22" rx="10" fill="#9aa5b1" stroke="#23364a" stroke-width="5" transform="rotate(-20 228 200)"/>
+      <circle cx="56" cy="222" r="14" fill="#9aa5b1" stroke="#23364a" stroke-width="5"/>
+      <circle cx="244" cy="222" r="14" fill="#9aa5b1" stroke="#23364a" stroke-width="5"/>
+      <!-- cuerpo y cabeza (cambian de color) -->
+      <rect class="pinta" x="88" y="176" width="124" height="130" rx="26" fill="#ffb627" stroke="#23364a" stroke-width="6"/>
+      <rect x="118" y="214" width="64" height="44" rx="10" fill="#fff" stroke="#23364a" stroke-width="4"/>
+      <circle cx="134" cy="236" r="7" fill="#5cc96b"/><circle cx="150" cy="236" r="7" fill="#e4572e"/><circle cx="166" cy="236" r="7" fill="#3fa7f5"/>
+      <rect class="pinta" x="76" y="56" width="148" height="118" rx="34" fill="#ffb627" stroke="#23364a" stroke-width="6"/>
+      <circle cx="122" cy="108" r="20" fill="#fff"/><circle cx="178" cy="108" r="20" fill="#fff"/>
+      <circle cx="126" cy="110" r="9" fill="#23364a"/><circle cx="182" cy="110" r="9" fill="#23364a"/>
+      <path d="M126 140 Q150 160 174 140" fill="none" stroke="#23364a" stroke-width="6" stroke-linecap="round"/>
+      <circle cx="98" cy="136" r="9" fill="#ff8fab" opacity=".7"/><circle cx="202" cy="136" r="9" fill="#ff8fab" opacity=".7"/>
+    </svg>
+  </div>
+
+  <div class="ropero" id="ropero">
+    <div class="grupo"><h2>COLOR</h2><div class="items" id="colores"></div></div>
+  </div>
+</main>
+<div id="arrastre" hidden></div>
+
+
+<!-- El robotito explica el juego antes de empezar -->
+<div id="intro">
+  <div class="intro-card">
+    <svg viewBox="0 0 120 150" aria-hidden="true">
+      <line x1="60" y1="22" x2="60" y2="8" stroke="#23364a" stroke-width="4"/><circle cx="60" cy="7" r="6" fill="#e4572e"/>
+      <rect x="22" y="22" width="76" height="60" rx="18" fill="#ffb627" stroke="#23364a" stroke-width="4"/>
+      <circle cx="45" cy="48" r="10" fill="#fff"/><circle cx="75" cy="48" r="10" fill="#fff"/>
+      <circle cx="47" cy="49" r="5" fill="#23364a"/><circle cx="77" cy="49" r="5" fill="#23364a"/>
+      <path d="M46 64 Q60 74 74 64" fill="none" stroke="#23364a" stroke-width="4" stroke-linecap="round"/>
+      <rect x="32" y="86" width="56" height="44" rx="12" fill="#ffb627" stroke="#23364a" stroke-width="4"/>
+      <rect x="10" y="92" width="22" height="10" rx="5" fill="#9aa5b1" stroke="#23364a" stroke-width="3" transform="rotate(-30 21 97)"/>
+      <rect x="88" y="92" width="22" height="10" rx="5" fill="#9aa5b1" stroke="#23364a" stroke-width="3" transform="rotate(30 99 97)"/>
+      <rect x="40" y="130" width="14" height="16" rx="4" fill="#9aa5b1" stroke="#23364a" stroke-width="3"/>
+      <rect x="66" y="130" width="14" height="16" rx="4" fill="#9aa5b1" stroke="#23364a" stroke-width="3"/>
+    </svg>
+    <div class="burbuja">
+      <h2>¡Vestime como quieras!</h2>
+      <div class="pictos"><div><b>👑</b>elegí</div><div><b>👆</b>tocá o arrastrá</div><div><b>🤖</b>al robotito</div><div><b>🎲</b>sorpresa</div></div>
+      <button id="jugar">¡Jugar!</button>
+    </div>
+  </div>
+</div>
+
+<!-- Panel "¿Qué aprendemos?" para los chicos y sus familias -->
+<aside id="panel" aria-label="Qué aprendemos" aria-hidden="true">
+  <button id="cerrarPanel" aria-label="Cerrar">✕</button>
+  <h2>📘 ¿Qué aprendemos?</h2>
+  <p class="sub">Con Vestí al Robotito aprendemos a…</p>
+  <div class="logros"><div><b>🖱️</b>Arrastrar y soltar con el mouse</div><div><b>🧍</b>Conocer las partes del cuerpo</div><div><b>🎨</b>Combinar y crear</div><div><b>🧠</b>Decidir dónde va cada cosa</div></div>
+  <h3>Palabras nuevas</h3>
+  <div class="palabras"><span>🙂 cabeza</span><span>🧣 cuello</span><span>✋ mano</span><span>🦶 pies</span><span>👆 arrastrar</span></div>
+  <h3>¿Sabías que…?</h3>
+  <p class="dato">"Arrastrar y soltar" se usa en la compu para mover fotos, archivos y un montón de cosas más. ¡Ya sabés hacerlo! 🖱️</p>
+  <h3>Para charlar en familia</h3>
+  <ul><li>¿Dónde va el sombrero? ¿Y los zapatos?</li><li>¿Cómo vestirías al robotito para ir a la playa?</li><li>¿Y para ir a la nieve?</li></ul>
+  <h3>Para jugar en casa</h3>
+  <p class="dato">🧥 <b>¿Qué me pongo hoy?:</b> mirar por la ventana cómo está el día y elegir juntos la ropa que hace falta. ¡También vale disfrazarse!</p>
+</aside>
+
+<script>
+// Lugares del cuerpo (en % del escenario) y qué va en cada uno
+const LUGARES = {
+  cabeza: {nombre:'SOMBREROS', pos:[[50,10]], tam:24, items:['👑','🎩','🧢','🎓','🥳','⛑️']},
+  ojos:   {nombre:'ANTEOJOS', pos:[[50,27]], tam:20, items:['🕶️','👓','🥽']},
+  cuello: {nombre:'CUELLO', pos:[[50,46]], tam:14, items:['🎀','🧣','👔']},
+  pecho:  {nombre:'MEDALLAS', pos:[[50,66]], tam:10, items:['🏅','⭐','❤️','🏆']},
+  mano:   {nombre:'EN LA MANO', pos:[[86,52]], tam:17, items:['⚽','🎈','🍦','☂️','🌻','🍭']},
+  pies:   {nombre:'ZAPATOS', pos:[[42,93],[58,93]], tam:12, items:['👟','👢','🩰','🧦']},
+  amigo:  {nombre:'MASCOTA', pos:[[15,89]], tam:16, items:['🐶','🐱','🐰','🐢','🦜','🐹']}
+};
+const COLORES = ['#ffb627','#e4572e','#ff8fab','#5cc96b','#3fa7f5','#9b5de5','#ffffff','#23364a'];
+const esc = document.getElementById('escenario');
+const puesto = {};   // lugar -> emoji puesto
+
+// Paleta de colores del robotito
+const cont = document.getElementById('colores');
+COLORES.forEach((c,i)=>{
+  const b = document.createElement('button'); b.className = 'color' + (i===0?' on':''); b.style.background = c; b.setAttribute('aria-label','Color '+c);
+  b.onclick = ()=>{ esc.querySelectorAll('.pinta').forEach(p=>p.setAttribute('fill', c)); cont.querySelectorAll('.color').forEach(x=>x.classList.toggle('on', x===b)); };
+  cont.appendChild(b);
+});
+
+// Ropero: un grupo por lugar
+const ropero = document.getElementById('ropero');
+Object.entries(LUGARES).forEach(([clave, l])=>{
+  const g = document.createElement('div'); g.className = 'grupo';
+  g.innerHTML = `<h2>${l.nombre}</h2><div class="items"></div>`;
+  l.items.forEach(em=>{
+    const b = document.createElement('button'); b.className = 'item'; b.textContent = em; b.setAttribute('aria-label', 'Poner ' + em);
+    b.addEventListener('pointerdown', e=> empezarArrastre(e, em, clave));
+    b.addEventListener('keydown', e=>{ if (e.key==='Enter'||e.key===' '){ e.preventDefault(); poner(clave, em); } });
+    g.querySelector('.items').appendChild(b);
+  });
+  ropero.appendChild(g);
+});
+
+// Poner y sacar cosas
+function poner(clave, em){
+  esc.querySelectorAll(`[data-lugar="${clave}"]`).forEach(n=>n.remove());
+  puesto[clave] = em;
+  const l = LUGARES[clave];
+  l.pos.forEach(([x,y])=>{
+    const s = document.createElement('span'); s.className = 'puesto'; s.dataset.lugar = clave; s.textContent = em;
+    s.style.left = x + '%'; s.style.top = y + '%'; s.style.fontSize = `calc(${l.tam/100} * min(420px, 90vw))`;
+    s.title = 'Tocá para sacar';
+    s.onclick = ()=> sacar(clave);
+    esc.appendChild(s);
+  });
+}
+function sacar(clave){ esc.querySelectorAll(`[data-lugar="${clave}"]`).forEach(n=>n.remove()); delete puesto[clave]; }
+document.getElementById('sacar').onclick = ()=> Object.keys(LUGARES).forEach(sacar);
+document.getElementById('sorpresa').onclick = ()=>{
+  Object.entries(LUGARES).forEach(([k,l])=>{ if (Math.random() < .8) poner(k, l.items[Math.floor(Math.random()*l.items.length)]); else sacar(k); });
+  const b = cont.children[Math.floor(Math.random()*COLORES.length)]; b.click();
+};
+
+// Arrastrar: también funciona con un solo clic
+const fantasma = document.getElementById('arrastre');
+let arr = null;
+function empezarArrastre(e, em, clave){
+  e.preventDefault();
+  arr = {em, clave, x0:e.clientX, y0:e.clientY, movio:false};
+  fantasma.textContent = em; fantasma.style.left = e.clientX+'px'; fantasma.style.top = e.clientY+'px';
+}
+addEventListener('pointermove', e=>{
+  if (!arr) return;
+  if (Math.hypot(e.clientX-arr.x0, e.clientY-arr.y0) > 8){ arr.movio = true; fantasma.hidden = false; }
+  fantasma.style.left = e.clientX+'px'; fantasma.style.top = e.clientY+'px';
+  const r = esc.getBoundingClientRect();
+  esc.classList.toggle('encima', arr.movio && e.clientX>r.left && e.clientX<r.right && e.clientY>r.top && e.clientY<r.bottom);
+});
+addEventListener('pointerup', e=>{
+  if (!arr) return;
+  const r = esc.getBoundingClientRect();
+  const adentro = e.clientX>r.left && e.clientX<r.right && e.clientY>r.top && e.clientY<r.bottom;
+  if (!arr.movio || adentro) poner(arr.clave, arr.em);   // clic o soltar sobre el robot
+  arr = null; fantasma.hidden = true; esc.classList.remove('encima');
+});
+
+// ---------- Intro del robotito y panel ¿Qué aprendemos? ----------
+(function(){
+  const intro = document.getElementById('intro'), panel = document.getElementById('panel');
+  if (intro) document.getElementById('jugar').onclick = ()=>{ intro.hidden = true; };
+  document.getElementById('abrirPanel').onclick = ()=>{ panel.classList.add('abierto'); panel.setAttribute('aria-hidden','false'); };
+  document.getElementById('cerrarPanel').onclick = ()=>{ panel.classList.remove('abierto'); panel.setAttribute('aria-hidden','true'); };
+  addEventListener('keydown', e=>{
+    if (e.key === 'Escape') document.getElementById('cerrarPanel').click();
+    if (intro && !intro.hidden && (e.key === 'Enter' || e.key === ' ')){ e.preventDefault(); e.stopImmediatePropagation(); intro.hidden = true; }
+  }, true);
+})();
+</script>
+
+<a class="sd-casa" href="index.html" aria-label="Volver a todos los juegos" title="Todos los juegos">🏠</a>
+</html>

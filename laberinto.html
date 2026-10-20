@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><link rel="icon" href="favicon.svg" type="image/svg+xml"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}[hidden]{display:none!important}img{max-width:100%}
+.sd-casa{position:fixed;left:max(10px,env(safe-area-inset-left,0px));bottom:max(10px,env(safe-area-inset-bottom,0px));z-index:50;width:50px;height:50px;border-radius:50%;background:#fff;box-shadow:0 4px 0 #3d86b3;display:flex;align-items:center;justify-content:center;font-size:26px;text-decoration:none}
+.sd-casa:focus-visible{outline:4px solid #ffb627;outline-offset:2px}</style>
+<title>Laberinto de Samuel Digital</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap">
+<style>
+/* Layout: juego de una pantalla, tablero al centro, barra de nivel arriba y botones grandes abajo */
+:root{
+  --cielo:#7ec8f0;      /* fondo */
+  --pasto:#9fd96b;      /* piso del laberinto */
+  --pared:#3a5a2a;      /* setos */
+  --madera:#ffffff;     /* paneles */
+  --tinta:#23364a;      /* texto */
+  --sol:#ffb627;        /* acento */
+  --huella:#e8f7d4;
+  --display:"Baloo 2", "Comic Sans MS", system-ui, sans-serif;
+  color-scheme: light;
+}
+html,body{height:100%}
+body{
+  background:var(--cielo); color:var(--tinta); font-family:var(--display);
+  padding-left:max(16px, env(safe-area-inset-left,0px));
+  padding-right:max(16px, env(safe-area-inset-right,0px));
+  padding-block:12px; box-sizing:border-box;
+  display:flex; flex-direction:column; align-items:center; gap:10px;
+  user-select:none; -webkit-user-select:none;
+}
+header{width:100%; max-width:900px; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px}
+h1{margin:0; font-size:clamp(22px,4vw,32px); font-weight:800; letter-spacing:.5px; color:#fff; text-shadow:0 2px 0 #3d86b3}
+.nivelbox{display:flex; align-items:center; gap:6px; background:var(--madera); border-radius:999px; padding:4px 6px; box-shadow:0 3px 0 #3d86b3}
+.nivelbox span{font-size:20px; font-weight:800; min-width:110px; text-align:center}
+button{font-family:var(--display); cursor:pointer; border:none}
+.redondo{width:42px; height:42px; border-radius:50%; background:var(--sol); color:var(--tinta); font-size:22px; font-weight:800; box-shadow:0 3px 0 #c98400}
+.redondo:active{transform:translateY(2px); box-shadow:0 1px 0 #c98400}
+button:focus-visible{outline:4px solid #fff; outline-offset:2px}
+#tablero{width:100%; max-width:900px; flex:1; min-height:0; display:flex; align-items:center; justify-content:center}
+canvas{background:var(--pasto); border-radius:14px; box-shadow:0 6px 0 #3d86b3; touch-action:none; max-width:100%}
+.controles{display:grid; grid-template-columns:repeat(3,64px); grid-template-rows:repeat(2,56px); gap:6px}
+.flecha{border-radius:16px; background:var(--madera); font-size:30px; color:var(--tinta); box-shadow:0 4px 0 #3d86b3}
+.flecha:active{transform:translateY(3px); box-shadow:0 1px 0 #3d86b3}
+#arriba{grid-column:2}
+#izq{grid-column:1; grid-row:2} #abajo{grid-column:2; grid-row:2} #der{grid-column:3; grid-row:2}
+.pie{display:flex; gap:12px; align-items:center; flex-wrap:wrap; justify-content:center}
+.texto-btn{background:var(--madera); border-radius:999px; padding:8px 18px; font-size:18px; font-weight:700; color:var(--tinta); box-shadow:0 3px 0 #3d86b3}
+#festejo{position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(35,54,74,.45); z-index:5}
+#festejo .card{background:var(--madera); border-radius:24px; padding:24px 32px; text-align:center; box-shadow:0 8px 0 #c98400; max-width:90vw}
+#festejo h2{margin:0; font-size:44px; color:var(--sol); text-shadow:0 2px 0 #c98400}
+#festejo p{margin:4px 0 16px; font-size:22px}
+#festejo .estrellas{font-size:40px; letter-spacing:6px}
+#siguiente{background:var(--sol); border-radius:999px; padding:10px 28px; font-size:24px; font-weight:800; color:var(--tinta); box-shadow:0 4px 0 #c98400}
+
+/* ---- Robotito que explica + panel ¿Qué aprendemos? ---- */
+.ayuda-btn{background:var(--madera); border-radius:999px; padding:6px 16px; font-size:18px; font-weight:800; color:var(--tinta); box-shadow:0 3px 0 #3d86b3}
+.der-head{display:flex; gap:8px; align-items:center; flex-wrap:wrap}
+#intro{position:fixed; inset:0; z-index:8; display:flex; align-items:center; justify-content:center; background:rgba(35,54,74,.5); padding:16px}
+.intro-card{background:var(--madera); border-radius:28px; padding:22px 26px; box-shadow:0 8px 0 #c98400; display:flex; gap:18px; align-items:center; max-width:640px; flex-wrap:wrap; justify-content:center}
+.intro-card svg{width:150px; height:auto; flex:none}
+.globo{position:relative; background:#fff3d6; border-radius:22px; padding:14px 18px; min-width:0; flex:1 1 260px; text-align:center}
+.globo::before{content:""; position:absolute; left:-14px; top:40%; border:10px solid transparent; border-right:14px solid #fff3d6}
+.globo h2{margin:0; font-size:clamp(24px,4vw,32px); line-height:1.1}
+.pictos{display:flex; justify-content:center; gap:14px; margin:12px 0 4px; font-size:34px; flex-wrap:wrap}
+.pictos div{display:flex; flex-direction:column; align-items:center; font-size:15px; font-weight:700; gap:2px}
+.pictos b{font-size:36px; line-height:1; font-family:"Segoe UI Emoji","Apple Color Emoji",sans-serif}
+#jugar{background:var(--sol); border-radius:999px; padding:10px 34px; font-size:26px; font-weight:800; color:var(--tinta); box-shadow:0 4px 0 #c98400; margin-top:8px}
+#panel{position:fixed; top:0; right:0; bottom:0; width:min(400px,100%); background:#fff; z-index:9; box-shadow:-8px 0 30px rgba(35,54,74,.3);
+  overflow:auto; padding:20px max(20px, env(safe-area-inset-right,0px)) 30px 22px; box-sizing:border-box; transform:translateX(105%); transition:transform .25s}
+#panel.abierto{transform:none}
+#panel h2{margin:0 0 4px; font-size:26px}
+#panel .sub{margin:0 0 6px; color:#4d6175; font-size:19px; font-weight:700}
+#panel h3{margin:16px 0 6px; font-size:16px; letter-spacing:1px; color:#3d86b3; text-transform:uppercase}
+#panel ul{margin:0; padding-left:20px; font-size:17px; line-height:1.4}
+#panel li{margin-bottom:4px}
+
+.logros{display:grid; gap:8px; margin-top:6px}
+.logros div{display:flex; align-items:center; gap:12px; background:#eef6fb; border-radius:16px; padding:8px 12px; font-size:18px; font-weight:700; line-height:1.2}
+.logros b{font-size:30px; flex:none; font-family:"Segoe UI Emoji","Apple Color Emoji",sans-serif}
+.palabras{display:flex; flex-wrap:wrap; gap:8px}
+.palabras span{background:#fff3d6; border-radius:999px; padding:4px 12px; font-size:18px; font-weight:800}
+.dato{margin:0; font-size:17px; line-height:1.45; background:#f4fbef; border-radius:16px; padding:10px 14px}
+#cerrarPanel{position:absolute; top:12px; right:max(12px, env(safe-area-inset-right,0px)); width:40px; height:40px; border-radius:50%; background:#eef6fb; font-size:20px; color:var(--tinta)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important; animation:none!important}}
+</style>
+
+<header>
+  <h1>🌳 Laberinto</h1>
+  <div class="der-head">
+  <button class="ayuda-btn" id="abrirPanel">📘 ¿Qué aprendemos?</button>
+  <div class="nivelbox">
+    <button class="redondo" id="menos" aria-label="Nivel anterior">−</button>
+    <span id="nivelTxt">Nivel 1</span>
+    <button class="redondo" id="mas" aria-label="Nivel siguiente">+</button>
+  </div>
+  </div>
+</header>
+
+<div id="tablero"><canvas id="c"></canvas></div>
+
+<div class="pie">
+  <div class="controles">
+    <button class="flecha" id="arriba" aria-label="Arriba">▲</button>
+    <button class="flecha" id="izq" aria-label="Izquierda">◀</button>
+    <button class="flecha" id="abajo" aria-label="Abajo">▼</button>
+    <button class="flecha" id="der" aria-label="Derecha">▶</button>
+  </div>
+  <button class="texto-btn" id="otro">🔄 Otro laberinto</button>
+</div>
+
+<div id="festejo" hidden>
+  <div class="card">
+    <h2>¡Muy bien!</h2>
+    <div class="estrellas">⭐⭐⭐</div>
+    <p id="festejoTxt">Llegaste a la casa</p>
+    <button id="siguiente">Siguiente ▶</button>
+  </div>
+</div>
+
+
+<!-- El robotito explica el juego antes de empezar -->
+<div id="intro">
+  <div class="intro-card">
+    <svg viewBox="0 0 120 150" aria-hidden="true">
+      <line x1="60" y1="22" x2="60" y2="8" stroke="#23364a" stroke-width="4"/><circle cx="60" cy="7" r="6" fill="#e4572e"/>
+      <rect x="22" y="22" width="76" height="60" rx="18" fill="#ffb627" stroke="#23364a" stroke-width="4"/>
+      <circle cx="45" cy="48" r="10" fill="#fff"/><circle cx="75" cy="48" r="10" fill="#fff"/>
+      <circle cx="47" cy="49" r="5" fill="#23364a"/><circle cx="77" cy="49" r="5" fill="#23364a"/>
+      <path d="M46 64 Q60 74 74 64" fill="none" stroke="#23364a" stroke-width="4" stroke-linecap="round"/>
+      <rect x="32" y="86" width="56" height="44" rx="12" fill="#ffb627" stroke="#23364a" stroke-width="4"/>
+      <rect x="10" y="92" width="22" height="10" rx="5" fill="#9aa5b1" stroke="#23364a" stroke-width="3" transform="rotate(-30 21 97)"/>
+      <rect x="88" y="92" width="22" height="10" rx="5" fill="#9aa5b1" stroke="#23364a" stroke-width="3" transform="rotate(30 99 97)"/>
+      <rect x="40" y="130" width="14" height="16" rx="4" fill="#9aa5b1" stroke="#23364a" stroke-width="3"/>
+      <rect x="66" y="130" width="14" height="16" rx="4" fill="#9aa5b1" stroke="#23364a" stroke-width="3"/>
+    </svg>
+    <div class="globo">
+      <h2>¡Ayudame a llegar a mi casa!</h2>
+      <div class="pictos">
+        <div><b>🤖</b>yo</div><div><b>➡️</b></div><div><b>🏠</b>mi casa</div>
+      </div>
+      <div class="pictos">
+        <div><b>⬅️⬆️⬇️➡️</b>flechas</div><div><b>🖱️</b>o clic</div><div><b>🌳</b>no se pasa</div>
+      </div>
+      <button id="jugar">¡Jugar!</button>
+    </div>
+  </div>
+</div>
+
+<!-- Panel "¿Qué aprendemos?" para los chicos y sus familias -->
+<aside id="panel" aria-label="Qué aprendemos" aria-hidden="true">
+  <button id="cerrarPanel" aria-label="Cerrar">✕</button>
+  <h2>📘 ¿Qué aprendemos?</h2>
+  <p class="sub">Con el Laberinto aprendemos a…</p>
+
+  <div class="logros">
+    <div><b>🧭</b>Ubicarnos y encontrar el camino</div>
+    <div><b>⬅️➡️</b>Saber cuál es la izquierda y cuál la derecha</div>
+    <div><b>🤔</b>Pensar antes de movernos</div>
+    <div><b>💪</b>Volver a intentar si nos equivocamos</div>
+  </div>
+
+  <h3>Palabras nuevas</h3>
+  <div class="palabras">
+    <span>⬆️ arriba</span><span>⬇️ abajo</span><span>⬅️ izquierda</span><span>➡️ derecha</span><span>👣 camino</span>
+  </div>
+
+  <h3>¿Sabías que…?</h3>
+  <p class="dato">Cuando le damos órdenes al robotito paso por paso, estamos haciendo lo mismo que hacen los programadores: ¡le decimos a la compu qué hacer en orden! 🤖</p>
+
+  <h3>Para charlar en familia</h3>
+  <ul>
+    <li>¿Hacia dónde tuvo que ir primero el robotito?</li>
+    <li>¿Qué hiciste cuando el camino estaba cerrado?</li>
+    <li>¿Cuál es tu mano derecha? ¿Y la izquierda?</li>
+  </ul>
+
+  <h3>Para jugar en casa</h3>
+  <p class="dato">🏠 <b>El robot de la casa:</b> un integrante de la familia es el robot y el otro le da órdenes ("dos pasos para adelante", "girá a la derecha") hasta llegar a un tesoro escondido.</p>
+</aside>
+
+<script>
+const MAX = 15;
+const cv = document.getElementById('c'), ctx = cv.getContext('2d');
+let nivel = 1, cols, rows, celdas, jugador, meta, huellas, celda, anim = null;
+
+// Tamaño del laberinto según el nivel: nivel 1 = 5x4, nivel 15 = 19x13
+function medidas(n){ return { c: 4 + n, r: 3 + Math.round(n * 0.67) }; }
+
+// Genera el laberinto con "backtracking": cada celda guarda qué paredes tiene
+function generar(){
+  const m = medidas(nivel); cols = m.c; rows = m.r;
+  celdas = [];
+  for (let y=0;y<rows;y++){ celdas.push([]); for (let x=0;x<cols;x++) celdas[y].push({n:true,s:true,e:true,o:true,v:false}); }
+  const pila = [[0,0]]; celdas[0][0].v = true;
+  while (pila.length){
+    const [x,y] = pila[pila.length-1];
+    const op = [];
+    if (y>0 && !celdas[y-1][x].v) op.push([x,y-1,'n','s']);
+    if (y<rows-1 && !celdas[y+1][x].v) op.push([x,y+1,'s','n']);
+    if (x<cols-1 && !celdas[y][x+1].v) op.push([x+1,y,'e','o']);
+    if (x>0 && !celdas[y][x-1].v) op.push([x-1,y,'o','e']);
+    if (!op.length){ pila.pop(); continue; }
+    const [nx,ny,a,b] = op[Math.floor(Math.random()*op.length)];
+    celdas[y][x][a] = false; celdas[ny][nx][b] = false; celdas[ny][nx].v = true;
+    pila.push([nx,ny]);
+  }
+  jugador = {x:0,y:0, dx:0, dy:0}; meta = {x:cols-1, y:rows-1};
+  huellas = new Set(['0,0']);
+  document.getElementById('nivelTxt').textContent = 'Nivel ' + nivel;
+  ajustar();
+}
+
+function ajustar(){
+  const caja = document.getElementById('tablero').getBoundingClientRect();
+  const altoDisp = Math.max(200, window.innerHeight - 250);
+  celda = Math.floor(Math.min(caja.width / cols, altoDisp / rows));
+  celda = Math.max(18, Math.min(celda, 90));
+  const dpr = window.devicePixelRatio || 1;
+  cv.width = cols*celda*dpr; cv.height = rows*celda*dpr;
+  cv.style.width = cols*celda+'px'; cv.style.height = rows*celda+'px';
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  dibujar();
+}
+
+// ---------- Dibujo ----------
+function dibujar(){
+  const W = cols*celda, H = rows*celda;
+  ctx.fillStyle = '#9fd96b'; ctx.fillRect(0,0,W,H);
+  // huellas del camino recorrido
+  ctx.fillStyle = '#e8f7d4';
+  huellas.forEach(k=>{ const [x,y]=k.split(',').map(Number);
+    ctx.beginPath(); ctx.arc(x*celda+celda/2, y*celda+celda/2, celda*0.12, 0, Math.PI*2); ctx.fill(); });
+  // casa (meta)
+  dibujarCasa(meta.x*celda, meta.y*celda);
+  // setos (paredes)
+  ctx.strokeStyle = '#3a5a2a'; ctx.lineCap = 'round';
+  ctx.lineWidth = Math.max(4, celda*0.16);
+  ctx.beginPath();
+  for (let y=0;y<rows;y++) for (let x=0;x<cols;x++){
+    const c = celdas[y][x], px=x*celda, py=y*celda;
+    if (c.n){ ctx.moveTo(px,py); ctx.lineTo(px+celda,py); }
+    if (c.o){ ctx.moveTo(px,py); ctx.lineTo(px,py+celda); }
+    if (y===rows-1 && c.s){ ctx.moveTo(px,py+celda); ctx.lineTo(px+celda,py+celda); }
+    if (x===cols-1 && c.e){ ctx.moveTo(px+celda,py); ctx.lineTo(px+celda,py+celda); }
+  }
+  ctx.stroke();
+  // personaje
+  const px = (jugador.x + jugador.dx)*celda + celda/2, py = (jugador.y + jugador.dy)*celda + celda/2;
+  dibujarPersonaje(px, py, celda*0.36);
+}
+
+function dibujarCasa(x,y){
+  const s = celda, m = s*0.18;
+  ctx.fillStyle = '#ffffff'; ctx.fillRect(x+m, y+s*0.45, s-2*m, s*0.4);
+  ctx.fillStyle = '#e4572e';
+  ctx.beginPath(); ctx.moveTo(x+m*0.6, y+s*0.48); ctx.lineTo(x+s/2, y+s*0.14); ctx.lineTo(x+s-m*0.6, y+s*0.48); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = '#8a5a2b'; ctx.fillRect(x+s*0.43, y+s*0.6, s*0.14, s*0.25);
+}
+
+// Robotito de Samuel Digital
+function dibujarPersonaje(cx,cy,r){
+  ctx.fillStyle = '#ffb627'; ctx.strokeStyle = '#23364a'; ctx.lineWidth = Math.max(2, r*0.12);
+  ctx.beginPath(); ctx.moveTo(cx, cy-r); ctx.lineTo(cx, cy-r*1.35); ctx.stroke();
+  ctx.fillStyle = '#e4572e'; ctx.beginPath(); ctx.arc(cx, cy-r*1.4, r*0.16, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#ffb627';
+  roundRect(cx-r, cy-r, r*2, r*2, r*0.45); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath(); ctx.arc(cx-r*0.4, cy-r*0.15, r*0.28, 0, Math.PI*2); ctx.arc(cx+r*0.4, cy-r*0.15, r*0.28, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#23364a';
+  ctx.beginPath(); ctx.arc(cx-r*0.36, cy-r*0.12, r*0.13, 0, Math.PI*2); ctx.arc(cx+r*0.44, cy-r*0.12, r*0.13, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx, cy+r*0.3, r*0.3, 0.15*Math.PI, 0.85*Math.PI); ctx.stroke();
+}
+function roundRect(x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+
+// ---------- Movimiento ----------
+const DIR = { n:[0,-1], s:[0,1], e:[1,0], o:[-1,0] };
+function mover(d){
+  if (anim || !document.getElementById('festejo').hidden || !document.getElementById('intro').hidden) return;
+  const c = celdas[jugador.y][jugador.x];
+  if (c[d]){ temblar(); return; }            // hay pared: no pasa
+  const [ax,ay] = DIR[d], t0 = performance.now(), dur = 120;
+  anim = true;
+  (function paso(t){
+    const k = Math.min(1,(t-t0)/dur);
+    jugador.dx = ax*k; jugador.dy = ay*k; dibujar();
+    if (k<1) return requestAnimationFrame(paso);
+    jugador.x += ax; jugador.y += ay; jugador.dx = jugador.dy = 0; anim = null;
+    huellas.add(jugador.x+','+jugador.y); dibujar();
+    if (jugador.x===meta.x && jugador.y===meta.y) ganar();
+  })(t0);
+}
+function temblar(){
+  cv.animate?.([{transform:'translateX(0)'},{transform:'translateX(-5px)'},{transform:'translateX(5px)'},{transform:'translateX(0)'}],{duration:180});
+}
+function ganar(){
+  document.getElementById('festejoTxt').textContent = nivel < MAX ? '¡Llegaste a la casa!' : '¡Terminaste los 15 niveles!';
+  document.getElementById('siguiente').textContent = nivel < MAX ? 'Siguiente ▶' : 'Volver a empezar';
+  document.getElementById('festejo').hidden = false;
+  document.getElementById('siguiente').focus();
+}
+
+// Teclado
+addEventListener('keydown', e=>{
+  const m = {ArrowUp:'n',ArrowDown:'s',ArrowRight:'e',ArrowLeft:'o'}[e.key];
+  if (m){ e.preventDefault(); mover(m); }
+  else if (e.key==='Enter' && !document.getElementById('festejo').hidden){ e.preventDefault(); document.getElementById('siguiente').click(); }
+});
+// Clic o toque en la casilla vecina
+cv.addEventListener('pointerdown', e=>{
+  const r = cv.getBoundingClientRect();
+  const x = Math.floor((e.clientX-r.left)/celda), y = Math.floor((e.clientY-r.top)/celda);
+  const dx = x-jugador.x, dy = y-jugador.y;
+  if (Math.abs(dx)+Math.abs(dy)!==1) return;
+  mover(dx===1?'e':dx===-1?'o':dy===1?'s':'n');
+});
+// Botones en pantalla
+[['arriba','n'],['abajo','s'],['izq','o'],['der','e']].forEach(([id,d])=>document.getElementById(id).addEventListener('click',()=>mover(d)));
+document.getElementById('otro').onclick = generar;
+document.getElementById('menos').onclick = ()=>{ if (nivel>1){ nivel--; generar(); } };
+document.getElementById('mas').onclick = ()=>{ if (nivel<MAX){ nivel++; generar(); } };
+document.getElementById('siguiente').onclick = ()=>{
+  document.getElementById('festejo').hidden = true;
+  nivel = nivel < MAX ? nivel+1 : 1; generar();
+};
+addEventListener('resize', ajustar);
+
+// ---------- Intro del robotito y panel ¿Qué aprendemos? ----------
+const intro = document.getElementById('intro'), panel = document.getElementById('panel');
+document.getElementById('jugar').onclick = ()=>{ intro.hidden = true; };
+document.getElementById('abrirPanel').onclick = ()=>{ panel.classList.add('abierto'); panel.setAttribute('aria-hidden','false'); };
+document.getElementById('cerrarPanel').onclick = ()=>{ panel.classList.remove('abierto'); panel.setAttribute('aria-hidden','true'); };
+addEventListener('keydown', e=>{
+  if (e.key === 'Escape') document.getElementById('cerrarPanel').click();
+  if (e.key === 'Enter' && !intro.hidden){ e.preventDefault(); intro.hidden = true; }
+}, true);
+
+generar();
+</script>
+
+<a class="sd-casa" href="index.html" aria-label="Volver a todos los juegos" title="Todos los juegos">🏠</a>
+</html>

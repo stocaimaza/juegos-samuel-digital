@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Juegos educativos de Samuel Digital para 1° y 2° grado: laberintos, píxeles, memotest, letras, números y penales.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<style>body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+<title>Juegos Samuel Digital</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Bungee&display=swap">
+<style>
+/* Layout: franja de marca con sol ochentoso arriba, filtros por grado y grilla de juegos */
+:root{
+  --noche:#1b1446; --violeta:#5b2a86; --magenta:#e0457b; --naranja:#ff8a3d; --sol:#ffc93c;
+  --cielo:#7ec8f0; --panel:#ffffff; --tinta:#23364a; --sombra:#3d86b3;
+  --marca:"Bungee","Arial Black",system-ui,sans-serif;
+  --display:"Baloo 2","Comic Sans MS",system-ui,sans-serif;
+  color-scheme:light;
+}
+[hidden]{display:none!important}
+body{background:var(--cielo); color:var(--tinta); font-family:var(--display); user-select:none; -webkit-user-select:none}
+a{color:inherit}
+.franja{background:linear-gradient(180deg,var(--noche) 0%,var(--violeta) 45%,var(--magenta) 80%,var(--naranja) 100%);
+  padding-left:max(16px,env(safe-area-inset-left,0px)); padding-right:max(16px,env(safe-area-inset-right,0px)); padding-block:28px 0; overflow:hidden; position:relative}
+.franja-in{max-width:1000px; margin:0 auto; display:flex; align-items:flex-end; gap:22px; flex-wrap:wrap}
+.sol{width:150px; height:75px; flex:none; position:relative}
+.sol svg{display:block; width:100%; height:100%}
+.marca{padding-bottom:18px; min-width:0}
+.marca h1{margin:0; font-family:var(--marca); font-weight:400; font-size:clamp(28px,6vw,52px); line-height:1; color:#fff;
+  text-shadow:3px 3px 0 var(--magenta), 6px 6px 0 rgba(27,20,70,.6); letter-spacing:1px; text-wrap:balance}
+.marca p{margin:8px 0 0; color:#ffe7c2; font-size:clamp(17px,2.4vw,22px); font-weight:700}
+.grilla-piso{height:34px; background:
+  repeating-linear-gradient(90deg, rgba(255,255,255,.35) 0 2px, transparent 2px 46px),
+  linear-gradient(180deg, var(--naranja), #ffb35c); margin:0 calc(-1 * max(16px,env(safe-area-inset-right,0px))) 0 calc(-1 * max(16px,env(safe-area-inset-left,0px)))}
+main{max-width:1000px; margin:0 auto; padding-left:max(16px,env(safe-area-inset-left,0px)); padding-right:max(16px,env(safe-area-inset-right,0px)); padding-block:20px 40px}
+.filtros{display:flex; gap:6px; background:var(--panel); border-radius:999px; padding:5px; box-shadow:0 4px 0 var(--sombra); width:max-content; max-width:100%; flex-wrap:wrap; margin:0 auto 22px}
+.filtros button{font-family:var(--display); border:none; cursor:pointer; background:transparent; color:var(--tinta); border-radius:999px; padding:6px 20px; font-size:20px; font-weight:800}
+.filtros button.on{background:var(--sol)}
+button:focus-visible,a:focus-visible{outline:4px solid #fff; outline-offset:3px}
+.juegos{display:grid; grid-template-columns:repeat(auto-fill,minmax(max(220px,calc((100% - 36px)/3)),1fr)); gap:18px}
+.juego{display:flex; flex-direction:column; background:var(--panel); border-radius:24px; overflow:hidden; text-decoration:none; box-shadow:0 6px 0 var(--sombra); transition:transform .15s}
+.juego:hover{transform:translateY(-4px)}
+.juego:active{transform:translateY(2px)}
+.icono{height:120px; display:flex; align-items:center; justify-content:center; font-size:68px; font-family:"Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif; position:relative}
+.icono::after{content:""; position:absolute; inset:auto 0 0; height:14px; background:repeating-linear-gradient(90deg, rgba(255,255,255,.3) 0 10px, transparent 10px 20px)}
+.texto{padding:12px 16px 16px; display:flex; flex-direction:column; gap:6px; flex:1}
+.texto h2{margin:0; font-size:23px; line-height:1.1}
+.texto p{margin:0; font-size:16px; color:#4d6175; line-height:1.3}
+.chips{display:flex; gap:6px; margin-top:auto; padding-top:4px; flex-wrap:wrap}
+.chip{font-size:14px; font-weight:800; border-radius:999px; padding:1px 10px; background:#eef6fb; color:#3d86b3}
+.destacado{grid-column:1 / -1; flex-direction:row}
+.destacado .icono{width:200px; height:auto; min-height:150px; flex:none; font-size:84px}
+.destacado .icono::after{inset:0 0 0 auto; width:14px; height:auto; background:repeating-linear-gradient(180deg, rgba(255,255,255,.3) 0 10px, transparent 10px 20px)}
+.destacado h2{font-size:30px}
+footer{text-align:center; color:#fff; font-weight:700; text-shadow:0 2px 0 var(--sombra); margin-top:28px; font-size:16px}
+@media (max-width:560px){ .destacado{flex-direction:column} .destacado .icono{width:auto; min-height:120px} .destacado .icono::after{inset:auto 0 0; width:auto; height:14px} }
+@media (prefers-reduced-motion:reduce){.juego{transition:none}}
+</style>
+
+<header class="franja">
+  <div class="franja-in">
+    <div class="sol" aria-hidden="true">
+      <svg viewBox="0 0 150 75">
+        <defs>
+          <linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe066"/><stop offset="1" stop-color="#ff5e7e"/></linearGradient>
+          <mask id="rayas"><rect width="150" height="75" fill="#fff"/>
+            <rect y="40" width="150" height="4" fill="#000"/><rect y="50" width="150" height="5" fill="#000"/><rect y="61" width="150" height="6" fill="#000"/></mask>
+        </defs>
+        <path d="M0 75 A75 75 0 0 1 150 75 Z" fill="url(#g)" mask="url(#rayas)"/>
+      </svg>
+    </div>
+    <div class="marca">
+      <h1>SAMUEL DIGITAL</h1>
+      <p>Juegos para aprender jugando 🎮</p>
+    </div>
+  </div>
+  <div class="grilla-piso"></div>
+</header>
+
+<main>
+  <div class="filtros" id="filtros">
+    <button class="on" data-g="todos">Todos</button>
+    <button data-g="1">1° grado</button>
+    <button data-g="2">2° grado</button>
+  </div>
+  <div class="juegos" id="juegos"></div>
+  <footer>Hecho por Samuel Digital</footer>
+</main>
+
+<script>
+const JUEGOS = [
+  {id:'penales', nombre:'Penales Mundialistas', txt:'Jugá con Argentina contra las selecciones del mundo. ¡Pateá y atajá!', em:'⚽', fondo:'#123b6b', grados:['1','2','todos'], chips:['Todos los grados'], destacado:true},
+  {id:'laberinto', nombre:'Laberinto', txt:'Llevá al robotito hasta su casa. 15 niveles.', em:'🌳', fondo:'#9fd96b', grados:['1','2'], chips:['1°','2°','Mouse y flechas']},
+  {id:'pixeles', nombre:'Pintá Píxeles', txt:'Dibujá cuadradito por cuadradito o copiá un modelo.', em:'🎨', fondo:'#ffb627', grados:['1','2'], chips:['1°','2°','Arte']},
+  {id:'boceto', nombre:'Boceto Libre', txt:'Una hoja grande para dibujar lo que quieras.', em:'✏️', fondo:'#ff8fab', grados:['1'], chips:['1°','Arte']},
+  {id:'memotest', nombre:'Memotest', txt:'Encontrá los pares: animales, frutas, números y camisetas.', em:'🃏', fondo:'#9b5de5', grados:['1','2'], chips:['1°','2°','Memoria']},
+  {id:'globos', nombre:'Globos para Contar', txt:'Reventá el globo con el número que se pide.', em:'🎈', fondo:'#8fd3fb', grados:['1'], chips:['1°','Números']},
+  {id:'atrapa-letra', nombre:'Atrapá la Letra', txt:'Mové la canasta y atrapá la fruta con la letra.', em:'🧺', fondo:'#5cc96b', grados:['1','2'], chips:['1°','2°','Letras']},
+  {id:'vesti-robotito', nombre:'Vestí al Robotito', txt:'Arrastrá sombreros, anteojos y zapatos.', em:'🤖', fondo:'#ffe14d', grados:['1'], chips:['1°','Arrastrar']},
+  {id:'rompecabezas', nombre:'Rompecabezas', txt:'Armá dibujos de 4 a 12 piezas.', em:'🧩', fondo:'#3fa7f5', grados:['1','2'], chips:['1°','2°','Arrastrar']},
+  {id:'secuencias', nombre:'Seguí la Secuencia', txt:'¿Qué sigue? Colores, formas y patrones.', em:'🔁', fondo:'#e4572e', grados:['1','2'], chips:['1°','2°','Lógica']}
+];
+const cont = document.getElementById('juegos');
+function pintar(g){
+  cont.innerHTML = JUEGOS.filter(j=> g === 'todos' || j.grados.includes(g)).map(j=>`
+    <a class="juego${j.destacado ? ' destacado' : ''}" href="${j.id}.html">
+      <div class="icono" style="background:${j.fondo}">${j.em}</div>
+      <div class="texto"><h2>${j.nombre}</h2><p>${j.txt}</p>
+        <div class="chips">${j.chips.map(c=>`<span class="chip">${c}</span>`).join('')}</div></div>
+    </a>`).join('');
+}
+document.querySelectorAll('#filtros button').forEach(b=> b.onclick = ()=>{
+  document.querySelectorAll('#filtros button').forEach(x=> x.classList.toggle('on', x === b));
+  pintar(b.dataset.g);
+});
+pintar('todos');
+</script>
+
+</html>
