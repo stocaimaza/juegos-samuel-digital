@@ -1,0 +1,79 @@
+/* Actividades · Samuel Digital
+   Layout: franja de marca arriba, columna de lectura centrada; cada actividad es una pila de pasos numerados.
+   Cada grado tiene su color (--c) que tiñe números, etiquetas y bordes. */
+:root{
+  --noche:#1b1446; --violeta:#5b2a86; --magenta:#e0457b; --naranja:#ff8a3d; --sol:#ffc93c;
+  --cielo:#7ec8f0; --card:#ffffff; --ink:#23364a; --muted:#4d6175; --line:#dbe6ef; --sombra:#3d86b3;
+  --marca:"Bungee","Arial Black",system-ui,sans-serif;
+  --display:"Baloo 2","Comic Sans MS",system-ui,sans-serif;
+  --texto:"Nunito",system-ui,sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;font-family:var(--texto);color:var(--ink);background:var(--cielo);font-size:18px;line-height:1.55}
+h1,h2,h3{font-family:var(--display);line-height:1.15;margin:0 0 .4em;text-wrap:balance}
+a{color:inherit}
+img{max-width:100%}
+
+/* Franja de marca */
+.top{background:linear-gradient(180deg,var(--noche) 0%,var(--violeta) 55%,var(--magenta) 100%);color:#fff;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:12px;
+  display:flex;flex-wrap:wrap;gap:4px 16px;align-items:center;justify-content:space-between;border-bottom:6px solid var(--naranja)}
+.marca{display:flex;align-items:center;gap:10px;font-family:var(--marca);font-weight:400;font-size:clamp(18px,3.4vw,24px);text-decoration:none;letter-spacing:.5px;text-shadow:2px 2px 0 var(--magenta)}
+.marca img{width:34px;height:34px;border-radius:8px}
+.sub{color:#ffe7c2;font-weight:800;font-size:.95rem}
+
+main{max-width:1000px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:22px 40px}
+footer{text-align:center;color:#fff;font-weight:800;font-size:.95rem;padding:10px 16px 26px;text-shadow:0 2px 0 var(--sombra)}
+.volver{display:inline-block;margin-bottom:14px;text-decoration:none;font-weight:800;background:#fff;color:var(--ink);border-radius:999px;padding:6px 16px;box-shadow:0 3px 0 var(--sombra)}
+.volver:hover{transform:translateY(-1px)}
+a:focus-visible{outline:4px solid #fff;outline-offset:3px}
+
+/* Página de grado */
+.tit-grado{font-size:clamp(2rem,6vw,2.8rem);color:#fff;text-shadow:0 3px 0 var(--sombra);display:flex;align-items:center;gap:10px}
+.tit-grado span{background:#fff;border-radius:18px;width:62px;height:62px;display:grid;place-items:center;font-size:2.1rem;text-shadow:none;box-shadow:0 4px 0 var(--c)}
+.intro{font-size:1.1rem;margin:0}
+.tit-grado + .intro{color:#fff;font-weight:800;text-shadow:0 2px 0 var(--sombra);margin-bottom:14px}
+.acts{display:grid;gap:14px}
+.act{display:flex;flex-direction:column;gap:2px;background:var(--card);border-left:10px solid var(--c);border-radius:20px;padding:16px 20px;text-decoration:none;box-shadow:0 5px 0 var(--sombra);transition:transform .15s}
+.act:hover{transform:translateY(-3px)}
+.act b{font-family:var(--display);font-size:1.55rem;line-height:1.15}
+.act .fecha{color:var(--muted);font-size:.9rem;font-weight:800;font-variant-numeric:tabular-nums}
+.act .ir{color:var(--c);font-weight:800;margin-top:6px}
+.act .nueva{align-self:flex-start;background:var(--sol);color:#5c3c00;font-weight:800;font-size:.8rem;border-radius:999px;padding:1px 10px;margin-bottom:2px}
+.vacio{background:var(--card);border-radius:16px;padding:20px;border:3px dashed var(--line)}
+
+/* Página de actividad */
+.hero{display:grid;grid-template-columns:1.2fr 1fr;gap:20px;align-items:center;background:var(--card);border-radius:24px;padding:22px;border-top:10px solid var(--c);margin-bottom:22px;box-shadow:0 6px 0 var(--sombra)}
+.hero img{width:100%;border-radius:14px;border:2px solid var(--line)}
+.etiqueta{display:inline-block;background:var(--c);color:#fff;font-weight:800;border-radius:999px;padding:2px 12px;margin:0 0 8px;font-size:.9rem}
+.hero h1{font-size:clamp(1.8rem,5vw,2.4rem)}
+.paso{display:grid;grid-template-columns:56px 1fr;gap:14px;background:var(--card);border-radius:20px;padding:18px;margin-bottom:16px;box-shadow:0 4px 0 rgba(61,134,179,.55)}
+.cuerpo{min-width:0}
+.num{width:48px;height:48px;border-radius:50%;background:var(--c);color:#fff;font-family:var(--display);font-weight:800;font-size:1.6rem;display:grid;place-items:center;box-shadow:0 3px 0 rgba(0,0,0,.18)}
+.paso h3{font-size:1.45rem}
+.paso p{margin:.3em 0 .6em}
+.nuevo{font-family:var(--texto);font-size:.75rem;background:var(--sol);color:#5c3c00;border-radius:6px;padding:2px 8px;vertical-align:middle;font-weight:800;letter-spacing:.5px}
+.tip{background:#fff7e0;border-left:5px solid var(--sol);border-radius:8px;padding:8px 12px;font-size:.98rem}
+.figs{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start}
+figure{margin:6px 0 0;max-width:100%;min-width:0}
+figure img{max-width:100%;height:auto;border-radius:12px;border:2px solid var(--line);background:#f9fbfd;display:block}
+figure.bloques img{border:none;background:#f4f6f9;padding:12px;border-radius:14px}
+figure.chico img{width:230px}
+figcaption{font-size:.88rem;color:var(--muted);font-weight:800;margin-top:4px}
+.desafio{background:var(--c);color:#fff;border-radius:20px;padding:20px 24px;box-shadow:0 5px 0 rgba(0,0,0,.18)}
+.desafio h3{font-size:1.6rem}
+.desafio li{margin:4px 0}
+@media(max-width:760px){.hero{grid-template-columns:1fr}}
+@media(max-width:520px){.paso{grid-template-columns:1fr}.num{width:42px;height:42px}}
+
+/* Bloques de ScratchJr (2° grado) */
+.jrrow{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 12px}
+.jrb{background:var(--b);color:#fff;border-radius:12px;min-width:74px;padding:8px 8px 6px;display:flex;flex-direction:column;align-items:center;box-shadow:inset 0 -4px 0 rgba(0,0,0,.18);position:relative}
+.jrb:not(:last-child)::after{content:"";position:absolute;right:-9px;top:50%;width:12px;height:16px;margin-top:-8px;background:var(--b);border-radius:0 8px 8px 0;z-index:1}
+.jri{font-size:1.8rem;line-height:1.1}.jrl{font-weight:800;font-size:.85rem}
+.jrn{background:#fff;color:#222;border-radius:6px;font-weight:800;padding:0 8px;font-size:.9rem;margin:2px 0}
+.jrhero{background:#f1f3f9;border-radius:14px;padding:16px;display:flex;justify-content:center}
+.desafio .jrrow{margin:8px 0}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}

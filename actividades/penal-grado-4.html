@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>El penal · 4° · Samuel Digital</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Bungee&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+</head>
+<body style="--c:#1c7ed6">
+<header class="top">
+  <a class="marca" href="../index.html"><img src="../favicon.svg" alt="">SAMUEL DIGITAL</a>
+  <span class="sub">Actividades · Profe Samuel</span>
+</header>
+<main>
+<a class="volver" href="grado-4.html">← Volver a 4° grado</a>
+<div class="hero">
+  <div>
+    <p class="etiqueta">4° grado · Scratch</p>
+    <h1>El penal ⚽</h1>
+    <p class="intro">Programamos nuestro propio <b>juego de penales</b>: apuntás con el mouse, pateás con la barra espaciadora y el arquero va y viene para atajar.</p>
+  </div>
+  <img src="img/juego-penal.svg" alt="Vista del juego de penales">
+</div>
+<div class="pasos"><section class="paso">
+  <div class="num">1</div>
+  <div class="cuerpo">
+    <h3>Arrancá un proyecto nuevo </h3>
+    <p>Entrá a <b>Scratch</b> y empezá un <b>proyecto nuevo</b>. Al gato no lo vamos a usar: hacé <b>clic derecho sobre el gato → borrar</b>.</p><p>Hoy el juego tiene tres objetos: la <b>Pelota</b>, el <b>Arquero</b> y el <b>Arco</b>.</p>
+    
+    <div class="figs"></div>
+  </div>
+</section>
+<section class="paso">
+  <div class="num">2</div>
+  <div class="cuerpo">
+    <h3>Agregá la Pelota y el Arquero </h3>
+    <p>Tocá <b>Elegir un objeto</b> (el gatito azul de abajo a la derecha) y buscá <b>Soccer Ball</b>. Cambiale el nombre a <b>Pelota</b>.</p><p>Hacé lo mismo con <b>Goalie</b> (un arquero) y llamalo <b>Arquero</b>.</p>
+    <p class="tip">💡 Los nombres tienen que ser exactamente <b>Pelota</b> y <b>Arquero</b>, con mayúscula, porque el código los usa. Si el arquero queda muy grande, achicalo en <b>Tamaño</b> (por ejemplo, 70).</p>
+    <div class="figs"></div>
+  </div>
+</section>
+<section class="paso">
+  <div class="num">3</div>
+  <div class="cuerpo">
+    <h3>Dibujá el Arco </h3>
+    <p>En <b>Elegir un objeto</b> tocá el <b>pincel (Pintar)</b>. Con el <b>rectángulo</b> dibujá un arco ancho, <b>relleno de blanco</b>. Si querés, hacele la red con líneas grises. Llamá al objeto <b>Arco</b>.</p>
+    <p class="tip">💡 El arco tiene que estar <b>relleno</b>, no solo el borde: así la pelota “lo toca” cuando entra al arco.</p>
+    <div class="figs"><figure class=""><img src="img/objeto-arco.svg" alt="Así puede quedar el Arco" loading="lazy"><figcaption>Así puede quedar el Arco</figcaption></figure></div>
+  </div>
+</section>
+<section class="paso">
+  <div class="num">4</div>
+  <div class="cuerpo">
+    <h3>Prepará los fondos </h3>
+    <p>Tocá el <b>Escenario</b> (abajo a la derecha) y entrá a <b>Fondos</b>. Necesitás un fondo para jugar, que se llame <b>cancha</b> (podés elegir <b>Soccer</b> y cambiarle el nombre, o pintar uno verde), y los fondos del final: <b>fin</b>. Escribí el cartel con la herramienta de texto.</p>
+    
+    <div class="figs"><figure class=" chico"><img src="img/fondo-fin.svg" alt="Fondo “fin”" loading="lazy"><figcaption>Fondo “fin”</figcaption></figure></div>
+  </div>
+</section>
+<section class="paso">
+  <div class="num">5</div>
+  <div class="cuerpo">
+    <h3>Creá las variables </h3>
+    <p>Andá a <b>Variables</b> (naranja) y tocá <b>Crear una variable</b>. Creá: <b>goles</b> y <b>tiros</b>. Elegí <b>“Para todos los objetos”</b>.</p>
+    <p class="tip">💡 Dejá tildadas <b>goles</b> y <b>tiros</b> para que se vean en la pantalla mientras jugás.</p>
+    <div class="figs"></div>
+  </div>
+</section>
+<section class="paso">
+  <div class="num">6</div>
+  <div class="cuerpo">
+    <h3>Ubicá el Arco </h3>
+    <p>En el objeto <b>Arco</b>: al empezar, se muestra y se ubica arriba, en el centro.</p>
+    
+    <div class="figs"><figure class="bloques"><img src="img/bloques-arco.svg" alt="Código del Arco" loading="lazy"><figcaption>Código del Arco</figcaption></figure></div>
+  </div>
+</section>
+<section class="paso">
+  <div class="num">7</div>
+  <div class="cuerpo">
+    <h3>El Arquero va y viene <span class="nuevo">NUEVO</span></h3>
+    <p>El arquero camina de un lado al otro <b>por siempre</b>. Cuando pasa del costado derecho (<b>posición en x &gt; 120</b>) da la vuelta para la izquierda, y cuando pasa del costado izquierdo vuelve para la derecha. Así nunca se sale del arco.</p>
+    <p class="tip">💡 El bloque <b>ir a capa delantera</b> hace que el arquero se vea adelante del arco y no quede tapado.</p>
+    <div class="figs"><figure class="bloques"><img src="img/bloques-g4-arquero.svg" alt="Código del Arquero" loading="lazy"><figcaption>Código del Arquero</figcaption></figure></div>
+  </div>
+</section>
+<section class="paso">
+  <div class="num">8</div>
+  <div class="cuerpo">
+    <h3>La Pelota patea <span class="nuevo">NUEVO</span></h3>
+    <p>Cuando tocás la <b>barra espaciadora</b>, la pelota se <b>desliza hasta donde está el mouse</b>. Cuando llega, se fija qué pasó:</p><ul><li>Si <b>toca al Arquero</b>: ¡atajó!</li><li><b>Si no</b>, si <b>toca el Arco</b>: ¡gol! Suma 1 a goles.</li><li><b>Si no</b> toca ninguno: se fue afuera.</li></ul><p>Pase lo que pase, suma 1 a <b>tiros</b> y la pelota vuelve al punto del penal.</p>
+    <p class="tip">💡 Apuntá con el mouse adentro del arco y tocá la barra espaciadora <b>una sola vez</b>. Esperá que la pelota vuelva antes de patear de nuevo.</p>
+    <div class="figs"><figure class="bloques"><img src="img/bloques-g4-pelota-inicio.svg" alt="Pelota: al empezar" loading="lazy"><figcaption>Pelota: al empezar</figcaption></figure><figure class="bloques"><img src="img/bloques-g4-pelota-patear.svg" alt="Pelota: patear" loading="lazy"><figcaption>Pelota: patear</figcaption></figure></div>
+  </div>
+</section>
+<section class="paso">
+  <div class="num">9</div>
+  <div class="cuerpo">
+    <h3>El Escenario es el árbitro </h3>
+    <p>En el <b>Escenario</b> va el código que controla el partido: pone la cancha y carga los goles y los tiros en 0. Después <b>espera hasta que los tiros sean 5</b>. Cuando pasa, muestra el fondo <b>fin</b>, avisa <b>fin</b> y detiene todo.</p>
+    
+    <div class="figs"><figure class="bloques"><img src="img/bloques-g4-escenario.svg" alt="Código del Escenario" loading="lazy"><figcaption>Código del Escenario</figcaption></figure></div>
+  </div>
+</section>
+<section class="paso">
+  <div class="num">10</div>
+  <div class="cuerpo">
+    <h3>Cuando termina, todos se esconden </h3>
+    <p>En la <b>Pelota</b>, el <b>Arquero</b> y el <b>Arco</b> agregá este código: cuando reciben el mensaje <b>fin</b>, se esconden. Así se ve bien el cartel del final.</p>
+    
+    <div class="figs"><figure class="bloques"><img src="img/bloques-fin-esconder.svg" alt="Va en la Pelota, el Arquero y el Arco" loading="lazy"><figcaption>Va en la Pelota, el Arquero y el Arco</figcaption></figure></div>
+  </div>
+</section>
+<section class="paso">
+  <div class="num">11</div>
+  <div class="cuerpo">
+    <h3>¡A jugar! </h3>
+    <p>Tocá la <b>bandera verde</b>, apuntá con el mouse y pateá con la <b>barra espaciadora</b>. ¿Cuántos goles le hacés al arquero en 5 penales?</p>
+    
+    <div class="figs"><figure class=""><img src="img/juego-penal.svg" alt="Así se ve el juego" loading="lazy"><figcaption>Así se ve el juego</figcaption></figure></div>
+  </div>
+</section></div>
+<section class="desafio">
+  <h3>⭐ Desafíos extra</h3>
+  <p>¿Terminaste? Probá alguno de estos:</p>
+  <ul><li>Que el arquero camine más rápido (cambiá el 5 de “mover 5 pasos”).</li><li>Creá la variable <b>atajadas</b> y sumale 1 cada vez que el arquero ataja.</li><li>Que el arquero diga “¡La tengo!” cuando ataja.</li></ul>
+</section>
+</main>
+<footer>Profe Samuel · Samuel Digital</footer>
+</body>
+</html>

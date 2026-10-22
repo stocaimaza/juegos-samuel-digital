@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gato y manzana nivel 2 · 6° · Samuel Digital</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Bungee&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+</head>
+<body style="--c:#f08c00">
+<header class="top">
+  <a class="marca" href="../index.html"><img src="../favicon.svg" alt="">SAMUEL DIGITAL</a>
+  <span class="sub">Actividades · Profe Samuel</span>
+</header>
+<main>
+<a class="volver" href="grado-6.html">← Volver a 6° grado</a>
+<div class="hero">
+  <div>
+    <p class="etiqueta">6° grado · Scratch</p>
+    <h1>El gato y la manzana: nivel 2</h1>
+    <p class="intro">Agregamos piedra, vidas, velocidad que sube, un <b>cronómetro de 60 segundos</b> y <b>tres finales</b> distintos.</p>
+  </div>
+  <img src="img/juego.png" alt="Vista del juego">
+</div>
+<div class="pasos"><section class="paso">
+  <div class="num">1</div>
+  <div class="cuerpo">
+    <h3>Abrí tu juego del gato y la manzana </h3>
+    <p>Entrá a <b>Scratch</b> y abrí el proyecto que hicimos la clase pasada, donde el gato atrapa la manzana. Hoy lo vamos a convertir en un <b>juego de verdad</b>: con vidas, un peligro y un final.</p>
+    <p class="tip">💡 Si no lo encontrás, avisale al profe y arrancamos uno nuevo.</p>
+    <div class="figs"></div>
+  </div>
+</section><section class="paso">
+  <div class="num">2</div>
+  <div class="cuerpo">
+    <h3>Creá las variables <span class="nuevo">NUEVO</span></h3>
+    <p>Andá a la categoría <b>Variables</b> (naranja) y tocá <b>Crear una variable</b>. Creá: <b>puntos</b>, <b>vidas</b>, <b>velocidad</b> y <b>tiempo</b>. Elegí <b>“Para todos los objetos”</b>.</p><p>Una <b>variable</b> es como una cajita donde el juego guarda un número que va cambiando.</p>
+    <p class="tip">💡 Si ya tenías la variable puntos de la clase pasada, no la crees de nuevo.</p>
+    <div class="figs"></div>
+  </div>
+</section><section class="paso">
+  <div class="num">3</div>
+  <div class="cuerpo">
+    <h3>Revisá el código del Gato </h3>
+    <p>El gato se mueve con las flechas <b>←</b> y <b>→</b>. Este código ya lo tenés de la clase pasada. El bloque <b>apuntar en dirección</b> hace que el gato mire para el lado que camina.</p>
+    <p class="tip">💡 Para que el gato no quede patas para arriba: en el objeto Gato, poné el estilo de rotación “izquierda-derecha” (tocando “Dirección”).</p>
+    <div class="figs"><figure><img src="img/gato.png" alt="Código del Gato" loading="lazy"><figcaption>Código del Gato</figcaption></figure></div>
+  </div>
+</section><section class="paso">
+  <div class="num">4</div>
+  <div class="cuerpo">
+    <h3>La Manzana, cada vez más rápida <span class="nuevo">NUEVO</span></h3>
+    <p>La manzana cae y, si <b>toca al Gato</b>, suma 1 punto. ¡Lo nuevo! Ahora baja según la variable <b>velocidad</b>: usamos el bloque verde de <b>Operadores</b> <b>( 0 − velocidad )</b> para que el número sea negativo y la manzana baje. Cada vez que la atrapás, <b>velocidad</b> sube 0.5, así que el juego se pone más difícil.</p>
+    
+    <div class="figs"><figure><img src="img/g56-manzana.png" alt="Código de la Manzana" loading="lazy"><figcaption>Código de la Manzana</figcaption></figure></div>
+  </div>
+</section><section class="paso">
+  <div class="num">5</div>
+  <div class="cuerpo">
+    <h3>Agregá la Piedra <span class="nuevo">NUEVO</span></h3>
+    <p>La forma más fácil: hacé <b>clic derecho en la Manzana → duplicar</b>. Cambiale el nombre a <b>Piedra</b> y, en <b>Disfraces</b>, elegí una piedra (por ejemplo “Rocks”) o dibujá una.</p><p>Después cambiá una sola cosa del código: en vez de sumar puntos, la piedra <b>resta 1 vida</b>.</p>
+    <p class="tip">💡 ¡Duplicar ahorra un montón de trabajo! Casi todo el código es igual al de la manzana.</p>
+    <div class="figs"><figure><img src="img/g56-piedra.png" alt="Código de la Piedra" loading="lazy"><figcaption>Código de la Piedra</figcaption></figure></div>
+  </div>
+</section><section class="paso">
+  <div class="num">6</div>
+  <div class="cuerpo">
+    <h3>Prepará los fondos <span class="nuevo">NUEVO</span></h3>
+    <p>Tocá el <b>Escenario</b> (abajo a la derecha) y entrá a <b>Fondos</b>. Necesitás un fondo para jugar (le pusimos <b>jardín</b>) y fondos para el final: <b>game over</b>, <b>ganaste</b> y <b>sin tiempo</b>. Podés pintarlos y escribir el cartel con la herramienta de texto.</p>
+    
+    <div class="figs"><figure><img src="img/gameover.png" alt="Fondo “game over”" loading="lazy"><figcaption>Fondo “game over”</figcaption></figure><figure><img src="img/ganaste.png" alt="Fondo “ganaste”" loading="lazy"><figcaption>Fondo “ganaste”</figcaption></figure><figure><img src="img/sintiempo.png" alt="Fondo “sin tiempo”" loading="lazy"><figcaption>Fondo “sin tiempo”</figcaption></figure></div>
+  </div>
+</section><section class="paso">
+  <div class="num">7</div>
+  <div class="cuerpo">
+    <h3>El Escenario es el árbitro <span class="nuevo">NUEVO</span></h3>
+    <p>El juego termina por <b>3 motivos</b>: te quedaste sin vidas, <b>o</b> se acabó el tiempo, <b>o</b> llegaste a 15 puntos. Por eso usamos dos bloques verdes <b>“o”</b> dentro del <b>esperar hasta que</b>.</p><p>Después, con <b>si / si no</b>, el escenario decide qué cartel mostrar: si tenés más de 14 puntos → <b>¡Ganaste!</b>; si no, si te quedaste sin vidas → <b>game over</b>; y si no → <b>se acabó el tiempo</b>.</p>
+    
+    <div class="figs"><figure><img src="img/g6-escenario.png" alt="Código del Escenario" loading="lazy"><figcaption>Código del Escenario</figcaption></figure></div>
+  </div>
+</section><section class="paso">
+  <div class="num">8</div>
+  <div class="cuerpo">
+    <h3>El cronómetro <span class="nuevo">NUEVO</span></h3>
+    <p>También en el <b>Escenario</b>: cuando recibe el mensaje <b>empezar</b>, resta 1 al <b>tiempo</b> cada 1 segundo, hasta llegar a 0.</p>
+    <p class="tip">💡 Para crear el mensaje: en el bloque “enviar”, tocá el triangulito y elegí “Nuevo mensaje”.</p>
+    <div class="figs"><figure><img src="img/g6-cronometro.png" alt="Código del cronómetro (Escenario)" loading="lazy"><figcaption>Código del cronómetro (Escenario)</figcaption></figure></div>
+  </div>
+</section><section class="paso">
+  <div class="num">9</div>
+  <div class="cuerpo">
+    <h3>Cuando termina, todos se esconden </h3>
+    <p>En el <b>Gato</b>, la <b>Manzana</b> y la <b>Piedra</b> agregá este código: cuando reciben el mensaje <b>fin</b>, se esconden. Así se ve bien el cartel del final.</p>
+    <p class="tip">💡 Fijate que la manzana y la piedra tengan el bloque “mostrar” al empezar, si no ¡no aparecen en la próxima partida!</p>
+    <div class="figs"><figure><img src="img/fin-esconder.png" alt="Va en el Gato, la Manzana y la Piedra" loading="lazy"><figcaption>Va en el Gato, la Manzana y la Piedra</figcaption></figure></div>
+  </div>
+</section><section class="paso">
+  <div class="num">10</div>
+  <div class="cuerpo">
+    <h3>¡A jugar! </h3>
+    <p>Tocá la <b>bandera verde</b> y probá tu juego. ¿Atrapás manzanas y esquivás piedras? ¿Aparece el cartel del final?</p>
+    
+    <div class="figs"><figure><img src="img/juego.png" alt="Así se ve el juego" loading="lazy"><figcaption>Así se ve el juego</figcaption></figure></div>
+  </div>
+</section></div>
+<section class="desafio"><h3>⭐ Desafíos extra</h3><p>¿Terminaste? Probá alguno de estos:</p><ol><li>Cambiá la meta: ¿se puede ganar con 20 puntos?</li><li>Agregá una manzana que sume 1 vida (pero que aparezca poco).</li><li>Hacé que el gato cambie de disfraz al caminar (bloque “siguiente disfraz”).</li></ol></section>
+</main>
+<footer>Profe Samuel · Samuel Digital</footer>
+</body>
+</html>
