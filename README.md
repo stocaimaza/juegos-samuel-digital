@@ -1,6 +1,20 @@
 # 🎮 Juegos Samuel Digital
 
-Juegos educativos para chicos de **1° y 2° grado**, creados por **Samuel Tocaimaza** (Samuel Digital) para usar en el aula y en casa.
+Juegos y actividades de Informática para la primaria, creados por **Samuel Tocaimaza** (Samuel Digital) para usar en el aula y en casa.
+
+🌐 **https://juegos.samueldigital.com.ar**
+
+## Actividades por grado
+
+Paso a paso de proyectos de ScratchJr y Scratch, con los bloques dibujados en español:
+
+| Grado | Actividades |
+|---|---|
+| 2° | El gato va a buscar la manzana (ScratchJr) |
+| 3° | Primeros pasos en Scratch |
+| 4°, 5° y 6° | El gato y la manzana: nivel 2 · **El penal ⚽** |
+
+Cada grado del mismo proyecto suma algo nuevo: 4° variables y si/si no, 5° velocidad y dos finales, 6° números al azar y tres finales.
 
 Funcionan en cualquier navegador, sin instalar nada, sin cuentas y sin sonido (pensados para salas de informática sin parlantes).
 
@@ -29,7 +43,9 @@ Cada juego tiene:
 HTML, CSS y JavaScript puro, un archivo por juego. No necesita compilación: se publica tal cual en cualquier hosting estático (Vercel, GitHub Pages, Netlify).
 
 ```
-index.html            → portada con todos los juegos
+index.html            → portada con actividades y juegos
+actividades/          → actividades por grado (grado-N.html y cada paso a paso)
+actividades/img/      → capturas, ilustraciones y bloques de Scratch
 <juego>.html          → cada juego
 favicon.svg           → ícono del sitio
 ```

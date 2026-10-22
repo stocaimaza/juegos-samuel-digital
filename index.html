@@ -34,6 +34,15 @@ a{color:inherit}
   repeating-linear-gradient(90deg, rgba(255,255,255,.35) 0 2px, transparent 2px 46px),
   linear-gradient(180deg, var(--naranja), #ffb35c); margin:0 calc(-1 * max(16px,env(safe-area-inset-right,0px))) 0 calc(-1 * max(16px,env(safe-area-inset-left,0px)))}
 main{max-width:1000px; margin:0 auto; padding-left:max(16px,env(safe-area-inset-left,0px)); padding-right:max(16px,env(safe-area-inset-right,0px)); padding-block:20px 40px}
+.seccion{font-family:var(--display); font-size:clamp(26px,4.5vw,34px); color:#fff; text-shadow:0 3px 0 var(--sombra); margin:4px 0 12px; display:flex; align-items:center; gap:10px}
+.seccion small{font-size:17px; font-weight:700; color:#eaf6ff; text-shadow:0 2px 0 var(--sombra)}
+.grados{display:grid; grid-template-columns:repeat(6,1fr); gap:14px; margin-bottom:34px}
+.grado{display:flex; flex-direction:column; align-items:center; gap:2px; text-decoration:none; color:#fff; background:var(--g); border-radius:22px; padding:14px 6px 12px; box-shadow:0 6px 0 rgba(0,0,0,.2); transition:transform .15s}
+.grado:hover{transform:translateY(-4px)}
+.grado .em{font-size:30px; font-family:"Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif}
+.grado .n{font-family:var(--display); font-weight:800; font-size:44px; line-height:1}
+.grado .t{font-size:14px; font-weight:800; opacity:.95}
+@media (max-width:760px){ .grados{grid-template-columns:repeat(3,1fr)} }
 .filtros{display:flex; gap:6px; background:var(--panel); border-radius:999px; padding:5px; box-shadow:0 4px 0 var(--sombra); width:max-content; max-width:100%; flex-wrap:wrap; margin:0 auto 22px}
 .filtros button{font-family:var(--display); border:none; cursor:pointer; background:transparent; color:var(--tinta); border-radius:999px; padding:6px 20px; font-size:20px; font-weight:800}
 .filtros button.on{background:var(--sol)}
@@ -72,13 +81,23 @@ footer{text-align:center; color:#fff; font-weight:700; text-shadow:0 2px 0 var(-
     </div>
     <div class="marca">
       <h1>SAMUEL DIGITAL</h1>
-      <p>Juegos para aprender jugando 🎮</p>
+      <p>Juegos y actividades para aprender jugando 🎮</p>
     </div>
   </div>
   <div class="grilla-piso"></div>
 </header>
 
 <main>
+  <h2 class="seccion" id="actividades">📚 Actividades <small>Elegí tu grado</small></h2>
+  <div class="grados">
+    <a class="grado" href="actividades/grado-1.html" style="--g:#e8590c"><span class="em">🧩</span><span class="n">1°</span><span class="t">grado</span></a>
+    <a class="grado" href="actividades/grado-2.html" style="--g:#d6336c"><span class="em">🎨</span><span class="n">2°</span><span class="t">grado</span></a>
+    <a class="grado" href="actividades/grado-3.html" style="--g:#7048e8"><span class="em">🐱</span><span class="n">3°</span><span class="t">grado</span></a>
+    <a class="grado" href="actividades/grado-4.html" style="--g:#1c7ed6"><span class="em">⚽</span><span class="n">4°</span><span class="t">grado</span></a>
+    <a class="grado" href="actividades/grado-5.html" style="--g:#0ca678"><span class="em">⚡</span><span class="n">5°</span><span class="t">grado</span></a>
+    <a class="grado" href="actividades/grado-6.html" style="--g:#f08c00"><span class="em">🏆</span><span class="n">6°</span><span class="t">grado</span></a>
+  </div>
+  <h2 class="seccion" id="juegos-titulo">🎮 Juegos</h2>
   <div class="filtros" id="filtros">
     <button class="on" data-g="todos">Todos</button>
     <button data-g="1">1° grado</button>
