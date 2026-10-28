@@ -1,0 +1,997 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<title>Misiones del Robotito · Samuel Digital</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Bungee&family=Nunito:wght@600;800&display=swap">
+<style>
+/* Layout: franja de marca arriba; pantallas inicio → mapa de misiones → misión (tablero a la izquierda, bloques a la derecha).
+   Identidad Samuel Digital: atardecer ochentoso, cielo celeste, Bungee para la marca y Baloo 2 para todo lo demás.
+   Diseño de un solo tema (el mismo del resto de los juegos), con todos los colores explícitos. */
+:root{
+  --noche:#1b1446; --violeta:#5b2a86; --magenta:#e0457b; --naranja:#ff8a3d; --sol:#ffc93c;
+  --cielo:#7ec8f0; --panel:#ffffff; --tinta:#23364a; --suave:#4d6175; --linea:#dbe6ef; --sombra:#3d86b3;
+  --ok:#2fae5d; --mal:#e4572e;
+  /* colores de bloques, como en Scratch */
+  --b-mov:#4c97ff; --b-acc:#9966ff; --b-ctrl:#ffab19; --b-ev:#ffbf00; --b-pr:#ff6680;
+  --marca:"Bungee","Arial Black",system-ui,sans-serif;
+  --display:"Baloo 2","Comic Sans MS",system-ui,sans-serif;
+  --texto:"Nunito",system-ui,sans-serif;
+  --g:#3fa7f5;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{min-height:100%}
+body{background:var(--cielo);color:var(--tinta);font-family:var(--texto);font-size:17px;line-height:1.45;user-select:none;-webkit-user-select:none}
+h1,h2,h3{font-family:var(--display);line-height:1.1;margin:0;text-wrap:balance}
+button{font-family:var(--display);cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:4px solid var(--noche);outline-offset:2px}
+
+/* Franja de marca */
+.top{background:linear-gradient(180deg,var(--noche) 0%,var(--violeta) 55%,var(--magenta) 100%);color:#fff;border-bottom:6px solid var(--naranja);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:10px}
+.top-in{max-width:1180px;margin:0 auto;display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center;justify-content:space-between}
+.marca{font-family:var(--marca);font-size:clamp(17px,3vw,22px);letter-spacing:.5px;text-shadow:2px 2px 0 var(--magenta)}
+.marca small{font-family:var(--display);font-size:.8em;color:#ffe7c2;text-shadow:none;margin-left:8px;letter-spacing:0;font-weight:800}
+.marca-fila{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.volver-grado{background:#fff;color:var(--tinta);text-decoration:none;font-family:var(--display);font-weight:800;border-radius:999px;padding:3px 12px;font-size:15px}
+.grado-fijo{display:inline-flex;align-items:center;gap:8px;background:var(--g);color:#fff;font-family:var(--display);font-weight:800;font-size:1.3rem;border-radius:16px;padding:6px 16px;align-self:flex-start}
+.grado-fijo span{font-size:.95rem;opacity:.9}
+.quien{display:flex;gap:8px;align-items:center;font-family:var(--display);font-weight:800}
+.quien .chip{background:rgba(255,255,255,.16);border-radius:999px;padding:3px 12px}
+.quien button{border:none;background:#fff;color:var(--tinta);border-radius:999px;padding:3px 12px;font-weight:800;font-size:15px}
+
+main{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 40px}
+.card{background:var(--panel);border-radius:22px;box-shadow:0 5px 0 var(--sombra)}
+.btn{border:none;border-radius:999px;font-weight:800;font-size:19px;padding:9px 22px;box-shadow:0 4px 0 rgba(0,0,0,.2);transition:transform .1s}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.2)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn-ok{background:var(--ok);color:#fff}
+.btn-sol{background:var(--sol);color:#5c3c00}
+.btn-blanco{background:#fff;color:var(--tinta);box-shadow:0 4px 0 var(--linea)}
+.btn-mal{background:var(--mal);color:#fff}
+
+/* Inicio */
+.inicio{display:grid;grid-template-columns:1fr 1.1fr;gap:28px;align-items:center;padding:28px}
+.inicio .robo-grande{display:flex;justify-content:center}
+.inicio .robo-grande svg{width:min(260px,60vw);height:auto;animation:flota 3s ease-in-out infinite}
+@keyframes flota{50%{transform:translateY(-10px)}}
+.inicio h1{font-size:clamp(2rem,5vw,3rem);color:var(--violeta)}
+.inicio p.lead{font-size:1.15rem;color:var(--suave);margin:.4em 0 1.2em}
+.campo{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
+.campo label,.campo .lbl{font-family:var(--display);font-weight:800;font-size:1.2rem}
+.campo input{font-family:var(--display);font-size:1.4rem;font-weight:700;padding:8px 16px;border-radius:14px;border:3px solid var(--linea);max-width:340px;width:100%;color:var(--tinta);background:#fff;-webkit-text-fill-color:var(--tinta);caret-color:var(--tinta)}
+.campo input::placeholder{color:#9aaab8;-webkit-text-fill-color:#9aaab8}
+.campo input:focus{border-color:var(--g)}
+.grados{display:flex;gap:10px;flex-wrap:wrap}
+.grados button{border:3px solid var(--linea);background:#fff;border-radius:16px;padding:8px 16px;font-size:1.15rem;font-weight:800;color:var(--tinta);display:flex;flex-direction:column;align-items:center;line-height:1.1;min-width:110px}
+.grados button b{font-size:1.7rem}
+.grados button span{font-size:.85rem;color:var(--suave)}
+.grados button.on{border-color:var(--gc);background:var(--gc);color:#fff}
+.grados button.on span{color:#fff}
+
+/* Mapa de misiones */
+.mapa-cab{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:flex-end;justify-content:space-between;margin-bottom:16px}
+.mapa-cab h2{font-size:clamp(1.7rem,4.5vw,2.4rem);color:#fff;text-shadow:0 3px 0 var(--sombra)}
+.mapa-cab p{margin:0;color:#fff;font-weight:800;text-shadow:0 2px 0 var(--sombra);font-size:1.1rem}
+.total{background:#fff;border-radius:999px;padding:6px 16px;font-family:var(--display);font-weight:800;font-size:1.2rem;box-shadow:0 4px 0 var(--sombra);font-variant-numeric:tabular-nums}
+.misiones{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px}
+.mi{position:relative;border:none;text-align:left;background:#fff;border-radius:22px;padding:16px 18px 14px;box-shadow:0 5px 0 var(--sombra);display:flex;flex-direction:column;gap:4px;color:var(--tinta);transition:transform .12s;min-height:140px}
+.mi:hover:not(:disabled){transform:translateY(-3px)}
+.mi .n{width:44px;height:44px;border-radius:50%;background:var(--g);color:#fff;display:grid;place-items:center;font-size:1.5rem;font-weight:800}
+.mi h3{font-size:1.15rem;margin-top:4px}
+.mi .est{font-size:1.4rem;letter-spacing:2px;margin-top:auto}
+.mi .est i{font-style:normal;filter:grayscale(1);opacity:.3}
+.mi:disabled{opacity:.6;cursor:not-allowed}
+.mi:disabled .n{background:#b9c6d2}
+.mi .candado{position:absolute;top:14px;right:16px;font-size:1.4rem}
+.mi.hecha{outline:4px solid var(--ok)}
+.mapa-pie{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:22px}
+
+/* Pantalla de misión */
+.mision{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:18px;align-items:start}
+.lado{min-width:0;display:flex;flex-direction:column;gap:14px}
+.consigna{padding:16px 18px;border-top:10px solid var(--g)}
+.consigna .eti{display:inline-block;background:var(--g);color:#fff;border-radius:999px;padding:1px 12px;font-weight:800;font-size:.9rem;margin-bottom:6px}
+.consigna h2{font-size:1.7rem}
+.consigna p{margin:.35em 0 0;font-size:1.08rem}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.chips span{background:#eef6fb;color:var(--sombra);border-radius:999px;padding:1px 10px;font-weight:800;font-size:.88rem}
+.chips span.azar{background:#fff1d6;color:#8a5a00}
+
+.escena{padding:14px;display:flex;flex-direction:column;gap:12px;align-items:center}
+.globo{align-self:stretch;display:flex;gap:10px;align-items:center}
+.globo .cara{width:46px;flex:none}
+.globo .txt{flex:1;background:#eef6fb;border-radius:16px;padding:8px 14px;font-weight:800;position:relative;min-height:44px;display:flex;align-items:center}
+.globo .txt::before{content:"";position:absolute;left:-10px;top:50%;margin-top:-8px;border:8px solid transparent;border-right:10px solid #eef6fb;border-left:0}
+.globo.mal .txt{background:#fde3dc}.globo.mal .txt::before{border-right-color:#fde3dc}
+.globo.bien .txt{background:#dcf5e5}.globo.bien .txt::before{border-right-color:#dcf5e5}
+.tablero-wrap{width:100%;display:flex;justify-content:center}
+.tablero{position:relative;border-radius:14px;overflow:hidden;box-shadow:0 0 0 4px #5a8f3c}
+.celda{position:absolute;background:#9fd96b}
+.celda.osc{background:#93cf5f}
+.item{position:absolute;display:grid;place-items:center;transition:transform .35s,opacity .35s}
+.item svg{width:78%;height:78%}
+.item.juntada{transform:scale(1.8) translateY(-20%);opacity:0}
+.robot{position:absolute;left:0;top:0;transition:transform .32s ease-in-out;z-index:2;display:grid;place-items:center}
+.robot svg{width:100%;height:100%;overflow:visible}
+.robot.rapido{transition-duration:.12s}
+.robot.choca svg{animation:sacude .4s}
+@keyframes sacude{20%{transform:translateX(-8%) rotate(-8deg)}40%{transform:translateX(8%) rotate(8deg)}60%{transform:translateX(-6%) rotate(-5deg)}80%{transform:translateX(5%)}}
+.pum{position:absolute;z-index:3;font-size:30px;pointer-events:none;animation:pum .6s forwards}
+@keyframes pum{from{transform:scale(.3);opacity:1}to{transform:scale(1.5);opacity:0}}
+.controles{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.controles .btn{font-size:21px}
+
+/* Área de bloques */
+.taller{display:grid;grid-template-columns:236px minmax(0,1fr);overflow:hidden;min-height:440px}
+.paleta{background:#f1f4f9;padding:12px;display:flex;flex-direction:column;gap:8px;border-right:3px solid var(--linea);transition:background .15s}
+.paleta h3,.zona-cab h3{font-size:1.05rem;color:var(--suave)}
+.paleta.borrar{background:#fde3dc}
+.paleta .tacho{display:none;text-align:center;font-weight:800;color:var(--mal);padding:6px;border:3px dashed var(--mal);border-radius:12px}
+.paleta.borrar .tacho{display:block}
+.zona{padding:12px 14px;display:flex;flex-direction:column;min-width:0}
+.zona-cab{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.cuenta{font-family:var(--display);font-weight:800;font-variant-numeric:tabular-nums;background:#eef6fb;border-radius:999px;padding:1px 12px}
+.cuenta.pasado{background:#fde3dc;color:var(--mal)}
+.borrar-todo{border:none;background:transparent;color:var(--suave);font-weight:800;font-size:15px;padding:4px 8px;border-radius:8px}
+.borrar-todo:hover{background:#f1f4f9}
+.programa{flex:1;overflow:auto;padding:4px 4px 30px;min-height:300px}
+.vacio-ayuda{color:var(--suave);font-weight:800;font-size:.95rem;margin:8px 0 0 4px}
+
+.hat{display:inline-flex;align-items:center;gap:6px;background:var(--b-ev);color:#5c3c00;font-family:var(--display);font-weight:800;padding:12px 16px 8px;border-radius:22px 22px 8px 8px;box-shadow:inset 0 -4px 0 rgba(0,0,0,.12);font-size:16px}
+.lista{display:flex;flex-direction:column;align-items:flex-start;gap:3px;min-height:12px}
+#raiz{min-height:200px;padding-bottom:40px}
+.bl{touch-action:none;cursor:grab;font-family:var(--display);font-weight:800;font-size:16px;color:#fff;border-radius:9px;max-width:100%}
+.bl.simple{padding:7px 14px;box-shadow:inset 0 -4px 0 rgba(0,0,0,.18);white-space:nowrap}
+.bl.mov{background:var(--b-mov)} .bl.acc{background:var(--b-acc)} .bl.pr{background:var(--b-pr)}
+.hat.def{background:var(--b-pr);color:#fff;margin-top:22px}
+.hat.def b{background:#fff;color:#a8204a;border-radius:999px;padding:0 10px}
+.select-blanco{background:#fff;color:var(--tinta)}
+.bl .fl{display:inline-block;width:1.3em;text-align:center;font-size:1.15em}
+.bl.c{background:transparent;display:flex;flex-direction:column;align-items:stretch;min-width:190px}
+.bl.c>.cab,.bl.c>.medio,.bl.c>.pie{background:var(--b-ctrl);color:#4a2c00}
+.bl.c>.cab{padding:7px 12px;border-radius:9px 9px 9px 0;display:flex;gap:6px;align-items:center;flex-wrap:wrap;box-shadow:inset 0 -3px 0 rgba(0,0,0,.12)}
+.bl.c>.medio{padding:4px 12px;border-radius:0 9px 9px 0;width:max-content}
+.bl.c>.lista{border-left:16px solid var(--b-ctrl);padding:4px 0 4px 6px;min-height:38px}
+.bl.c>.pie{height:14px;border-radius:0 0 9px 9px;width:80px}
+.bl select{font-family:var(--display);font-weight:800;font-size:15px;border:none;border-radius:999px;padding:1px 6px;background:#fff;color:var(--tinta);cursor:pointer}
+.bl .lectura{background:#fff;color:var(--tinta);border-radius:999px;padding:0 9px;font-size:14px}
+.paleta .bl{align-self:flex-start;max-width:100%}
+.paleta .bl.simple{white-space:normal}
+.paleta .bl.c{min-width:0}
+.paleta .bl.c>.lista{min-height:16px;padding:2px}
+.paleta .bl.c>.pie{width:60px}
+.lista:empty::after{content:"";display:block;width:110px;height:26px;border:2px dashed rgba(0,0,0,.18);border-radius:8px}
+#raiz:empty::after{display:none}
+.bl.oculto{display:none}
+.bl.activo.simple,.bl.c.activo>.cab{outline:4px solid var(--sol);outline-offset:1px;filter:brightness(1.12)}
+.fantasma{position:fixed;z-index:50;pointer-events:none;opacity:.92;transform:rotate(2deg);filter:drop-shadow(0 6px 8px rgba(0,0,0,.25))}
+.marca-drop{height:6px;width:130px;border-radius:6px;background:var(--noche);flex:none}
+.bloqueado .taller{pointer-events:none}
+.bloqueado .taller .zona{opacity:.95}
+
+/* Overlays */
+.capa{position:fixed;inset:0;background:rgba(27,20,70,.55);display:grid;place-items:center;z-index:40;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:16px}
+.modal{background:#fff;border-radius:26px;padding:26px;max-width:560px;width:100%;text-align:center;box-shadow:0 8px 0 var(--sombra);max-height:100%;overflow:auto}
+.modal h2{font-size:2.1rem;color:var(--violeta)}
+.modal .grandes{font-size:3.2rem;letter-spacing:6px;margin:10px 0}
+.modal .grandes i{font-style:normal;filter:grayscale(1);opacity:.25}
+.modal .acciones{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:16px}
+
+/* Diploma */
+.diploma{max-width:640px;border:10px solid var(--sol);outline:4px solid var(--violeta);outline-offset:-20px;padding:40px 34px}
+.diploma .eti{font-family:var(--marca);color:var(--magenta);letter-spacing:1px;font-size:1rem}
+.diploma h2{font-family:var(--marca);font-weight:400;font-size:clamp(1.6rem,5vw,2.3rem);color:var(--noche);margin:6px 0 4px}
+.diploma .nombre{font-family:var(--display);font-size:clamp(2.2rem,8vw,3.4rem);font-weight:800;color:var(--violeta);border-bottom:3px dashed var(--linea);display:inline-block;padding:0 20px;margin:8px 0}
+.diploma p{margin:.4em 0;font-size:1.1rem}
+.diploma .fecha{color:var(--suave);font-weight:800;font-variant-numeric:tabular-nums}
+
+/* Panel ¿Qué aprendemos? */
+.panel{text-align:left;max-width:640px}
+.panel h2{font-size:1.9rem;margin-bottom:8px}
+.panel h3{font-size:1.25rem;margin:14px 0 4px;color:var(--violeta)}
+.panel ul{margin:4px 0;padding-left:22px}
+.panel p{margin:4px 0}
+
+@media (max-width:1000px){ .misiones{grid-template-columns:repeat(3,minmax(0,1fr))} }
+@media (max-width:900px){ .mision{grid-template-columns:1fr} .misiones{grid-template-columns:repeat(2,minmax(0,1fr))} }
+@media (max-width:640px){ .inicio{grid-template-columns:1fr;padding:20px} .taller{grid-template-columns:1fr} .paleta{border-right:none;border-bottom:3px solid var(--linea);flex-direction:row;flex-wrap:wrap} .paleta h3{width:100%} }
+@media (max-width:460px){ .misiones{grid-template-columns:1fr} }
+@media (prefers-reduced-motion:reduce){ *{animation:none!important;transition:none!important} }
+</style>
+
+</head>
+<body>
+<header class="top">
+  <div class="top-in">
+    <div class="marca-fila"><div class="marca">SAMUEL DIGITAL<small>Misiones del Robotito</small></div>
+      <a class="volver-grado" id="volver-grado" hidden></a></div>
+    <div class="quien" id="quien" hidden>
+      <span class="chip" id="quien-txt"></span>
+      <button id="btn-aprendemos" type="button">📘 ¿Qué aprendemos?</button>
+      <button id="btn-salir" type="button">Cambiar de chico/a</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- INICIO -->
+  <section id="pant-inicio" class="card inicio">
+    <div class="robo-grande" id="robo-grande"></div>
+    <form id="form-inicio" autocomplete="off">
+      <h1>Misiones del Robotito</h1>
+      <p class="lead">Armá programas con bloques y ayudá al robotito a juntar estrellas y llegar a su batería.</p>
+      <div class="campo">
+        <label for="nombre">¿Cómo te llamás?</label>
+        <input id="nombre" maxlength="20" placeholder="Tu nombre" autocomplete="off">
+      </div>
+      <div class="campo" id="campo-grado">
+        <span class="lbl">¿En qué grado estás?</span>
+        <div class="grados" id="grados"></div>
+      </div>
+      <div class="campo" id="campo-grado-fijo" hidden>
+        <span class="lbl">Tu grado</span>
+        <div class="grado-fijo" id="grado-fijo"></div>
+      </div>
+      <button class="btn btn-ok" id="btn-empezar" type="submit" disabled>¡Empezar! ▶</button>
+    </form>
+  </section>
+
+  <!-- MAPA -->
+  <section id="pant-mapa" hidden>
+    <div class="mapa-cab">
+      <div>
+        <h2 id="mapa-tit"></h2>
+        <p id="mapa-sub"></p>
+      </div>
+      <div class="total" id="mapa-total"></div>
+    </div>
+    <div class="misiones" id="misiones"></div>
+    <div class="mapa-pie" id="mapa-pie"></div>
+  </section>
+
+  <!-- MISIÓN -->
+  <section id="pant-mision" hidden>
+    <div class="mision" id="mision">
+      <div class="lado">
+        <div class="card consigna">
+          <span class="eti" id="m-eti"></span>
+          <h2 id="m-tit"></h2>
+          <p id="m-txt"></p>
+          <div class="chips" id="m-chips"></div>
+        </div>
+        <div class="card escena">
+          <div class="globo" id="globo"><div class="cara" id="cara"></div><div class="txt" id="globo-txt"></div></div>
+          <div class="tablero-wrap" id="tablero-wrap"><div class="tablero" id="tablero"></div></div>
+          <div class="controles">
+            <button class="btn btn-ok" id="btn-ejecutar" type="button">▶ Ejecutar</button>
+            <button class="btn btn-mal" id="btn-detener" type="button" hidden>⏹ Detener</button>
+            <button class="btn btn-blanco" id="btn-reiniciar" type="button">↺ Volver a empezar</button>
+            <button class="btn btn-blanco" id="btn-otro" type="button" hidden>🎲 Otro tablero</button>
+            <button class="btn btn-blanco" id="btn-mapa" type="button">🗺 Misiones</button>
+          </div>
+        </div>
+      </div>
+      <div class="lado">
+        <div class="card taller">
+          <div class="paleta" id="paleta"></div>
+          <div class="zona" id="zona">
+            <div class="zona-cab">
+              <h3>Mi programa</h3>
+              <span class="cuenta" id="cuenta"></span>
+              <button class="borrar-todo" id="btn-borrar" type="button">🗑 Borrar todo</button>
+            </div>
+            <div class="programa" id="programa">
+              <div class="hat">al tocar <span>▶ Ejecutar</span></div>
+              <div class="lista" id="raiz" data-owner="raiz" data-key="body"></div>
+              <p class="vacio-ayuda" id="vacio-ayuda">Arrastrá bloques hasta acá, o tocá un bloque para sumarlo al final.</p>
+              <div id="def-zona" hidden>
+                <div class="hat def">definir <b id="def-nombre"></b></div>
+                <div class="lista" id="def-lista" data-owner="proc" data-key="body"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div class="capa" id="capa" hidden><div class="modal" id="modal"></div></div>
+
+<script>
+/* ============ Dibujos ============ */
+// Robotito visto de frente + flecha amarilla que indica hacia dónde mira.
+const FLECHA = {
+  der:'64,24 74,32 64,40', izq:'0,24 -10,32 0,40', arr:'24,-2 32,-11 40,-2', aba:'24,64 32,73 40,64'
+};
+function svgRobot(dir){
+  const ox = dir==='der'?3:dir==='izq'?-3:0, oy = dir==='arr'?-2:dir==='aba'?2:0;
+  return `<svg viewBox="-12 -12 88 88" aria-hidden="true">
+    <polygon points="${FLECHA[dir]||FLECHA.der}" fill="#ffc93c" stroke="#1b1446" stroke-width="2.5" stroke-linejoin="round"/>
+    <line x1="32" y1="5" x2="32" y2="15" stroke="#1b1446" stroke-width="3"/>
+    <circle cx="32" cy="6" r="4.5" fill="#ffc93c" stroke="#1b1446" stroke-width="2"/>
+    <rect x="10" y="14" width="44" height="30" rx="11" fill="#3fa7f5" stroke="#1b1446" stroke-width="3"/>
+    <rect x="16" y="19" width="32" height="19" rx="7" fill="#1b1446"/>
+    <g transform="translate(${ox} ${oy})"><circle cx="26" cy="27" r="3.6" fill="#7ef0c8"/><circle cx="38" cy="27" r="3.6" fill="#7ef0c8"/>
+    <path d="M27 33 q5 3 10 0" stroke="#7ef0c8" stroke-width="2.2" fill="none" stroke-linecap="round"/></g>
+    <rect x="18" y="44" width="28" height="10" rx="4" fill="#5b2a86" stroke="#1b1446" stroke-width="3"/>
+    <circle cx="22" cy="56" r="5" fill="#23364a"/><circle cx="42" cy="56" r="5" fill="#23364a"/>
+    <circle cx="22" cy="56" r="1.8" fill="#dbe6ef"/><circle cx="42" cy="56" r="1.8" fill="#dbe6ef"/>
+  </svg>`;
+}
+const SVG_ESTRELLA = `<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 3l5.2 10.6 11.7 1.7-8.5 8.3 2 11.6L20 29.7 9.6 35.2l2-11.6-8.5-8.3 11.7-1.7z" fill="#ffc93c" stroke="#c98a00" stroke-width="2.4" stroke-linejoin="round"/><circle cx="16" cy="18" r="2" fill="#fff8d6"/></svg>`;
+const SVG_BATERIA = `<svg viewBox="0 0 40 40" aria-hidden="true"><rect x="15" y="3" width="10" height="5" rx="1.5" fill="#23364a"/><rect x="9" y="7" width="22" height="30" rx="5" fill="#fff" stroke="#23364a" stroke-width="3"/><rect x="13" y="20" width="14" height="13" rx="2" fill="#2fae5d"/><rect x="13" y="12" width="14" height="6" rx="2" fill="#2fae5d" opacity=".55"/><path d="M21 13l-5 9h4l-2 8 7-11h-4z" fill="#ffc93c" stroke="#23364a" stroke-width="1.2" stroke-linejoin="round"/></svg>`;
+const SVG_ROCA = `<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M5 33l4-14 9-10 11 3 7 12-2 9z" fill="#8d8f99" stroke="#4b4d57" stroke-width="2.5" stroke-linejoin="round"/><path d="M12 22l7-6 6 3" stroke="#b8bac3" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg>`;
+
+/* ============ Bloques ============ */
+const DIRV = {der:[1,0], izq:[-1,0], arr:[0,-1], aba:[0,1]};
+const GIRO_IZQ = {der:'arr', arr:'izq', izq:'aba', aba:'der'};
+const GIRO_DER = {der:'aba', aba:'izq', izq:'arr', arr:'der'};
+const DEF = {
+  // 4°: flechas fijas
+  der:{cat:'mov', html:'<span class="fl">→</span> derecha'},
+  izq:{cat:'mov', html:'<span class="fl">←</span> izquierda'},
+  arr:{cat:'mov', html:'<span class="fl">↑</span> arriba'},
+  aba:{cat:'mov', html:'<span class="fl">↓</span> abajo'},
+  // 5° y 6°: avanzar y girar, según hacia dónde mira el robotito
+  av:{cat:'mov', html:'<span class="fl">▲</span> avanzar'},
+  gi:{cat:'mov', html:'<span class="fl">↺</span> girar a la izquierda'},
+  gd:{cat:'mov', html:'<span class="fl">↻</span> girar a la derecha'},
+  juntar:{cat:'acc', html:'<span class="fl">⭐</span> juntar estrella'},
+  pr:{cat:'pr'},
+  rep:{c:true}, si:{c:true}, sisino:{c:true}, hasta:{c:true}
+};
+const CONDS = {estrella:'hay estrella', pared:'hay pared adelante', caminoIzq:'hay camino a la izquierda',
+  caminoDer:'hay camino a la derecha', bateria:'llegué a la batería'};
+
+/* ============ Misiones ============
+   Mapas: R robotito · B batería · * estrella · # roca · . pasto
+   gen(): el tablero cambia cada vez (6°), así hace falta que el robotito decida.
+   optimo: cantidad de bloques de la solución más corta que conocemos → ⭐⭐⭐ */
+const azar = (a,b)=> a + Math.floor(Math.random()*(b-a+1));
+const vacio = (w,h,c='.')=> Array.from({length:h},()=>Array(w).fill(c));
+const texto = g => g.map(f=>f.join(''));
+
+// Escalera: el robotito sube un escalón por paso; abajo de la escalera, rocas.
+function escalera(n, estrellas){
+  const g=vacio(n+1,n+1); const h=n;
+  for(let x=0;x<=n;x++) for(let y=0;y<=n;y++) if(y > h+1-x && x>=2) g[y][x]='#';
+  g[h][0]='R';
+  if(estrellas) for(let k=1;k<=n;k++) g[h-k][k]='*'; else g[0][n]='B';
+  return texto(g);
+}
+// Pasillo con curvas: solo se puede caminar por el camino; todo lo demás es roca.
+function pasilloCurvas(conEstrellas){
+  const W=9,H=7; let g, camino;
+  do{
+    g=vacio(W,H,'#'); camino=[];
+    let x=0, y=azar(1,5); camino.push([x,y]);
+    let primera=true;
+    while(x<W-1){
+      const largo=Math.min(primera?azar(2,3):azar(2,3), W-1-x); primera=false;
+      for(let i=0;i<largo;i++){ x++; camino.push([x,y]); }
+      if(x>=W-1) break;
+      const opciones=[]; for(const d of [-1,1]) for(const l of [2,3]){ const ny=y+d*l; if(ny>=0&&ny<H) opciones.push([d,l]); }
+      const [d,l]=opciones[azar(0,opciones.length-1)];
+      for(let i=0;i<l;i++){ y+=d; camino.push([x,y]); }
+    }
+  }while(camino.length<12);
+  camino.forEach(([x,y])=>g[y][x]='.');
+  const [x0,y0]=camino[0], [xf,yf]=camino[camino.length-1];
+  g[y0][x0]='R'; g[yf][xf]='B';
+  if(conEstrellas){
+    const medio=camino.slice(1,-1); let c;
+    do{ c=medio.filter(()=>Math.random()<.3); }while(c.length<2);
+    c.forEach(([x,y])=>g[y][x]='*');
+  }
+  return texto(g);
+}
+// Fila con rocas al azar (separadas para poder saltarlas) y batería al final.
+function filaRocas(estrellasAbajo, estrellasArriba){
+  let rocas;
+  do{ rocas=[]; let x=1; while(x<=7){ if(Math.random()<.45){ rocas.push(x); x+=2; } else x++; } }while(rocas.length<2 || rocas.length>3);
+  const g=vacio(9,2); g[1][0]='R'; g[1][8]='B'; rocas.forEach(x=>g[1][x]='#');
+  if(estrellasAbajo){ let c; do{ c=[]; for(let x=1;x<=7;x++) if(!rocas.includes(x)&&Math.random()<.35) c.push(x); }while(!c.length); c.forEach(x=>g[1][x]='*'); }
+  if(estrellasArriba){ let c; do{ c=rocas.filter(()=>Math.random()<.6); }while(!c.length); c.forEach(x=>g[0][x]='*'); }
+  return texto(g);
+}
+// Plaza: un camino alrededor de un rectángulo de rocas, con estrellas al azar.
+function plaza(){
+  const w=azar(6,9), h=azar(4,7), g=vacio(9,7,'#');
+  const anillo=[];
+  for(let x=0;x<w;x++) anillo.push([x,0]);
+  for(let y=1;y<h;y++) anillo.push([w-1,y]);
+  for(let x=w-2;x>=0;x--) anillo.push([x,h-1]);
+  for(let y=h-2;y>=1;y--) anillo.push([0,y]);
+  anillo.forEach(([x,y])=>g[y][x]='.');
+  g[0][0]='R'; g[1][0]='B';
+  let c; do{ c=anillo.slice(1,-1).filter(()=>Math.random()<.25); }while(c.length<3);
+  c.forEach(([x,y])=>g[y][x]='*');
+  return texto(g);
+}
+
+const MOV4=['der','izq','arr','aba'], MOV=['av','gi','gd'];
+const GRADOS = {
+  '4': {nombre:'4° grado', tema:'Secuencias', color:'#3fa7f5', modo:'abs', sub:'Ordená los pasos y buscá el camino más corto.',
+    misiones:[
+      {tit:'¡A cargar batería!', txt:'Llevá al robotito hasta la batería sin chocar la roca.',
+       mapa:['.......','R..#..B','.......'], bloques:MOV4, optimo:8,
+       pista:'Rodeá la roca: subí antes de llegar, pasá por arriba y volvé a bajar.'},
+      {tit:'Zigzag', txt:'Hay dos caminos para llegar. ¿Cuál es el más corto?',
+       mapa:['R.#....','..#.#..','..#.#..','....#B.','.......'], bloques:MOV4, optimo:10,
+       pista:'Probá bajar hasta la última fila y después ir a la derecha.'},
+      {tit:'Estrellas en el camino', txt:'Juntá las 3 estrellas y llegá a la batería.',
+       mapa:['R..*...','.##.##.','*.....*','.##.##.','...B...'], bloques:[...MOV4,'juntar'], optimo:20,
+       pista:'Elegí bien el orden: ¿qué estrella te conviene juntar primero?'},
+      {tit:'Jardín de rocas', txt:'Un jardín lleno de rocas. Juntá las 3 estrellas y llegá a la batería.',
+       mapa:['R...#..*','.##.#.#.','.#..*.#.','.#.##.#.','.#....#.','*..#...B'], bloques:[...MOV4,'juntar'], optimo:25,
+       pista:'Empezá por la estrella de abajo a la izquierda. Planificá el recorrido con el dedo en la pantalla.'},
+      {tit:'Cuatro esquinas', txt:'Hay una estrella en cada esquina. Juntalas todas y terminá en la batería.',
+       mapa:['*.....*','.#...#.','.......','..#R#..','.......','.#...#.','*..B..*'], bloques:[...MOV4,'juntar'], optimo:31,
+       pista:'Conviene dejar para el final las dos esquinas de abajo, que están cerca de la batería.'},
+      {tit:'Laberinto grande', txt:'Encontrá el camino, juntá las 3 estrellas y llegá a la batería.',
+       mapa:['R.#.....*','.##.###.#','....#....','##.##.##.','*..#..#..','.#.#.##.#','.#...*#.B'], bloques:[...MOV4,'juntar'], optimo:39,
+       pista:'Seguí el camino con el dedo antes de armar los bloques. Anotá cuántos pasos hay en cada tramo.'},
+      {tit:'El camino más corto', txt:'4 estrellas y muchos caminos posibles. Para las 3 ⭐ tenés que encontrar el más corto.',
+       mapa:['R..#.....','.*.#.*.#.','...#...#.','.#...#...','.#.*.#.*.','.#...#.#.','...#...#B'], bloques:[...MOV4,'juntar'], optimo:24,
+       pista:'Probá distintos órdenes para juntar las estrellas y contá los bloques de cada uno.'},
+      {tit:'¡Llega repetir!', txt:'¡8 estrellas seguidas! Probá el bloque nuevo: "repetir".',
+       mapa:['.........','R********','.........'], bloques:[...MOV4,'juntar','rep'], optimo:3,
+       pista:'Fijate qué se repite: moverse y juntar. Ponelo adentro de "repetir" y elegí cuántas veces.'},
+      {tit:'Escalera de estrellas', txt:'En cada escalón hay una estrella. ¿Lo podés hacer con muy pocos bloques?',
+       mapa:escalera(6,true), bloques:[...MOV4,'juntar','rep'], optimo:4,
+       pista:'Cada escalón es: derecha, arriba y juntar. ¿Cuántos escalones hay?'},
+      {tit:'Ida y vuelta', txt:'Juntá todas las estrellas de las dos filas y terminá en la batería.',
+       mapa:['R********','*********','B........'], bloques:[...MOV4,'juntar','rep'], optimo:9,
+       pista:'Usá un "repetir" para la ida y otro para la vuelta. En el medio, bajá y juntá.'}
+    ]},
+  '5': {nombre:'5° grado', tema:'Repetir y girar', color:'#9b5de5', modo:'rel', sub:'Ahora el robotito avanza hacia donde mira. ¡Ojo con los giros!',
+    misiones:[
+      {tit:'Avanzar y girar', txt:'El robotito avanza hacia donde apunta la flecha amarilla. Llevalo a la batería.',
+       mapa:['......B','.......','.......','.......','R......'], bloques:[...MOV,'rep'], optimo:5,
+       pista:'Avanzá hasta el final, girá a la izquierda y seguí avanzando. Usá "repetir" para los tramos largos.'},
+      {tit:'La escalera', txt:'Subí la escalera hasta la batería.',
+       mapa:escalera(6,false), bloques:[...MOV,'rep'], optimo:5,
+       pista:'Un escalón es: avanzar, girar a la izquierda, avanzar, girar a la derecha. Repetilo.'},
+      {tit:'Ida y vuelta', txt:'Juntá todas las estrellas de las dos filas.',
+       mapa:['R********','*********','.........'], bloques:[...MOV,'juntar','rep'], optimo:10,
+       pista:'Al final de la primera fila tenés que girar dos veces para volver por la de abajo.'},
+      {tit:'Laberinto con giros', txt:'Un camino con muchas curvas. Pensá para dónde gira el robotito en cada esquina.',
+       mapa:['R..#...','##.#.#.','...#.#.','.###.#.','.....#B'], bloques:[...MOV,'rep'], optimo:23,
+       pista:'Parate en el lugar del robotito: ¿la curva es a tu izquierda o a tu derecha?'},
+      {tit:'Escalera doble', txt:'Escalones de 3 pasos. Usá un "repetir" adentro de otro.',
+       mapa:['......*','.......','.......','...*...','....###','....###','R...###'],
+       bloques:[...MOV,'juntar','rep'], optimo:8,
+       pista:'Un escalón: 3 veces avanzar, girar a la izquierda, 3 veces avanzar, girar a la derecha y juntar.'},
+      {tit:'El cuadrado', txt:'Dale la vuelta a la plaza y juntá la estrella de cada esquina.',
+       mapa:['R....*','.####.','.####.','.####.','.####.','*....*'],
+       bloques:[...MOV,'juntar','rep'], optimo:5, inicioEstrella:true,
+       pista:'Cada lado es igual: avanzar 5 veces, juntar y girar. ¡Hay 4 lados!'},
+      {tit:'Saltando rocas', txt:'Pasá por arriba de las 4 rocas hasta la batería.',
+       mapa:['.........','.........','.........','R#.#.#.#B'], bloques:[...MOV,'rep'], optimo:9,
+       pista:'Para saltar una roca: girar a la izquierda, avanzar, girar a la derecha, avanzar 2, girar a la derecha, avanzar y girar a la izquierda.'},
+      {tit:'La vuelta al parque', txt:'Todo el borde del parque está lleno de estrellas. ¡Juntalas todas!',
+       mapa:['R********','*#######*','*#######*','*#######*','*********'], bloques:[...MOV,'juntar','rep'], optimo:9, inicioEstrella:true,
+       pista:'Un lado largo y un lado corto se repiten 2 veces. Adentro de cada lado: avanzar y juntar.'},
+      {tit:'El peine', txt:'Subí a cada diente del peine, juntá la estrella y volvé a bajar.',
+       mapa:['.........','*#*#*#*#.','.#.#.#.#.','.#.#.#.#.','R........'], bloques:[...MOV,'juntar','rep'], optimo:12, dir:'arr',
+       pista:'Para darte vuelta, girá dos veces. Después de bajar, movete 2 lugares a la derecha.'},
+      {tit:'Laberinto final', txt:'El laberinto más difícil: juntá las 3 estrellas y llegá a la batería.',
+       mapa:['R....#*..','####.#.#.','*....#.#.','.#####.#.','......*#B'], bloques:[...MOV,'juntar','rep'], optimo:26,
+       pista:'Usá "repetir" en los tramos largos y fijate bien para qué lado girás.'}
+    ]},
+  '6': {nombre:'6° grado', tema:'Condiciones y bloques propios', color:'#e4572e', modo:'rel', sub:'El tablero cambia cada vez: el robotito tiene que decidir solo.',
+    misiones:[
+      {tit:'Estrellas sorpresa', txt:'Las estrellas aparecen en lugares distintos cada vez. Juntalas todas.',
+       gen:()=>{ const g=vacio(9,3); g[1][0]='R'; let c; do{ c=[]; for(let x=1;x<=8;x++) if(Math.random()<.5) c.push(x); }while(c.length<2||c.length>7); c.forEach(x=>g[1][x]='*'); return texto(g); },
+       bloques:[...MOV,'juntar','rep','si'], conds:['estrella'], optimo:4,
+       pista:'Avanzá 8 veces y en cada lugar preguntá: "si hay estrella, juntar".'},
+      {tit:'¿Dónde está la batería?', txt:'La batería cambia de lugar. Llegá con muy pocos bloques.',
+       gen:()=>{ const g=vacio(9,3); g[1][0]='R'; g[1][azar(3,8)]='B'; return texto(g); },
+       bloques:[...MOV,'rep','hasta'], hasta:['bateria'], optimo:2,
+       pista:'"Repetir hasta que llegué a la batería" con un "avanzar" adentro.'},
+      {tit:'Hasta la pared', txt:'El pasillo dobla en un lugar distinto cada vez. Cuando hay pared, girá.',
+       gen:()=>{ const g=vacio(9,7,'#'), a=azar(3,8), b=azar(0,4); for(let x=0;x<=a;x++) g[6][x]='.'; for(let y=b;y<=6;y++) g[y][a]='.'; g[6][0]='R'; g[b][a]='B'; return texto(g); },
+       bloques:[...MOV,'rep','sisino','hasta'], conds:['pared'], hasta:['bateria'], optimo:4,
+       pista:'Repetir hasta la batería: "si hay pared adelante" girá a la izquierda, "si no" avanzá.'},
+      {tit:'La vuelta a la plaza', txt:'La plaza cambia de tamaño. Dale la vuelta, juntá las estrellas y volvé a la batería.',
+       gen:plaza, bloques:[...MOV,'juntar','rep','si','sisino','hasta'], conds:['estrella','pared'], hasta:['bateria'], optimo:6,
+       pista:'En cada paso: si hay estrella, juntá. Después: si hay pared, girá a la derecha; si no, avanzá.'},
+      {tit:'Pasillo con curvas', txt:'Las curvas van para un lado o para el otro. El robotito tiene que mirar dónde hay camino.',
+       gen:()=>pasilloCurvas(false), bloques:[...MOV,'rep','sisino','hasta'], conds:['pared','caminoIzq','caminoDer'], hasta:['bateria'], optimo:6,
+       pista:'Si hay pared adelante, preguntá otra vez: "si hay camino a la izquierda" girá a la izquierda, "si no" a la derecha. Es un "si" adentro de otro "si".'},
+      {tit:'Estrellas en el pasillo', txt:'Pasillo con curvas y estrellas al azar. Juntalas todas y llegá a la batería.',
+       gen:()=>pasilloCurvas(true), bloques:[...MOV,'juntar','rep','si','sisino','hasta'], conds:['estrella','pared','caminoIzq','caminoDer'], hasta:['bateria'], optimo:8,
+       pista:'Usá el programa de la misión anterior y sumale "si hay estrella, juntar".'},
+      {tit:'Mi propio bloque', txt:'Inventá el bloque "saltar roca" en la zona rosa de abajo y usalo cada vez que lo necesites.',
+       mapa:['.........','R.#..#.#B'], bloques:[...MOV,'pr'], proc:'saltar roca', optimo:13,
+       pista:'En "definir saltar roca" poné: girar izq, avanzar, girar der, avanzar, avanzar, girar der, avanzar, girar izq. Después usalo en tu programa.'},
+      {tit:'Rocas sorpresa', txt:'Las rocas cambian de lugar. Usá tu bloque "saltar roca" y decidí cuándo saltar.',
+       gen:()=>filaRocas(false,false), bloques:[...MOV,'pr','rep','sisino','hasta'], conds:['pared'], hasta:['bateria'], proc:'saltar roca', optimo:12,
+       pista:'Repetir hasta la batería: si hay pared adelante, saltar roca; si no, avanzar.'},
+      {tit:'Rocas y estrellas', txt:'Rocas y estrellas al azar. Saltá, juntá y llegá a la batería.',
+       gen:()=>filaRocas(true,false), bloques:[...MOV,'juntar','pr','rep','si','sisino','hasta'], conds:['estrella','pared'], hasta:['bateria'], proc:'saltar roca', optimo:14,
+       pista:'Después del "si… si no" de las rocas, agregá "si hay estrella, juntar".'},
+      {tit:'Gran final', txt:'¡Ahora también hay estrellas arriba de algunas rocas! Juntalas en pleno salto.',
+       gen:()=>filaRocas(true,true), bloques:[...MOV,'juntar','pr','rep','si','sisino','hasta'], conds:['estrella','pared'], hasta:['bateria'], proc:'saltar roca', optimo:16,
+       pista:'Las estrellas de arriba están justo encima de la roca: preguntá "si hay estrella" en el medio de tu bloque "saltar roca".'}
+    ]}
+};
+
+/* ============ Intérprete ============ */
+function estadoInicial(mapa, dir){
+  const st={w:mapa[0].length,h:mapa.length,x:0,y:0,dir:dir||'der',estrellas:new Set(),rocas:new Set(),bat:null,juntadas:0,pasos:0,fin:null,proc:[]};
+  mapa.forEach((f,y)=>[...f].forEach((c,x)=>{
+    if(c==='R'){st.x=x;st.y=y}
+    else if(c==='*') st.estrellas.add(x+','+y);
+    else if(c==='#') st.rocas.add(x+','+y);
+    else if(c==='B') st.bat=[x,y];
+  }));
+  return st;
+}
+function libre(st,x,y){ return x>=0&&y>=0&&x<st.w&&y<st.h&&!st.rocas.has(x+','+y); }
+function cumple(c, st){
+  const [dx,dy]=DIRV[st.dir];
+  if(c==='estrella') return st.estrellas.has(st.x+','+st.y);
+  if(c==='pared') return !libre(st, st.x+dx, st.y+dy);
+  if(c==='caminoIzq'){ const [a,b]=DIRV[GIRO_IZQ[st.dir]]; return libre(st, st.x+a, st.y+b); }
+  if(c==='caminoDer'){ const [a,b]=DIRV[GIRO_DER[st.dir]]; return libre(st, st.x+a, st.y+b); }
+  if(c==='bateria') return !!st.bat && st.x===st.bat[0] && st.y===st.bat[1];
+  return false;
+}
+const MAX_PASOS = 1500;
+function* mover(b, st, dir){
+  const [dx,dy]=DIRV[dir], nx=st.x+dx, ny=st.y+dy; st.dir=dir;
+  if(nx<0||ny<0||nx>=st.w||ny>=st.h){ st.fin='borde'; st.choque=[nx,ny]; yield {id:b.id,k:'choque'}; return; }
+  if(st.rocas.has(nx+','+ny)){ st.fin='roca'; st.choque=[nx,ny]; yield {id:b.id,k:'choque'}; return; }
+  st.x=nx; st.y=ny; yield {id:b.id,k:'mover'};
+}
+function* correr(lista, st, prof=0){
+  for(const b of lista){
+    if(st.fin) return;
+    if(++st.pasos > MAX_PASOS){ st.fin='vueltas'; return; }
+    if(b.t in DIRV) yield* mover(b, st, b.t);
+    else if(b.t==='av') yield* mover(b, st, st.dir);
+    else if(b.t==='gi'){ st.dir=GIRO_IZQ[st.dir]; yield {id:b.id,k:'girar'}; }
+    else if(b.t==='gd'){ st.dir=GIRO_DER[st.dir]; yield {id:b.id,k:'girar'}; }
+    else if(b.t==='juntar'){
+      const k=st.x+','+st.y;
+      if(!st.estrellas.has(k)){ st.fin='nada'; yield {id:b.id,k:'nada'}; return; }
+      st.estrellas.delete(k); st.juntadas++; yield {id:b.id,k:'juntar',pos:k};
+    } else if(b.t==='pr'){
+      if(prof>20){ st.fin='vueltas'; return; }
+      yield {id:b.id,k:'ctrl'}; yield* correr(st.proc, st, prof+1);
+    } else if(b.t==='rep'){
+      for(let i=0;i<b.n;i++){ yield {id:b.id,k:'ctrl'}; yield* correr(b.body,st,prof); if(st.fin) return; }
+    } else if(b.t==='si'){
+      yield {id:b.id,k:'ctrl'}; if(cumple(b.c,st)) yield* correr(b.body,st,prof);
+    } else if(b.t==='sisino'){
+      yield {id:b.id,k:'ctrl'}; yield* correr(cumple(b.c,st)?b.body:b.otro,st,prof);
+    } else if(b.t==='hasta'){
+      while(!cumple(b.c,st)){
+        if(++st.pasos > MAX_PASOS){ st.fin='vueltas'; return; }
+        yield {id:b.id,k:'ctrl'}; yield* correr(b.body,st,prof); if(st.fin) return;
+      }
+    }
+  }
+}
+function evaluar(st){
+  if(st.fin) return {ok:false, motivo:st.fin};
+  if(st.estrellas.size) return {ok:false, motivo:'faltan'};
+  if(st.bat && !(st.x===st.bat[0] && st.y===st.bat[1])) return {ok:false, motivo:'nollego'};
+  return {ok:true};
+}
+function inicioDe(mapa, m){ const st=estadoInicial(mapa, m.dir); if(m.inicioEstrella) st.estrellas.add(st.x+','+st.y); return st; }
+function simular(mapa, prog, proc, m){ const st=inicioDe(mapa, m||{}); st.proc=proc||[]; for(const _ of correr(prog,st)); return evaluar(st); }
+const MOTIVOS = {
+  borde:'¡Uy! Me salí del tablero. Revisá hacia dónde me mandás.',
+  roca:'¡Pum! Choqué contra una roca. Buscá otro camino.',
+  nada:'Quise juntar, pero acá no hay ninguna estrella.',
+  vueltas:'Me quedé dando vueltas sin parar. ¿Cuándo tengo que frenar?',
+  faltan:'Me faltaron estrellas por juntar.',
+  nollego:'Terminé el programa, pero no llegué a la batería.'
+};
+
+/* ============ Estado de la app ============ */
+let alumno = null;     // {nombre, grado}
+let progreso = null;   // {estrellas:[...10]}
+let mIdx = 0, mision = null, mapaActual = null, programa = [], procBody = [], fallos = 0, corriendo = false, detener = false;
+let uid = 0;
+const N_MIS = 10;
+const $ = id => document.getElementById(id);
+const esc = s => s.replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function claveProgreso(){ return 'robotito:v2:'+alumno.grado+':'+alumno.nombre.trim().toLowerCase(); }
+function cargarProgreso(){
+  let p=null; try{ p=JSON.parse(localStorage.getItem(claveProgreso())); }catch(e){}
+  progreso = (p && Array.isArray(p.estrellas) && p.estrellas.length===N_MIS) ? p : {estrellas:Array(N_MIS).fill(0)};
+}
+function guardarProgreso(){ try{ localStorage.setItem(claveProgreso(), JSON.stringify(progreso)); }catch(e){} }
+
+/* Registro en la planilla del profe: se conecta en la próxima etapa. */
+function registrar(datos){ /* pendiente: enviar {nombre, grado, actividad, mision, estrellas, fecha} a la planilla */ }
+
+function mostrar(p){ ['inicio','mapa','mision'].forEach(n=> $('pant-'+n).hidden = n!==p); window.scrollTo(0,0); }
+
+/* ============ Inicio ============ */
+$('robo-grande').innerHTML = svgRobot('der');
+$('grados').innerHTML = Object.entries(GRADOS).map(([g,d])=>
+  `<button type="button" data-g="${g}" style="--gc:${d.color}"><b>${g}°</b><span>${d.tema}</span></button>`).join('');
+let gradoElegido = null;
+$('grados').addEventListener('click', e=>{
+  const b=e.target.closest('button'); if(!b) return;
+  gradoElegido=b.dataset.g;
+  document.querySelectorAll('#grados button').forEach(x=>x.classList.toggle('on', x===b));
+  validarInicio();
+});
+$('nombre').addEventListener('input', validarInicio);
+(function gradoDesdeLaDireccion(){
+  let g=null; try{ g=new URLSearchParams(location.search).get('grado'); }catch(e){}
+  if(!g || !GRADOS[g]) return;
+  gradoElegido=g;
+  document.documentElement.style.setProperty('--g', GRADOS[g].color);
+  $('campo-grado').hidden=true; $('campo-grado-fijo').hidden=false;
+  $('grado-fijo').innerHTML = GRADOS[g].nombre+' <span>· '+GRADOS[g].tema+'</span>';
+  const v=$('volver-grado'); v.href='grado-'+g+'.html'; v.textContent='← Volver a '+g+'° grado'; v.hidden=false;
+})();
+function validarInicio(){ $('btn-empezar').disabled = !($('nombre').value.trim().length>=2 && gradoElegido); }
+$('form-inicio').addEventListener('submit', e=>{
+  e.preventDefault(); if($('btn-empezar').disabled) return;
+  const n=$('nombre').value.trim().replace(/\s+/g,' ');
+  alumno={nombre:n.charAt(0).toUpperCase()+n.slice(1), grado:gradoElegido};
+  cargarProgreso();
+  document.documentElement.style.setProperty('--g', GRADOS[alumno.grado].color);
+  $('quien').hidden=false; $('quien-txt').textContent='👤 '+alumno.nombre+' · '+alumno.grado+'°';
+  irMapa();
+});
+$('btn-salir').onclick = ()=>{ if(corriendo) return; alumno=null; $('quien').hidden=true; $('nombre').value='';
+  if($('campo-grado-fijo').hidden){ gradoElegido=null; document.querySelectorAll('#grados button').forEach(x=>x.classList.remove('on')); }
+  validarInicio(); mostrar('inicio'); $('nombre').focus(); };
+
+/* ============ Mapa ============ */
+const estrellasHtml = n => '⭐'.repeat(n) + '<i>⭐</i>'.repeat(3-n);
+function irMapa(){
+  const G=GRADOS[alumno.grado];
+  $('mapa-tit').textContent = '¡Hola, '+alumno.nombre+'! 👋';
+  $('mapa-sub').textContent = G.nombre+' · '+G.tema+'. '+G.sub;
+  const tot=progreso.estrellas.reduce((a,b)=>a+b,0);
+  $('mapa-total').textContent = '⭐ '+tot+' de '+(N_MIS*3);
+  $('misiones').innerHTML = G.misiones.map((m,i)=>{
+    const ok = i===0 || progreso.estrellas[i-1]>0, hecha=progreso.estrellas[i]>0;
+    return `<button class="mi${hecha?' hecha':''}" data-i="${i}" ${ok?'':'disabled'} type="button">
+      ${ok?'':'<span class="candado">🔒</span>'}
+      <span class="n">${i+1}</span><h3>${m.tit}</h3>
+      <span class="est">${estrellasHtml(progreso.estrellas[i])}</span></button>`;
+  }).join('');
+  const todas = progreso.estrellas.every(x=>x>0);
+  $('mapa-pie').innerHTML = todas ? '<button class="btn btn-sol" id="btn-diploma" type="button">🎓 Ver mi diploma</button>' : '';
+  if(todas) $('btn-diploma').onclick = verDiploma;
+  mostrar('mapa');
+}
+$('misiones').addEventListener('click', e=>{ const b=e.target.closest('.mi'); if(b && !b.disabled) abrirMision(+b.dataset.i); });
+
+/* ============ Misión ============ */
+function abrirMision(i){
+  const G=GRADOS[alumno.grado];
+  mIdx=i; mision=G.misiones[i]; programa=[]; procBody=[]; fallos=0;
+  $('m-eti').textContent = G.nombre+' · Misión '+(i+1)+' de '+N_MIS;
+  $('m-tit').textContent = mision.tit;
+  $('m-txt').textContent = mision.txt;
+  const chips=[`<span>⭐⭐⭐ con ${mision.optimo} bloques o menos</span>`];
+  if(mision.gen) chips.push('<span class="azar">🎲 El tablero cambia cada vez</span>');
+  if(mision.proc) chips.push('<span>🧩 Bloque propio</span>');
+  $('m-chips').innerHTML = chips.join('');
+  $('def-zona').hidden = !mision.proc;
+  $('btn-otro').hidden = !mision.gen;
+  if(mision.proc) $('def-nombre').textContent = mision.proc;
+  armarPaleta();
+  nuevoTablero();
+  decir(mision.gen ? 'Ojo: este tablero cambia. Tu programa tiene que funcionar en cualquier tablero, no solo en este.'
+    : G.modo==='rel' ? 'Yo avanzo hacia donde apunta mi flecha amarilla. ¡Armá el programa!'
+    : '¡Hola, '+alumno.nombre+'! Armá el programa y tocá Ejecutar.');
+  renderPrograma();
+  mostrar('mision');
+}
+function nuevoTablero(){ mapaActual = mision.gen ? mision.gen() : mision.mapa; dibujarTablero(mapaActual); }
+function decir(t, tipo){ const g=$('globo'); g.className='globo'+(tipo?' '+tipo:''); $('globo-txt').textContent=t; }
+$('cara').innerHTML = svgRobot('der');
+
+/* --- Tablero --- */
+let celda=56, robotEl=null;
+function dibujarTablero(mapa){
+  const w=mapa[0].length, h=mapa.length, disp=Math.max(200, $('tablero-wrap').clientWidth || 480);
+  celda = Math.max(30, Math.min(68, Math.floor(disp / w)));
+  const t=$('tablero'); t.style.width=(w*celda)+'px'; t.style.height=(h*celda)+'px';
+  let html='';
+  mapa.forEach((f,y)=>[...f].forEach((c,x)=>{
+    const pos=`left:${x*celda}px;top:${y*celda}px;width:${celda}px;height:${celda}px`;
+    html+=`<div class="celda${(x+y)%2?' osc':''}" style="${pos}"></div>`;
+    if(c==='*' || (c==='R' && mision.inicioEstrella)) html+=`<div class="item" data-k="${x},${y}" style="${pos}">${SVG_ESTRELLA}</div>`;
+    if(c==='#') html+=`<div class="item" style="${pos}">${SVG_ROCA}</div>`;
+    if(c==='B') html+=`<div class="item" style="${pos}">${SVG_BATERIA}</div>`;
+  }));
+  html+=`<div class="robot" id="robot" style="width:${celda}px;height:${celda}px"></div>`;
+  t.innerHTML=html;
+  robotEl=$('robot');
+  const st=inicio(mapa); robotEl.classList.add('rapido'); ponerRobot(st.x,st.y,st.dir);
+  requestAnimationFrame(()=>robotEl && robotEl.classList.remove('rapido'));
+}
+// La estrella de la casilla de salida (cuando hay) se marca con inicioEstrella.
+const inicio = mapa => inicioDe(mapa, mision);
+function ponerRobot(x,y,dir){
+  robotEl.style.transform=`translate(${x*celda}px,${y*celda}px)`;
+  if(dir && robotEl.dataset.dir!==dir){ robotEl.innerHTML=svgRobot(dir); robotEl.dataset.dir=dir; }
+}
+window.addEventListener('resize', ()=>{ if(!$('pant-mision').hidden && !corriendo && mapaActual) dibujarTablero(mapaActual); });
+
+/* --- Paleta y programa --- */
+function nuevoBloque(t){
+  const b={id:'b'+(++uid), t};
+  if(DEF[t].c){ b.body=[]; }
+  if(t==='rep') b.n=2;
+  if(t==='si'||t==='sisino') b.c=(mision.conds||['estrella'])[0];
+  if(t==='sisino') b.otro=[];
+  if(t==='hasta') b.c=(mision.hasta||['bateria'])[0];
+  return b;
+}
+function htmlCond(b, opciones, enPaleta){
+  if(enPaleta || opciones.length===1) return `<span class="lectura">${CONDS[b.c]}</span>`;
+  return `<select data-campo="c" aria-label="Condición">${opciones.map(o=>`<option value="${o}"${o===b.c?' selected':''}>${CONDS[o]}</option>`).join('')}</select>`;
+}
+function htmlBloque(b, enPaleta){
+  const d=DEF[b.t], data=`data-t="${b.t}"${enPaleta?'':` data-id="${b.id}"`}`;
+  if(b.t==='pr') return `<div class="bl simple pr" ${data}>🧩 ${esc(mision.proc)}</div>`;
+  if(!d.c) return `<div class="bl simple ${d.cat}" ${data}>${d.html}</div>`;
+  const lista=(k,arr)=> enPaleta ? `<div class="lista"></div>` : `<div class="lista" data-owner="${b.id}" data-key="${k}">${arr.map(x=>htmlBloque(x)).join('')}</div>`;
+  let cab='';
+  if(b.t==='rep') cab = enPaleta ? `repetir <span class="lectura">${b.n}</span> veces`
+    : `repetir <select data-campo="n" aria-label="Veces">${[2,3,4,5,6,7,8,9,10].map(v=>`<option${v===b.n?' selected':''}>${v}</option>`).join('')}</select> veces`;
+  if(b.t==='si' || b.t==='sisino') cab = `si ${htmlCond(b, mision.conds||['estrella'], enPaleta)} entonces`;
+  if(b.t==='hasta') cab = `repetir hasta que ${htmlCond(b, mision.hasta||['bateria'], enPaleta)}`;
+  let h=`<div class="bl c" ${data}><div class="cab">${cab}</div>${lista('body',b.body||[])}`;
+  if(b.t==='sisino') h+=`<div class="medio">si no</div>${lista('otro',b.otro||[])}`;
+  return h+`<div class="pie"></div></div>`;
+}
+function armarPaleta(){
+  $('paleta').innerHTML = '<h3>Bloques</h3>' + mision.bloques.map(t=>htmlBloque(nuevoBloque(t), true)).join('') +
+    '<div class="tacho">🗑 Soltá acá para borrar</div>';
+}
+function contar(lista){ return lista.reduce((n,b)=> n+1+(b.body?contar(b.body):0)+(b.otro?contar(b.otro):0), 0); }
+const totalBloques = ()=> contar(programa) + (mision.proc ? contar(procBody) : 0);
+function renderPrograma(){
+  $('raiz').innerHTML = programa.map(b=>htmlBloque(b)).join('');
+  $('def-lista').innerHTML = procBody.map(b=>htmlBloque(b)).join('');
+  $('vacio-ayuda').hidden = programa.length>0;
+  $('cuenta').textContent = `Bloques: ${totalBloques()}`;
+}
+function buscarEn(id, lista){
+  for(const b of lista){ if(b.id===id) return b; for(const k of ['body','otro']) if(b[k]){ const r=buscarEn(id,b[k]); if(r) return r; } }
+  return null;
+}
+const buscar = id => buscarEn(id, programa) || buscarEn(id, procBody);
+function quitarEn(id, lista){
+  const i=lista.findIndex(b=>b.id===id); if(i>=0) return lista.splice(i,1)[0];
+  for(const b of lista) for(const k of ['body','otro']) if(b[k]){ const r=quitarEn(id,b[k]); if(r) return r; }
+  return null;
+}
+const quitar = id => quitarEn(id, programa) || quitarEn(id, procBody);
+function listaDe(el){
+  if(el.dataset.owner==='raiz') return programa;
+  if(el.dataset.owner==='proc') return procBody;
+  return buscar(el.dataset.owner)[el.dataset.key];
+}
+
+$('programa').addEventListener('change', e=>{
+  const s=e.target.closest('select'); if(!s) return;
+  const b=buscar(s.closest('.bl').dataset.id); if(!b) return;
+  if(s.dataset.campo==='n') b.n=+s.value; else b.c=s.value;
+});
+$('btn-borrar').onclick = ()=>{ if(corriendo) return; programa=[]; procBody=[]; renderPrograma(); };
+
+/* --- Arrastrar y soltar --- */
+let drag=null;
+document.addEventListener('pointerdown', e=>{
+  if(corriendo || e.button>0) return;
+  const el=e.target.closest('.bl'); if(!el || e.target.closest('select')) return;
+  if(!el.closest('#paleta') && !el.closest('#programa')) return;
+  e.preventDefault();
+  drag={el, desde: el.closest('#paleta')?'paleta':'programa', t:el.dataset.t, id:el.dataset.id, x0:e.clientX, y0:e.clientY, activo:false};
+});
+document.addEventListener('pointermove', e=>{
+  if(!drag) return;
+  if(!drag.activo){
+    if(Math.hypot(e.clientX-drag.x0, e.clientY-drag.y0) < 6) return;
+    drag.activo=true;
+    const r=drag.el.getBoundingClientRect();
+    drag.dx=drag.x0-r.left; drag.dy=drag.y0-r.top;
+    drag.fant=drag.el.cloneNode(true); drag.fant.classList.add('fantasma'); drag.fant.style.width=r.width+'px';
+    document.body.append(drag.fant);
+    if(drag.desde==='programa'){ drag.el.classList.add('oculto'); $('paleta').classList.add('borrar'); }
+    drag.marca=document.createElement('div'); drag.marca.className='marca-drop';
+  }
+  drag.fant.style.left=(e.clientX-drag.dx)+'px'; drag.fant.style.top=(e.clientY-drag.dy)+'px';
+  ubicar(e.clientX, e.clientY);
+});
+function ubicar(x,y){
+  const debajo=document.elementFromPoint(x,y);
+  let lista = debajo && debajo.closest('#programa .lista');
+  if(!lista && debajo && debajo.closest('#def-zona')) lista=$('def-lista');
+  if(!lista && debajo && debajo.closest('#zona')) lista=$('raiz');
+  drag.destino=null; drag.marca.remove();
+  if(!lista) return;
+  const hijos=[...lista.children].filter(c=>c.classList.contains('bl') && !c.classList.contains('oculto'));
+  let idx=hijos.findIndex(c=>{ const r=c.getBoundingClientRect(); return y < r.top + Math.min(r.height/2, 24); });
+  if(idx<0) idx=hijos.length;
+  drag.destino={lista, idx};
+  if(idx<hijos.length) lista.insertBefore(drag.marca, hijos[idx]); else lista.append(drag.marca);
+}
+document.addEventListener('pointerup', e=>{
+  if(!drag) return;
+  const d=drag; drag=null;
+  $('paleta').classList.remove('borrar');
+  if(!d.activo){
+    if(d.desde==='paleta'){ programa.push(nuevoBloque(d.t)); renderPrograma(); }
+    return;
+  }
+  d.fant.remove(); d.marca.remove();
+  let b = d.desde==='programa' ? quitar(d.id) : nuevoBloque(d.t);
+  if(d.destino && b){ listaDe(d.destino.lista).splice(d.destino.idx, 0, b); }
+  renderPrograma();
+});
+document.addEventListener('pointercancel', ()=>{ if(!drag) return; if(drag.fant) drag.fant.remove(); if(drag.marca) drag.marca.remove(); drag=null; $('paleta').classList.remove('borrar'); renderPrograma(); });
+
+/* --- Ejecutar --- */
+let VEL = 1;
+const pausa = ms => new Promise(r=>setTimeout(r,ms*VEL));
+function marcarActivo(id){
+  document.querySelectorAll('#programa .activo').forEach(x=>x.classList.remove('activo'));
+  if(id){ const el=document.querySelector(`#programa [data-id="${id}"]`); if(el) el.classList.add('activo'); }
+}
+function setCorriendo(v){
+  corriendo=v; $('mision').classList.toggle('bloqueado', v);
+  $('btn-ejecutar').hidden=v; $('btn-detener').hidden=!v;
+  $('btn-reiniciar').disabled=v; $('btn-mapa').disabled=v; $('btn-otro').disabled=v;
+}
+function probar(mapa){ const st=inicio(mapa); st.proc=procBody; for(const _ of correr(programa,st)); return evaluar(st); }
+$('btn-detener').onclick = ()=>{ detener=true; };
+$('btn-reiniciar').onclick = ()=>{ if(corriendo) return; dibujarTablero(mapaActual); decir('Listo, el robotito volvió al principio. Podés cambiar el programa.'); };
+$('btn-otro').onclick = ()=>{ if(corriendo) return; nuevoTablero(); decir('🎲 ¡Tablero nuevo! Tu programa tiene que funcionar en todos.'); };
+$('btn-mapa').onclick = ()=>{ if(!corriendo) irMapa(); };
+$('btn-ejecutar').onclick = ejecutar;
+
+async function ejecutar(){
+  if(corriendo) return;
+  if(!programa.length){ decir('Todavía no hay bloques en el programa. ¡Arrastrá alguno!', 'mal'); return; }
+  // Siempre se ejecuta sobre el tablero que el chico está viendo.
+  dibujarTablero(mapaActual);
+  await pausa(250);
+  setCorriendo(true); detener=false;
+  decir('¡Allá voy!');
+  const st=inicio(mapaActual); st.proc=procBody;
+  for(const ev of correr(programa, st)){
+    if(detener) break;
+    marcarActivo(ev.id);
+    if(ev.k==='mover'){ ponerRobot(st.x, st.y, st.dir); await pausa(380); }
+    else if(ev.k==='girar'){ ponerRobot(st.x, st.y, st.dir); await pausa(300); }
+    else if(ev.k==='juntar'){ const it=document.querySelector(`#tablero .item[data-k="${ev.pos}"]`); if(it) it.classList.add('juntada'); await pausa(360); }
+    else if(ev.k==='choque'){
+      ponerRobot(st.x, st.y, st.dir);
+      robotEl.classList.add('choca');
+      const p=document.createElement('div'); p.className='pum'; p.textContent='💥';
+      p.style.left=(((st.x+st.choque[0])/2)*celda + celda*.2)+'px'; p.style.top=(((st.y+st.choque[1])/2)*celda + celda*.1)+'px';
+      $('tablero').append(p); await pausa(600);
+    }
+    else if(ev.k==='nada'){ robotEl.classList.add('choca'); await pausa(500); }
+    else await pausa(120);
+  }
+  marcarActivo(null);
+  setCorriendo(false);
+  if(detener){ decir('Me frenaste. Cuando quieras, tocá Ejecutar de nuevo.'); return; }
+  const r=evaluar(st);
+  if(!r.ok){
+    fallos++;
+    let txt = MOTIVOS[r.motivo] + ' Tocá "Volver a empezar" y corregí el programa.';
+    if(fallos>=3) txt += ' 💡 Pista: ' + mision.pista;
+    decir(txt, 'mal');
+    return;
+  }
+  // Misiones al azar: el programa tiene que funcionar en cualquier tablero, no solo en este.
+  if(mision.gen){
+    let otro=null;
+    for(let i=0;i<80 && !otro;i++){ const m=mision.gen(); if(!probar(m).ok) otro=m; }
+    if(otro){
+      fallos++;
+      await pausa(900);
+      mapaActual=otro; dibujarTablero(mapaActual);
+      let txt='¡En ese tablero funcionó! 🎲 Pero los tableros cambian, y encontré este otro donde tu programa falla. Tocá Ejecutar para verlo.';
+      if(fallos>=3) txt += ' 💡 Pista: ' + mision.pista;
+      decir(txt, 'mal');
+      return;
+    }
+  }
+  ganar();
+}
+
+function ganar(){
+  const n = totalBloques(), est = n <= mision.optimo ? 3 : 2;
+  progreso.estrellas[mIdx] = Math.max(progreso.estrellas[mIdx], est); guardarProgreso();
+  registrar({nombre:alumno.nombre, grado:alumno.grado, actividad:'Misiones del Robotito', mision:mIdx+1, estrellas:est, bloques:n});
+  decir('¡Lo logramos! 🎉', 'bien');
+  const ultima = mIdx===N_MIS-1, todas = progreso.estrellas.every(x=>x>0);
+  const msj = est===3 ? `¡Solución perfecta con ${n} bloques! Sos un/a crack de la programación.`
+    : `¡Lo lograste con ${n} bloques! Pero se puede hacer con ${mision.optimo} o menos. ¿Te animás a buscar la 3° estrella?`;
+  abrirModal(`<h2>¡Misión cumplida!</h2>
+    <div class="grandes">${estrellasHtml(est)}</div>
+    <p>${msj}</p>
+    <div class="acciones">
+      ${est<3 ? '<button class="btn btn-sol" data-a="mejorar" type="button">⭐ Buscar la 3° estrella</button>' : ''}
+      ${ultima && todas ? '<button class="btn btn-sol" data-a="diploma" type="button">🎓 Ver mi diploma</button>'
+        : !ultima ? '<button class="btn btn-ok" data-a="sig" type="button">Siguiente misión ▶</button>' : ''}
+      <button class="btn btn-blanco" data-a="mapa" type="button">🗺 Misiones</button>
+    </div>`);
+}
+
+/* ============ Modales ============ */
+function abrirModal(html, clase){ $('modal').className='modal'+(clase?' '+clase:''); $('modal').innerHTML=html; $('capa').hidden=false; const b=$('modal').querySelector('button'); if(b) b.focus(); }
+function cerrarModal(){ $('capa').hidden=true; }
+$('capa').addEventListener('click', e=>{
+  const a=e.target.closest('[data-a]')?.dataset.a;
+  if(e.target===$('capa') || a==='cerrar') return cerrarModal();
+  if(!a) return;
+  cerrarModal();
+  if(a==='sig') abrirMision(mIdx+1);
+  if(a==='mejorar'){ fallos=0; dibujarTablero(mapaActual); decir('¡Vamos por la 3° estrella! Buscá cómo usar menos bloques.'); }
+  if(a==='mapa') irMapa();
+  if(a==='diploma') verDiploma();
+});
+document.addEventListener('keydown', e=>{ if(e.key==='Escape' && !$('capa').hidden) cerrarModal(); });
+
+function verDiploma(){
+  const G=GRADOS[alumno.grado], tot=progreso.estrellas.reduce((a,b)=>a+b,0);
+  const f=new Date().toLocaleDateString('es-AR',{day:'numeric',month:'long',year:'numeric'});
+  abrirModal(`<div class="eti">SAMUEL DIGITAL</div>
+    <h2>Diploma de Programación</h2>
+    <p>Este diploma es para</p>
+    <div class="nombre">${esc(alumno.nombre)}</div>
+    <p>por completar las ${N_MIS} <b>Misiones del Robotito</b> de ${G.nombre}: <b>${G.tema}</b>.</p>
+    <p style="font-size:2rem;margin:10px 0">⭐ ${tot} de ${N_MIS*3}</p>
+    <p class="fecha">${f}</p>
+    <div class="acciones"><button class="btn btn-blanco" data-a="mapa" type="button">🗺 Volver a las misiones</button></div>`, 'diploma');
+}
+
+$('btn-aprendemos').onclick = ()=>{
+  abrirModal(`<div class="panel">
+    <h2>📘 ¿Qué aprendemos?</h2>
+    <h3>Lo que vas a lograr</h3>
+    <ul><li><b>4°:</b> dar órdenes en el orden correcto y encontrar el camino más corto.</li>
+      <li><b>5°:</b> pensar hacia dónde mira el robotito y usar "repetir", incluso uno adentro de otro.</li>
+      <li><b>6°:</b> hacer que el robotito decida solo con "si… entonces" e inventar tus propios bloques.</li></ul>
+    <h3>Palabras nuevas</h3>
+    <ul><li><b>Algoritmo:</b> los pasos ordenados para resolver un problema.</li>
+      <li><b>Bucle:</b> un pedazo del programa que se repite.</li>
+      <li><b>Condición:</b> una pregunta que se responde con sí o no, como "¿hay pared adelante?".</li>
+      <li><b>Bloque propio (función):</b> un grupo de órdenes con nombre, que usás cuantas veces quieras.</li>
+      <li><b>Bug:</b> un error en el programa. ¡Encontrarlo y arreglarlo es parte de programar!</li></ul>
+    <h3>¿Sabías que…?</h3>
+    <p>Los robots que andan en Marte siguen programas parecidos a estos: "avanzá; si hay una roca, esquivala".</p>
+    <h3>Para charlar en familia</h3>
+    <p>¿Qué cosas de todos los días hacemos "repitiendo"? ¿Y qué decisiones tomamos con un "si…"? (Si llueve, llevo paraguas.)</p>
+    <h3>Para jugar en casa</h3>
+    <p>Uno es el robotito y otro le da órdenes: "avanzá 2, girá a la derecha, juntá la media". ¡Gana si llega a la meta sin chocar!</p>
+    <div class="acciones"><button class="btn btn-ok" data-a="cerrar" type="button">¡Entendido!</button></div>
+  </div>`);
+};
+
+/* Para pruebas */
+window.__robotito = {GRADOS, simular, estadoInicial, DIRV, GIRO_IZQ, GIRO_DER,
+  prueba:{ velocidad:v=>{VEL=v}, cargar:(p,pr)=>{ programa=p; procBody=pr||[]; renderPrograma(); }, estado:()=>({programa,procBody,mapaActual,fallos}), ejecutar:()=>ejecutar() }};
+</script>
+
+</body>
+</html>

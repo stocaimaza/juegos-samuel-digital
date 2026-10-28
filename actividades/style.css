@@ -77,3 +77,10 @@ figcaption{font-size:.88rem;color:var(--muted);font-weight:800;margin-top:4px}
 .jrhero{background:#f1f3f9;border-radius:14px;padding:16px;display:flex;justify-content:center}
 .desafio .jrrow{margin:8px 0}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* Acceso a las Misiones del Robotito (4° a 6°) */
+.act.robotito{background:linear-gradient(120deg,#1b1446 0%,#5b2a86 55%,#e0457b 100%);color:#fff;border-left-color:var(--sol);flex-direction:row;align-items:center;gap:18px}
+.act.robotito .robo{font-size:3.2rem;line-height:1;flex:none}
+.act.robotito .txt{display:flex;flex-direction:column;gap:2px;min-width:0}
+.act.robotito .ir{color:var(--sol)}
+.act.robotito .nueva{margin-bottom:4px}
