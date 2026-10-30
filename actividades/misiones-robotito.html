@@ -418,6 +418,39 @@ function plaza(){
 
 const MOV4=['der','izq','arr','aba'], MOV=['av','gi','gd'];
 const GRADOS = {
+  '3': {nombre:'3° grado', tema:'Primeros pasos', color:'#5cc96b', modo:'abs', sub:'Usá las flechas para mostrarle el camino al robotito.',
+    misiones:[
+      {tit:'Primeros pasos', txt:'Arrastrá flechas para llevar al robotito hasta la batería.',
+       mapa:['......','R....B','......'], bloques:MOV4, optimo:5,
+       pista:'Contá los cuadraditos hasta la batería: ¿cuántas veces tiene que ir a la derecha?'},
+      {tit:'A la vuelta de la roca', txt:'Hay rocas en el camino. Buscá por dónde pasar.',
+       mapa:['R..#.','...#.','....B'], bloques:MOV4, optimo:6,
+       pista:'Primero bajá hasta la última fila y después andá a la derecha.'},
+      {tit:'Rodear la roca', txt:'La roca está justo en el medio. ¡Pasá por arriba o por abajo!',
+       mapa:['.....','R.#.B','.....'], bloques:MOV4, optimo:6,
+       pista:'Subí un cuadradito antes de la roca, pasá por arriba y volvé a bajar.'},
+      {tit:'Primera estrella', txt:'Cuando el robotito esté arriba de la estrella, usá el bloque "juntar estrella".',
+       mapa:['......','R.*..B','......'], bloques:[...MOV4,'juntar'], optimo:6,
+       pista:'Andá hasta la estrella, poné "juntar estrella" y después seguí hasta la batería.'},
+      {tit:'Dos estrellas', txt:'Juntá las 2 estrellas y terminá en la batería.',
+       mapa:['R..*','.#..','*..B'], bloques:[...MOV4,'juntar'], optimo:11,
+       pista:'Elegí cuál estrella buscar primero. Después contá los bloques: ¿hay un camino más corto?'},
+      {tit:'Laberinto chico', txt:'Encontrá el camino entre las rocas hasta la batería.',
+       mapa:['R.#...','..#.#.','....#.','###.#.','.....B'], bloques:MOV4, optimo:9,
+       pista:'Seguí el camino con el dedo antes de armar los bloques.'},
+      {tit:'Tres estrellas', txt:'Juntá las 3 estrellas y llegá a la batería.',
+       mapa:['*...*','.#.#.','..R..','.#.#.','*...B'], bloques:[...MOV4,'juntar'], optimo:19,
+       pista:'Andá de una estrella a la que está más cerca. Dejá la batería para el final.'},
+      {tit:'¡Llega repetir!', txt:'Un camino largo... Probá el bloque nuevo: "repetir".',
+       mapa:['.........','R.......B','.........'], bloques:[...MOV4,'rep'], optimo:2,
+       pista:'Poné "derecha" adentro de "repetir" y elegí cuántas veces.'},
+      {tit:'Repetir y juntar', txt:'Hay una estrella cada dos pasos. ¿Qué se repite?',
+       mapa:['.........','R.*.*.*.*','.........'], bloques:[...MOV4,'juntar','rep'], optimo:4,
+       pista:'Lo que se repite es: derecha, derecha y juntar. ¿Cuántas estrellas hay?'},
+      {tit:'La escalera', txt:'Subí la escalera hasta la batería con muy pocos bloques.',
+       mapa:escalera(5,false), bloques:[...MOV4,'rep'], optimo:3,
+       pista:'Cada escalón es: derecha y arriba. ¿Cuántos escalones hay?'}
+    ]},
   '4': {nombre:'4° grado', tema:'Secuencias', color:'#3fa7f5', modo:'abs', sub:'Ordená los pasos y buscá el camino más corto.',
     misiones:[
       {tit:'¡A cargar batería!', txt:'Llevá al robotito hasta la batería sin chocar la roca.',
@@ -969,7 +1002,8 @@ $('btn-aprendemos').onclick = ()=>{
   abrirModal(`<div class="panel">
     <h2>📘 ¿Qué aprendemos?</h2>
     <h3>Lo que vas a lograr</h3>
-    <ul><li><b>4°:</b> dar órdenes en el orden correcto y encontrar el camino más corto.</li>
+    <ul><li><b>3°:</b> usar flechas para dar órdenes, juntar estrellas y conocer el bloque "repetir".</li>
+      <li><b>4°:</b> dar órdenes en el orden correcto y encontrar el camino más corto.</li>
       <li><b>5°:</b> pensar hacia dónde mira el robotito y usar "repetir", incluso uno adentro de otro.</li>
       <li><b>6°:</b> hacer que el robotito decida solo con "si… entonces" e inventar tus propios bloques.</li></ul>
     <h3>Palabras nuevas</h3>
