@@ -58,6 +58,7 @@ button:focus-visible,a:focus-visible{outline:4px solid #fff; outline-offset:3px}
 .texto p{margin:0; font-size:16px; color:#4d6175; line-height:1.3}
 .chips{display:flex; gap:6px; margin-top:auto; padding-top:4px; flex-wrap:wrap}
 .chip{font-size:14px; font-weight:800; border-radius:999px; padding:1px 10px; background:#eef6fb; color:#3d86b3}
+.chip.nuevo{background:#ffb627; color:#23364a}
 .destacado{grid-column:1 / -1; flex-direction:row}
 .destacado .icono{width:200px; height:auto; min-height:150px; flex:none; font-size:84px}
 .destacado .icono::after{inset:0 0 0 auto; width:14px; height:auto; background:repeating-linear-gradient(180deg, rgba(255,255,255,.3) 0 10px, transparent 10px 20px)}
@@ -110,6 +111,14 @@ footer{text-align:center; color:#fff; font-weight:700; text-shadow:0 2px 0 var(-
 <script>
 const JUEGOS = [
   {id:'penales', nombre:'Penales Mundialistas', txt:'Jugá con Argentina contra las selecciones del mundo. ¡Pateá y atajá!', em:'⚽', fondo:'#123b6b', grados:['1','2','todos'], chips:['Todos los grados'], destacado:true},
+  {id:'unir-puntos', nombre:'Uní los Puntos', txt:'Uní los números en orden y descubrí el dibujo.', em:'✏️', fondo:'#ffd23f', grados:['1','2'], chips:['1°','2°','Números'], nuevo:true},
+  {id:'clasifica', nombre:'Clasificá', txt:'Poné cada dibujo en su caja: animales, frutas, colores.', em:'🗂️', fondo:'#5cc96b', grados:['1'], chips:['1°','Arrastrar'], nuevo:true},
+  {id:'letras-que-caen', nombre:'Letras que Caen', txt:'Apretá en el teclado la letra que cae.', em:'⌨️', fondo:'#3fa7f5', grados:['1','2'], chips:['1°','2°','Teclado'], nuevo:true},
+  {id:'cuantos-hay', nombre:'¿Cuántos Hay?', txt:'Contá los dibujos y elegí el número.', em:'🔢', fondo:'#ff8fab', grados:['1'], chips:['1°','Números'], nuevo:true},
+  {id:'sumas-y-restas', nombre:'Sumas y Restas', txt:'Resolvé cuentas con dibujos, hasta 50.', em:'➕', fondo:'#9b5de5', grados:['2'], chips:['2°','Cuentas'], nuevo:true},
+  {id:'el-reloj', nombre:'El Reloj', txt:'Leé la hora y mové las agujas.', em:'🕒', fondo:'#e4572e', grados:['2'], chips:['2°','La hora'], nuevo:true},
+  {id:'la-plata', nombre:'La Plata', txt:'Pagá justo con monedas y billetes.', em:'💰', fondo:'#2e8b57', grados:['2'], chips:['2°','Cuentas'], nuevo:true},
+  {id:'forma-la-palabra', nombre:'Formá la Palabra', txt:'Mirá el dibujo y armá su nombre con letras.', em:'🔤', fondo:'#ffb627', grados:['2'], chips:['2°','Letras'], nuevo:true},
   {id:'laberinto', nombre:'Laberinto', txt:'Llevá al robotito hasta su casa. 15 niveles.', em:'🌳', fondo:'#9fd96b', grados:['1','2'], chips:['1°','2°','Mouse y flechas']},
   {id:'pixeles', nombre:'Pintá Píxeles', txt:'Dibujá cuadradito por cuadradito o copiá un modelo.', em:'🎨', fondo:'#ffb627', grados:['1','2'], chips:['1°','2°','Arte']},
   {id:'boceto', nombre:'Boceto Libre', txt:'Una hoja grande para dibujar lo que quieras.', em:'✏️', fondo:'#ff8fab', grados:['1'], chips:['1°','Arte']},
@@ -126,7 +135,7 @@ function pintar(g){
     <a class="juego${j.destacado ? ' destacado' : ''}" href="${j.id}.html">
       <div class="icono" style="background:${j.fondo}">${j.em}</div>
       <div class="texto"><h2>${j.nombre}</h2><p>${j.txt}</p>
-        <div class="chips">${j.chips.map(c=>`<span class="chip">${c}</span>`).join('')}</div></div>
+        <div class="chips">${j.nuevo ? '<span class="chip nuevo">✨ Nuevo</span>' : ''}${j.chips.map(c=>`<span class="chip">${c}</span>`).join('')}</div></div>
     </a>`).join('');
 }
 document.querySelectorAll('#filtros button').forEach(b=> b.onclick = ()=>{

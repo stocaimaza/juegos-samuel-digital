@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><link rel="icon" href="favicon.svg" type="image/svg+xml"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}[hidden]{display:none!important}img{max-width:100%}
+.sd-casa{position:fixed;left:max(10px,env(safe-area-inset-left,0px));bottom:max(10px,env(safe-area-inset-bottom,0px));z-index:50;width:50px;height:50px;border-radius:50%;background:#fff;box-shadow:0 4px 0 #3d86b3;display:flex;align-items:center;justify-content:center;font-size:26px;text-decoration:none}
+.sd-casa:focus-visible{outline:4px solid #ffb627;outline-offset:2px}</style>
+<title>Sumas y Restas</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap">
+<style>
+/* Layout: niveles arriba, cielo de juego en canvas con la consigna dibujada adentro */
+:root{--cielo:#7ec8f0;--panel:#fff;--tinta:#23364a;--sol:#ffb627;--sombra:#3d86b3;
+  --display:"Baloo 2","Comic Sans MS",system-ui,sans-serif;color-scheme:light}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{margin:0;background:var(--cielo);color:var(--tinta);font-family:var(--display);box-sizing:border-box;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:12px;
+  display:flex;flex-direction:column;align-items:center;gap:10px;user-select:none;-webkit-user-select:none}
+button{font-family:var(--display);cursor:pointer;border:none;color:var(--tinta)}
+button:focus-visible{outline:4px solid #fff;outline-offset:2px}
+header{width:100%;max-width:1000px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+h1{margin:0;font-size:clamp(22px,4vw,32px);font-weight:800;color:#fff;text-shadow:0 2px 0 var(--sombra)}
+.pildora{display:flex;gap:4px;background:var(--panel);border-radius:999px;padding:4px;box-shadow:0 3px 0 var(--sombra);flex-wrap:wrap}
+.opc{background:transparent;border-radius:999px;padding:5px 14px;font-size:17px;font-weight:700}
+.opc.on{background:var(--sol)}
+#zona{width:100%;max-width:1000px;flex:1;min-height:0;display:flex;align-items:center;justify-content:center}
+canvas{display:block;border-radius:18px;box-shadow:0 6px 0 var(--sombra);touch-action:none;cursor:pointer;max-width:100%}
+#festejo{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(35,54,74,.45);z-index:20}
+.card{background:#fff;border-radius:24px;padding:24px 32px;text-align:center;box-shadow:0 8px 0 #c98400;max-width:90vw}
+.card h2{margin:0;font-size:44px;color:var(--sol);text-shadow:0 2px 0 #c98400}
+.card p{font-size:22px;margin:4px 0 16px}
+.grande{background:var(--sol);border-radius:999px;padding:10px 28px;font-size:24px;font-weight:800;box-shadow:0 4px 0 #c98400;margin:4px}
+
+/* ---- Robotito que explica + panel ¿Qué aprendemos? ---- */
+.ayuda-btn{font-family:"Baloo 2","Comic Sans MS",system-ui,sans-serif; border:none; cursor:pointer; background:#fff; border-radius:999px; padding:6px 16px; font-size:18px; font-weight:800; color:#23364a; box-shadow:0 3px 0 #3d86b3}
+#intro{position:fixed; inset:0; z-index:40; display:flex; align-items:center; justify-content:center; background:rgba(35,54,74,.5); padding:16px}
+.intro-card{background:#fff; border-radius:28px; padding:22px 26px; box-shadow:0 8px 0 #c98400; display:flex; gap:18px; align-items:center; max-width:640px; flex-wrap:wrap; justify-content:center; font-family:"Baloo 2","Comic Sans MS",system-ui,sans-serif; color:#23364a}
+.intro-card svg{width:150px; height:auto; flex:none}
+.burbuja{position:relative; background:#fff3d6; border-radius:22px; padding:14px 18px; min-width:0; flex:1 1 260px; text-align:center}
+.burbuja::before{content:""; position:absolute; left:-14px; top:40%; border:10px solid transparent; border-right:14px solid #fff3d6}
+.burbuja h2{margin:0; font-size:clamp(24px,4vw,32px); line-height:1.1; color:#23364a; text-shadow:none}
+.pictos{display:flex; justify-content:center; gap:14px; margin:12px 0 4px; flex-wrap:wrap}
+.pictos div{display:flex; flex-direction:column; align-items:center; font-size:15px; font-weight:700; gap:2px; max-width:90px; line-height:1.1}
+.pictos b{font-size:36px; line-height:1; font-family:"Segoe UI Emoji","Apple Color Emoji",sans-serif}
+#jugar{font-family:inherit; border:none; cursor:pointer; background:#ffb627; border-radius:999px; padding:10px 34px; font-size:26px; font-weight:800; color:#23364a; box-shadow:0 4px 0 #c98400; margin-top:8px}
+#panel{position:fixed; top:0; right:0; bottom:0; width:min(400px,100%); background:#fff; z-index:45; box-shadow:-8px 0 30px rgba(35,54,74,.3); color:#23364a; text-align:left;
+  font-family:"Baloo 2","Comic Sans MS",system-ui,sans-serif; overflow:auto; padding:20px max(20px, env(safe-area-inset-right,0px)) 30px 22px; box-sizing:border-box; transform:translateX(105%); transition:transform .25s}
+#panel.abierto{transform:none}
+#panel h2{margin:0 0 4px; font-size:26px; color:#23364a; text-shadow:none}
+#panel .sub{margin:0 0 6px; color:#4d6175; font-size:19px; font-weight:700}
+#panel h3{margin:16px 0 6px; font-size:16px; letter-spacing:1px; color:#3d86b3; text-transform:uppercase}
+#panel ul{margin:0; padding-left:20px; font-size:17px; line-height:1.4}
+#panel li{margin-bottom:4px}
+.logros{display:grid; gap:8px; margin-top:6px}
+.logros div{display:flex; align-items:center; gap:12px; background:#eef6fb; border-radius:16px; padding:8px 12px; font-size:18px; font-weight:700; line-height:1.2}
+.logros b{font-size:30px; flex:none; font-family:"Segoe UI Emoji","Apple Color Emoji",sans-serif}
+.palabras{display:flex; flex-wrap:wrap; gap:8px}
+.palabras span{background:#fff3d6; border-radius:999px; padding:4px 12px; font-size:18px; font-weight:800}
+.dato{margin:0; font-size:17px; line-height:1.45; background:#f4fbef; border-radius:16px; padding:10px 14px}
+#cerrarPanel{font-family:inherit; border:none; cursor:pointer; position:absolute; top:12px; right:max(12px, env(safe-area-inset-right,0px)); width:40px; height:40px; border-radius:50%; background:#eef6fb; font-size:20px; color:#23364a}
+@media (prefers-reduced-motion:reduce){#panel{transition:none}}
+</style>
+<style>
+/* ---- Piezas comunes de los juegos nuevos ---- */
+#progreso{font-size:clamp(18px,4.6vw,26px);gap:2px;min-height:34px;display:flex;flex-wrap:wrap;justify-content:center;max-width:100%;font-family:"Segoe UI Emoji","Apple Color Emoji",sans-serif}
+#progreso span{opacity:.3}#progreso span.si{opacity:1}
+#juego{width:100%;max-width:1000px;flex:1;background:#fffdf6;border-radius:24px;box-shadow:0 6px 0 var(--sombra);padding:18px;box-sizing:border-box;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;min-height:0;position:relative}
+.consigna{font-size:clamp(22px,3.4vw,32px);font-weight:800;text-align:center;margin:0;line-height:1.15}
+.mensaje{min-height:36px;font-size:clamp(20px,3vw,26px);font-weight:800;text-align:center}
+.mensaje.ok{color:#2e8b57}.mensaje.mal{color:#e4572e}
+.opciones{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
+.opcion{background:#fff;border-radius:20px;min-width:90px;padding:8px 20px;font-size:40px;font-weight:800;box-shadow:0 5px 0 #3d86b3;border:3px solid #d5e6f3}
+.opcion:active{transform:translateY(3px);box-shadow:0 2px 0 #3d86b3}
+.opcion.mal{background:#ffe1d8;border-color:#e4572e}.opcion.bien{background:#d9f5dc;border-color:#2e8b57}
+.emo{font-family:"Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif}
+.sacude{animation:sacude .4s}
+@keyframes sacude{20%{transform:translateX(-10px)}40%{transform:translateX(9px)}60%{transform:translateX(-6px)}80%{transform:translateX(4px)}}
+@media (prefers-reduced-motion:reduce){.sacude{animation:none}}
+</style>
+<style>
+.cuenta{font-size:clamp(54px,10vw,90px);font-weight:800;line-height:1;display:flex;gap:16px;align-items:center}
+.cuenta .q{background:#fff3d6;border-radius:18px;padding:0 22px;color:#e4572e;min-width:1.2em;text-align:center}
+.dibus{display:flex;gap:24px;align-items:center;flex-wrap:wrap;justify-content:center;min-height:60px}
+.grupo{display:flex;flex-wrap:wrap;gap:4px;max-width:300px;justify-content:center;background:#eef6fb;border-radius:16px;padding:8px 10px;font-size:42px;line-height:1}
+.grupo span.tachado{position:relative;opacity:.4}
+.grupo span.tachado::after{content:"✕";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#e4572e;font-size:36px;font-weight:800;font-family:"Baloo 2",sans-serif}
+.signo{font-size:44px;font-weight:800}
+</style>
+
+<header>
+  <h1>➕ Sumas y Restas</h1>
+  <button class="ayuda-btn" id="abrirPanel">📘 ¿Qué aprendemos?</button>
+  <div class="pildora" id="niveles"></div>
+</header>
+<div id="progreso"></div>
+<main id="juego">
+<div class="cuenta" id="cuenta"></div>
+<div class="dibus" id="dibus"></div>
+<div class="opciones" id="opciones"></div>
+<div id="mensaje" class="mensaje"></div>
+</main>
+
+<div id="festejo" hidden>
+  <div class="card"><h2>¡Excelente!</h2><div style="font-size:40px" class="emo">⭐⭐⭐</div><p id="festejoTxt"></p>
+    <button class="grande" id="seguir">Siguiente nivel ▶</button></div>
+</div>
+
+<!-- El robotito explica el juego antes de empezar -->
+<div id="intro">
+  <div class="intro-card">
+    <svg viewBox="0 0 120 150" aria-hidden="true">
+      <line x1="60" y1="22" x2="60" y2="8" stroke="#23364a" stroke-width="4"/><circle cx="60" cy="7" r="6" fill="#e4572e"/>
+      <rect x="22" y="22" width="76" height="60" rx="18" fill="#ffb627" stroke="#23364a" stroke-width="4"/>
+      <circle cx="45" cy="48" r="10" fill="#fff"/><circle cx="75" cy="48" r="10" fill="#fff"/>
+      <circle cx="47" cy="49" r="5" fill="#23364a"/><circle cx="77" cy="49" r="5" fill="#23364a"/>
+      <path d="M46 64 Q60 74 74 64" fill="none" stroke="#23364a" stroke-width="4" stroke-linecap="round"/>
+      <rect x="32" y="86" width="56" height="44" rx="12" fill="#ffb627" stroke="#23364a" stroke-width="4"/>
+      <rect x="10" y="92" width="22" height="10" rx="5" fill="#9aa5b1" stroke="#23364a" stroke-width="3" transform="rotate(-30 21 97)"/>
+      <rect x="88" y="92" width="22" height="10" rx="5" fill="#9aa5b1" stroke="#23364a" stroke-width="3" transform="rotate(30 99 97)"/>
+      <rect x="40" y="130" width="14" height="16" rx="4" fill="#9aa5b1" stroke="#23364a" stroke-width="3"/>
+      <rect x="66" y="130" width="14" height="16" rx="4" fill="#9aa5b1" stroke="#23364a" stroke-width="3"/>
+    </svg>
+    <div class="burbuja">
+      <h2>¡Resolvé la cuenta y elegí el resultado!</h2>
+      <div class="pictos"><div><b>👀</b>mirá la cuenta</div><div><b>🍎</b>ayudate con los dibujos</div><div><b>👆</b>elegí el resultado</div><div><b>⭐</b>juntá estrellas</div></div>
+      <button id="jugar">¡Jugar!</button>
+    </div>
+  </div>
+</div>
+
+<!-- Panel "¿Qué aprendemos?" para los chicos y sus familias -->
+<aside id="panel" aria-label="Qué aprendemos" aria-hidden="true">
+  <button id="cerrarPanel" aria-label="Cerrar">✕</button>
+  <h2>📘 ¿Qué aprendemos?</h2>
+<p class="sub">Con Sumas y Restas aprendemos a…</p>
+  <div class="logros"><div><b>➕</b>Sumar: juntar cantidades</div><div><b>➖</b>Restar: sacar o quitar</div><div><b>🔟</b>Hacer cuentas hasta 50</div><div><b>🧠</b>Calcular mentalmente</div></div>
+  <h3>Palabras nuevas</h3>
+  <div class="palabras"><span>➕ sumar</span><span>➖ restar</span><span>🟰 resultado</span><span>🔟 decena</span><span>🧠 calcular</span></div>
+  <h3>¿Sabías que…?</h3>
+  <p class="dato">Los primeros que hicieron cuentas usaban piedritas. En latín, piedrita se dice <b>"calculus"</b>, ¡y de ahí viene la palabra <b>calcular</b>! 🪨</p>
+  <h3>Para charlar en familia</h3>
+  <ul><li>Si tengo 5 caramelos y me regalan 3, ¿cuántos tengo?</li><li>Si había 8 galletitas y comimos 2, ¿cuántas quedan?</li><li>¿Cuánto es 10 + 10?</li></ul>
+  <h3>Para jugar en casa</h3>
+  <p class="dato">🎲 <b>Dados que suman:</b> tirar dos dados y sumar los puntos. El que saca más gana un poroto. Para restar: el número grande menos el chico.</p>
+</aside>
+
+<script>
+
+// ---------- Piezas comunes: niveles, estrellas, mensajes y festejo ----------
+const $ = id => document.getElementById(id);
+let nivel = 0, aciertos = 0, bloqueado = false;
+function mezclar(a){ for (let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function azar(a, b){ return a + Math.floor(Math.random()*(b-a+1)); }
+function elegir(a){ return a[Math.floor(Math.random()*a.length)]; }
+function meta(){ return NIVELES[nivel].meta || META; }
+function pintarProgreso(){ $('progreso').innerHTML = Array.from({length:meta()}, (_,i)=>`<span class="${i<aciertos?'si':''}">⭐</span>`).join(''); }
+function decir(txt, tipo){ const m = $('mensaje'); m.textContent = txt; m.className = 'mensaje ' + (tipo||''); }
+function sacudir(el){ el.classList.remove('sacude'); void el.offsetWidth; el.classList.add('sacude'); }
+// un acierto suma una estrella; al llegar a la meta se pasa de nivel
+function bien(txt, espera){
+  aciertos++; pintarProgreso(); decir(txt || elegir(['¡Bien!','¡Muy bien!','¡Genial!','¡Eso!','¡Excelente!']), 'ok'); bloqueado = true;
+  if (aciertos >= meta()) setTimeout(ganar, 900);
+  else setTimeout(()=>{ bloqueado = false; nueva(); }, espera ?? 1000);
+}
+function ganar(){
+  const ultimo = nivel === NIVELES.length-1;
+  $('festejoTxt').textContent = ultimo ? '¡Terminaste todos los niveles!' : `Pasaste el nivel "${NIVELES[nivel].nombre}"`;
+  $('seguir').textContent = ultimo ? 'Jugar otra vez' : 'Siguiente nivel ▶';
+  $('festejo').hidden = false;
+}
+$('seguir').onclick = ()=>{ $('festejo').hidden = true; nivel = (nivel+1) % NIVELES.length; pintarNiveles(); empezar(); };
+function empezar(){ aciertos = 0; bloqueado = false; pintarProgreso(); decir(''); if (typeof alEmpezar === 'function') alEmpezar(); nueva(); }
+function pintarNiveles(){
+  const cont = $('niveles'); cont.innerHTML = '';
+  NIVELES.forEach((n,i)=>{ const b = document.createElement('button'); b.className = 'opc' + (i===nivel?' on':''); b.textContent = n.nombre;
+    b.onclick = ()=>{ nivel = i; pintarNiveles(); empezar(); }; cont.appendChild(b); });
+}
+
+// tipo: suma, resta o mezcla; dibujos: si se muestran las cantidades con dibujos
+const NIVELES = [
+  {nombre:'Sumas hasta 10',  tipo:'suma',  max:10, dibujos:true},
+  {nombre:'Restas hasta 10', tipo:'resta', max:10, dibujos:true},
+  {nombre:'Sumas hasta 20',  tipo:'suma',  max:20},
+  {nombre:'Restas hasta 20', tipo:'resta', max:20},
+  {nombre:'Mezcla hasta 50', tipo:'mezcla',max:50}
+];
+const META = 10;
+const DIBUS = ['🍎','⭐','🐟','🎈','🍪','🐥','🌸','⚽'];
+let resultado = 0, ultima = '';
+
+function nueva(){
+  const n = NIVELES[nivel];
+  const tipo = n.tipo === 'mezcla' ? elegir(['suma','resta']) : n.tipo;
+  let a, b, clave;
+  do {
+    if (tipo === 'suma'){ a = azar(1, n.max-1); b = azar(1, n.max-a); resultado = a + b; }
+    else { a = azar(2, n.max); b = azar(1, a-1); resultado = a - b; }
+    clave = a + tipo + b;
+  } while (clave === ultima || (n.max > 10 && n.tipo !== 'mezcla' && a + (tipo==='suma'?b:0) <= 10));  // en "hasta 20" que no sean tan fáciles
+  ultima = clave;
+  const s = tipo === 'suma' ? '+' : '−';
+  $('cuenta').innerHTML = `<span>${a}</span><span>${s}</span><span>${b}</span><span>=</span><span class="q">?</span>`;
+  // dibujos de ayuda
+  const d = $('dibus'); d.innerHTML = '';
+  if (n.dibujos){
+    const em = elegir(DIBUS), grupo = (k, tach)=> `<div class="grupo emo">${Array.from({length:k},(_,i)=>`<span class="${tach && i >= k-tach ? 'tachado' : ''}">${em}</span>`).join('')}</div>`;
+    d.innerHTML = tipo === 'suma' ? grupo(a) + '<span class="signo">+</span>' + grupo(b) : grupo(a, b);
+  }
+  // opciones: el resultado y vecinos
+  const ops = new Set([resultado]);
+  while (ops.size < 4){ const v = resultado + elegir(n.max > 20 ? [-10,-2,-1,1,2,10] : [-3,-2,-1,1,2,3]); if (v >= 0 && v <= n.max + 3) ops.add(v); }
+  const cont = $('opciones'); cont.innerHTML = '';
+  mezclar([...ops]).forEach(v=>{
+    const btn = document.createElement('button'); btn.className = 'opcion'; btn.textContent = v;
+    btn.onclick = ()=>{
+      if (bloqueado) return;
+      if (v === resultado){ btn.classList.add('bien'); $('cuenta').querySelector('.q').textContent = v; bien(); }
+      else { btn.classList.add('mal'); sacudir(btn); decir(n.dibujos ? 'Casi. Contá los dibujos y probá otra vez' : 'Casi. Probá otra vez', 'mal'); }
+    };
+    cont.appendChild(btn);
+  });
+}
+window.__juego = {resultado:()=>resultado};
+
+pintarNiveles(); empezar();
+// ---------- Intro del robotito y panel ¿Qué aprendemos? ----------
+(function(){
+  const intro = $('intro'), panel = $('panel');
+  $('jugar').onclick = ()=>{ intro.hidden = true; if (typeof alJugar === 'function') alJugar(); };
+  $('abrirPanel').onclick = ()=>{ panel.classList.add('abierto'); panel.setAttribute('aria-hidden','false'); };
+  $('cerrarPanel').onclick = ()=>{ panel.classList.remove('abierto'); panel.setAttribute('aria-hidden','true'); };
+  addEventListener('keydown', e=>{
+    if (e.key === 'Escape') $('cerrarPanel').click();
+    if (!intro.hidden && (e.key === 'Enter' || e.key === ' ')){ e.preventDefault(); e.stopImmediatePropagation(); $('jugar').click(); }
+  }, true);
+})();
+
+</script>
+
+<a class="sd-casa" href="index.html" aria-label="Volver a todos los juegos" title="Todos los juegos">🏠</a>
+</html>

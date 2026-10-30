@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><link rel="icon" href="favicon.svg" type="image/svg+xml"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}[hidden]{display:none!important}img{max-width:100%}
+.sd-casa{position:fixed;left:max(10px,env(safe-area-inset-left,0px));bottom:max(10px,env(safe-area-inset-bottom,0px));z-index:50;width:50px;height:50px;border-radius:50%;background:#fff;box-shadow:0 4px 0 #3d86b3;display:flex;align-items:center;justify-content:center;font-size:26px;text-decoration:none}
+.sd-casa:focus-visible{outline:4px solid #ffb627;outline-offset:2px}</style>
+<title>Uní los Puntos</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap">
+<style>
+/* Layout: niveles arriba, cielo de juego en canvas con la consigna dibujada adentro */
+:root{--cielo:#7ec8f0;--panel:#fff;--tinta:#23364a;--sol:#ffb627;--sombra:#3d86b3;
+  --display:"Baloo 2","Comic Sans MS",system-ui,sans-serif;color-scheme:light}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{margin:0;background:var(--cielo);color:var(--tinta);font-family:var(--display);box-sizing:border-box;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:12px;
+  display:flex;flex-direction:column;align-items:center;gap:10px;user-select:none;-webkit-user-select:none}
+button{font-family:var(--display);cursor:pointer;border:none;color:var(--tinta)}
+button:focus-visible{outline:4px solid #fff;outline-offset:2px}
+header{width:100%;max-width:1000px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+h1{margin:0;font-size:clamp(22px,4vw,32px);font-weight:800;color:#fff;text-shadow:0 2px 0 var(--sombra)}
+.pildora{display:flex;gap:4px;background:var(--panel);border-radius:999px;padding:4px;box-shadow:0 3px 0 var(--sombra);flex-wrap:wrap}
+.opc{background:transparent;border-radius:999px;padding:5px 14px;font-size:17px;font-weight:700}
+.opc.on{background:var(--sol)}
+#zona{width:100%;max-width:1000px;flex:1;min-height:0;display:flex;align-items:center;justify-content:center}
+canvas{display:block;border-radius:18px;box-shadow:0 6px 0 var(--sombra);touch-action:none;cursor:pointer;max-width:100%}
+#festejo{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(35,54,74,.45);z-index:20}
+.card{background:#fff;border-radius:24px;padding:24px 32px;text-align:center;box-shadow:0 8px 0 #c98400;max-width:90vw}
+.card h2{margin:0;font-size:44px;color:var(--sol);text-shadow:0 2px 0 #c98400}
+.card p{font-size:22px;margin:4px 0 16px}
+.grande{background:var(--sol);border-radius:999px;padding:10px 28px;font-size:24px;font-weight:800;box-shadow:0 4px 0 #c98400;margin:4px}
+
+/* ---- Robotito que explica + panel ¿Qué aprendemos? ---- */
+.ayuda-btn{font-family:"Baloo 2","Comic Sans MS",system-ui,sans-serif; border:none; cursor:pointer; background:#fff; border-radius:999px; padding:6px 16px; font-size:18px; font-weight:800; color:#23364a; box-shadow:0 3px 0 #3d86b3}
+#intro{position:fixed; inset:0; z-index:40; display:flex; align-items:center; justify-content:center; background:rgba(35,54,74,.5); padding:16px}
+.intro-card{background:#fff; border-radius:28px; padding:22px 26px; box-shadow:0 8px 0 #c98400; display:flex; gap:18px; align-items:center; max-width:640px; flex-wrap:wrap; justify-content:center; font-family:"Baloo 2","Comic Sans MS",system-ui,sans-serif; color:#23364a}
+.intro-card svg{width:150px; height:auto; flex:none}
+.burbuja{position:relative; background:#fff3d6; border-radius:22px; padding:14px 18px; min-width:0; flex:1 1 260px; text-align:center}
+.burbuja::before{content:""; position:absolute; left:-14px; top:40%; border:10px solid transparent; border-right:14px solid #fff3d6}
+.burbuja h2{margin:0; font-size:clamp(24px,4vw,32px); line-height:1.1; color:#23364a; text-shadow:none}
+.pictos{display:flex; justify-content:center; gap:14px; margin:12px 0 4px; flex-wrap:wrap}
+.pictos div{display:flex; flex-direction:column; align-items:center; font-size:15px; font-weight:700; gap:2px; max-width:90px; line-height:1.1}
+.pictos b{font-size:36px; line-height:1; font-family:"Segoe UI Emoji","Apple Color Emoji",sans-serif}
+#jugar{font-family:inherit; border:none; cursor:pointer; background:#ffb627; border-radius:999px; padding:10px 34px; font-size:26px; font-weight:800; color:#23364a; box-shadow:0 4px 0 #c98400; margin-top:8px}
+#panel{position:fixed; top:0; right:0; bottom:0; width:min(400px,100%); background:#fff; z-index:45; box-shadow:-8px 0 30px rgba(35,54,74,.3); color:#23364a; text-align:left;
+  font-family:"Baloo 2","Comic Sans MS",system-ui,sans-serif; overflow:auto; padding:20px max(20px, env(safe-area-inset-right,0px)) 30px 22px; box-sizing:border-box; transform:translateX(105%); transition:transform .25s}
+#panel.abierto{transform:none}
+#panel h2{margin:0 0 4px; font-size:26px; color:#23364a; text-shadow:none}
+#panel .sub{margin:0 0 6px; color:#4d6175; font-size:19px; font-weight:700}
+#panel h3{margin:16px 0 6px; font-size:16px; letter-spacing:1px; color:#3d86b3; text-transform:uppercase}
+#panel ul{margin:0; padding-left:20px; font-size:17px; line-height:1.4}
+#panel li{margin-bottom:4px}
+.logros{display:grid; gap:8px; margin-top:6px}
+.logros div{display:flex; align-items:center; gap:12px; background:#eef6fb; border-radius:16px; padding:8px 12px; font-size:18px; font-weight:700; line-height:1.2}
+.logros b{font-size:30px; flex:none; font-family:"Segoe UI Emoji","Apple Color Emoji",sans-serif}
+.palabras{display:flex; flex-wrap:wrap; gap:8px}
+.palabras span{background:#fff3d6; border-radius:999px; padding:4px 12px; font-size:18px; font-weight:800}
+.dato{margin:0; font-size:17px; line-height:1.45; background:#f4fbef; border-radius:16px; padding:10px 14px}
+#cerrarPanel{font-family:inherit; border:none; cursor:pointer; position:absolute; top:12px; right:max(12px, env(safe-area-inset-right,0px)); width:40px; height:40px; border-radius:50%; background:#eef6fb; font-size:20px; color:#23364a}
+@media (prefers-reduced-motion:reduce){#panel{transition:none}}
+</style>
+
+<header>
+  <h1>✏️ Uní los Puntos</h1>
+  <button class="ayuda-btn" id="abrirPanel">📘 ¿Qué aprendemos?</button>
+  <div class="pildora" id="niveles"></div>
+</header>
+<div id="zona"><canvas id="c"></canvas></div>
+
+<div id="festejo" hidden>
+  <div class="card"><div id="festejoEmoji" style="font-size:64px;line-height:1">🎉</div><h2 id="festejoTit">¡Excelente!</h2><p id="festejoTxt"></p>
+    <button class="grande" id="seguir">Otro dibujo ▶</button></div>
+</div>
+
+<!-- El robotito explica el juego antes de empezar -->
+<div id="intro">
+  <div class="intro-card">
+    <svg viewBox="0 0 120 150" aria-hidden="true">
+      <line x1="60" y1="22" x2="60" y2="8" stroke="#23364a" stroke-width="4"/><circle cx="60" cy="7" r="6" fill="#e4572e"/>
+      <rect x="22" y="22" width="76" height="60" rx="18" fill="#ffb627" stroke="#23364a" stroke-width="4"/>
+      <circle cx="45" cy="48" r="10" fill="#fff"/><circle cx="75" cy="48" r="10" fill="#fff"/>
+      <circle cx="47" cy="49" r="5" fill="#23364a"/><circle cx="77" cy="49" r="5" fill="#23364a"/>
+      <path d="M46 64 Q60 74 74 64" fill="none" stroke="#23364a" stroke-width="4" stroke-linecap="round"/>
+      <rect x="32" y="86" width="56" height="44" rx="12" fill="#ffb627" stroke="#23364a" stroke-width="4"/>
+      <rect x="10" y="92" width="22" height="10" rx="5" fill="#9aa5b1" stroke="#23364a" stroke-width="3" transform="rotate(-30 21 97)"/>
+      <rect x="88" y="92" width="22" height="10" rx="5" fill="#9aa5b1" stroke="#23364a" stroke-width="3" transform="rotate(30 99 97)"/>
+      <rect x="40" y="130" width="14" height="16" rx="4" fill="#9aa5b1" stroke="#23364a" stroke-width="3"/>
+      <rect x="66" y="130" width="14" height="16" rx="4" fill="#9aa5b1" stroke="#23364a" stroke-width="3"/>
+    </svg>
+    <div class="burbuja">
+      <h2>¡Uní los puntos en orden y descubrí el dibujo!</h2>
+      <div class="pictos"><div><b>1️⃣</b>empezá por el 1</div><div><b>👆</b>tocá el que sigue</div><div><b>✏️</b>se dibuja la línea</div><div><b>🎁</b>¿qué apareció?</div></div>
+      <button id="jugar">¡Jugar!</button>
+    </div>
+  </div>
+</div>
+
+<!-- Panel "¿Qué aprendemos?" para los chicos y sus familias -->
+<aside id="panel" aria-label="Qué aprendemos" aria-hidden="true">
+  <button id="cerrarPanel" aria-label="Cerrar">✕</button>
+  <h2>📘 ¿Qué aprendemos?</h2>
+  <p class="sub">Con Uní los Puntos aprendemos a…</p>
+  <div class="logros"><div><b>🔢</b>Contar en orden hasta 20</div><div><b>🔍</b>Buscar el número que sigue</div><div><b>2️⃣</b>Contar de 2 en 2</div><div><b>🎯</b>Apuntar y hacer clic con cuidado</div></div>
+  <h3>Palabras nuevas</h3>
+  <div class="palabras"><span>➡️ siguiente</span><span>⬅️ anterior</span><span>🔢 orden</span><span>📏 línea</span><span>⭐ figura</span></div>
+  <h3>¿Sabías que…?</h3>
+  <p class="dato">Hace miles de años la gente miraba el cielo de noche y unía las estrellas con líneas imaginarias. Así inventaron las <b>constelaciones</b>, como la Cruz del Sur. ✨</p>
+  <h3>Para charlar en familia</h3>
+  <ul><li>¿Qué número viene después del 9? ¿Y antes del 15?</li><li>¿Qué dibujo te costó más descubrir?</li><li>¿Podés contar de 2 en 2 hasta 20?</li></ul>
+  <h3>Para jugar en casa</h3>
+  <p class="dato">📝 <b>Dibujo sorpresa:</b> en una hoja, un grande dibuja puntitos numerados con la forma de algo (una casa, un pez) y el chico o la chica los une con lápiz. ¡Después se cambian los roles!</p>
+</aside>
+
+<script>
+// ---------- Dibujos: puntos en una grilla de 0 a 100 (se unen en orden y se cierra) ----------
+function estrella(){ const p=[]; for(let i=0;i<10;i++){ const a=-Math.PI/2+i*Math.PI/5, r=i%2?20:48; p.push([50+r*Math.cos(a), 54+r*Math.sin(a)]); } return p; }
+const DIBUJOS = {
+  estrella:{nombre:'una estrella', em:'⭐', color:'#ffd23f', pts:estrella()},
+  pez:{nombre:'un pez', em:'🐟', color:'#3fa7f5', pts:[[8,50],[28,30],[52,24],[72,34],[92,18],[92,82],[72,66],[52,76],[28,70]], ojo:[30,46]},
+  barco:{nombre:'un barco', em:'⛵', color:'#e4572e', pts:[[6,60],[40,60],[40,6],[63,33],[86,60],[94,60],[78,88],[50,88],[22,88]]},
+  casa:{nombre:'una casa', em:'🏠', color:'#ff8fab', pts:[[20,92],[20,50],[6,50],[50,10],[94,50],[80,50],[80,92],[60,92],[60,64],[40,64],[40,92]]},
+  cohete:{nombre:'un cohete', em:'🚀', color:'#9b5de5', pts:[[50,4],[63,20],[65,60],[80,74],[80,92],[64,82],[58,92],[42,92],[36,82],[20,92],[20,74],[35,60],[37,20]], ojo:[50,38]},
+  gato:{nombre:'un gato', em:'🐱', color:'#ffb627', pts:[[26,88],[14,62],[14,36],[22,8],[40,28],[50,27],[60,28],[78,8],[86,36],[86,62],[74,88],[60,96],[40,96]], cara:true},
+  pino:{nombre:'un pino', em:'🌲', color:'#2e8b57', pts:[[45,96],[45,82],[12,82],[32,62],[19,62],[37,42],[27,42],[50,6],[73,42],[63,42],[81,62],[68,62],[88,82],[55,82],[55,96]]},
+  mariposa:{nombre:'una mariposa', em:'🦋', color:'#ff8fab', pts:[[50,26],[64,8],[88,8],[94,30],[74,48],[92,62],[88,88],[66,90],[50,70],[34,90],[12,88],[8,62],[26,48],[6,30],[12,8],[36,8]], cuerpo:true},
+  auto:{nombre:'un auto', em:'🚗', color:'#e4572e', pts:[[4,72],[4,50],[30,28],[70,28],[96,50],[96,72],[84,72],[81,56],[65,56],[62,72],[38,72],[35,56],[19,56],[16,72]], ruedas:[[27,72],[73,72]]},
+  corazon:{nombre:'un corazón', em:'❤️', color:'#e4572e', pts:[[50,28],[60,14],[74,8],[88,14],[95,30],[90,48],[78,64],[64,78],[50,92],[36,78],[22,64],[10,48],[5,30],[12,14],[26,8],[40,14]]},
+  dino:{nombre:'un dinosaurio', em:'🦖', color:'#5cc96b', pts:[[4,60],[24,54],[40,34],[58,30],[64,14],[76,6],[92,8],[95,20],[79,26],[77,50],[72,70],[70,92],[62,92],[60,76],[40,76],[38,92],[30,92],[28,72],[18,68],[10,66]], ojo:[82,14]}
+};
+// Niveles: qué dibujos tocan y de cuánto en cuánto se cuenta
+const NIVELES = [
+  {nombre:'Hasta 10', paso:1, dibujos:['estrella','pez','barco']},
+  {nombre:'Hasta 15', paso:1, dibujos:['casa','cohete','gato','pino']},
+  {nombre:'Hasta 20', paso:1, dibujos:['mariposa','auto','corazon','dino']},
+  {nombre:'De 2 en 2', paso:2, dibujos:['pez','casa','pino','mariposa','dino']}
+];
+
+const cv = document.getElementById('c'), ctx = cv.getContext('2d');
+const W = 900, H = 560, ESC = 4.1, OX = W/2 - 50*ESC, OY = 128;
+let nivel = 0, dib = 0, puntos = [], siguiente = 0, completo = false, carteles = [], sacudir = {i:-1, t:0}, t0Fin = 0;
+
+function ajustar(){
+  const z = document.getElementById('zona').getBoundingClientRect();
+  const esc = Math.min(z.width / W, Math.max(260, z.height) / H), dpr = devicePixelRatio || 1;
+  cv.width = W*esc*dpr; cv.height = H*esc*dpr; cv.style.width = W*esc+'px'; cv.style.height = H*esc+'px';
+  ctx.setTransform(esc*dpr,0,0,esc*dpr,0,0);
+}
+function dentro(x, y, pol){ // punto dentro del polígono
+  let c = false;
+  for (let i=0, j=pol.length-1; i<pol.length; j=i++){
+    const [xi,yi] = pol[i], [xj,yj] = pol[j];
+    if ((yi>y) !== (yj>y) && x < (xj-xi)*(y-yi)/(yj-yi)+xi) c = !c;
+  }
+  return c;
+}
+function cargarDibujo(){
+  const d = DIBUJOS[NIVELES[nivel].dibujos[dib]], n = d.pts.length;
+  const pol = d.pts.map(([x,y])=>[OX + x*ESC, OY + y*ESC]);
+  puntos = pol.map(([x,y], i)=>{
+    // el número va del lado de afuera del dibujo, para que no lo tape la línea
+    const [ax,ay] = pol[(i-1+n)%n], [bx,by] = pol[(i+1)%n];
+    const u1 = Math.hypot(x-ax,y-ay)||1, u2 = Math.hypot(x-bx,y-by)||1;
+    let dx = (x-ax)/u1 + (x-bx)/u2, dy = (y-ay)/u1 + (y-by)/u2, m = Math.hypot(dx,dy);
+    if (m < .01){ dx = -(by-ay); dy = bx-ax; m = Math.hypot(dx,dy); }
+    dx/=m; dy/=m;
+    if (dentro(x+dx*20, y+dy*20, pol)){ dx=-dx; dy=-dy; }
+    return {x, y, lx: x+dx*24, ly: y+dy*24, valor: (i+1)*NIVELES[nivel].paso};
+  });
+  siguiente = 0; completo = false; carteles = [];
+}
+function empezarNivel(){ dib = 0; cargarDibujo(); }
+
+// ---------- Dibujo ----------
+function caja(x,y,w,h,r){ ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x,y,w,h,r) : ctx.rect(x,y,w,h); }
+function cuadro(){
+  const ahora = performance.now();
+  ctx.fillStyle = '#fffdf6'; ctx.fillRect(0,0,W,H);
+  // hoja cuadriculada como en el cuaderno
+  ctx.strokeStyle = '#e3eef7'; ctx.lineWidth = 1;
+  for (let x=0;x<W;x+=28){ ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+  for (let y=0;y<H;y+=28){ ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+
+  const d = DIBUJOS[NIVELES[nivel].dibujos[dib]];
+  // relleno de color cuando se completa
+  if (completo){
+    const k = Math.min(1, (ahora - t0Fin)/600);
+    ctx.globalAlpha = k; ctx.fillStyle = d.color;
+    ctx.beginPath(); puntos.forEach((p,i)=> i ? ctx.lineTo(p.x,p.y) : ctx.moveTo(p.x,p.y)); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#23364a';
+    if (d.ojo){ ctx.beginPath(); ctx.arc(OX+d.ojo[0]*ESC, OY+d.ojo[1]*ESC, 9, 0, Math.PI*2); ctx.fill(); }
+    if (d.ruedas) d.ruedas.forEach(([x,y])=>{ ctx.beginPath(); ctx.arc(OX+x*ESC, OY+y*ESC, 36, Math.PI, 0); ctx.fill(); });
+    if (d.cuerpo){ // cuerpo y antenas de la mariposa
+      ctx.beginPath(); ctx.ellipse(OX+50*ESC, OY+52*ESC, 5*ESC, 26*ESC, 0, 0, Math.PI*2); ctx.fill();
+      ctx.strokeStyle = '#23364a'; ctx.lineWidth = 5;
+      [[-1],[1]].forEach(([k])=>{ ctx.beginPath(); ctx.moveTo(OX+50*ESC, OY+28*ESC); ctx.quadraticCurveTo(OX+(50+k*2)*ESC, OY+12*ESC, OX+(50+k*9)*ESC, OY+2*ESC); ctx.stroke(); });
+    }
+    if (d.cara){
+      [[38,50],[62,50]].forEach(([x,y])=>{ ctx.beginPath(); ctx.arc(OX+x*ESC, OY+y*ESC, 9, 0, Math.PI*2); ctx.fill(); });
+      ctx.beginPath(); ctx.moveTo(OX+44*ESC, OY+64*ESC); ctx.lineTo(OX+56*ESC, OY+64*ESC); ctx.lineTo(OX+50*ESC, OY+70*ESC); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+  }
+  // líneas ya unidas
+  ctx.strokeStyle = '#23364a'; ctx.lineWidth = 6; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  ctx.beginPath();
+  for (let i=0;i<siguiente;i++){ const p = puntos[i]; i ? ctx.lineTo(p.x,p.y) : ctx.moveTo(p.x,p.y); }
+  if (completo) ctx.closePath();
+  ctx.stroke();
+  // puntos y números
+  puntos.forEach((p,i)=>{
+    const hecho = i < siguiente, toca = i === siguiente && !completo;
+    let sx = 0; if (sacudir.i === i){ const k = (ahora - sacudir.t)/400; if (k<1) sx = Math.sin(k*30)*6*(1-k); }
+    if (toca){ // el que sigue late, para los que recién empiezan
+      const r = 16 + Math.sin(ahora/220)*4;
+      ctx.fillStyle = 'rgba(255,182,39,.45)'; ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, Math.PI*2); ctx.fill();
+    }
+    ctx.fillStyle = hecho ? '#23364a' : '#e4572e';
+    ctx.beginPath(); ctx.arc(p.x+sx, p.y, 9, 0, Math.PI*2); ctx.fill();
+    if (!completo){
+      ctx.font = '800 24px "Baloo 2", sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.lineWidth = 6; ctx.strokeStyle = '#fffdf6'; ctx.strokeText(p.valor, p.lx+sx, p.ly);
+      ctx.fillStyle = hecho ? '#8a9aab' : '#23364a'; ctx.fillText(p.valor, p.lx+sx, p.ly);
+    }
+  });
+  // consigna arriba
+  ctx.fillStyle = 'rgba(255,255,255,.96)'; caja(W/2-250, 12, 500, 76, 24); ctx.fill();
+  ctx.strokeStyle = '#d5e6f3'; ctx.lineWidth = 2; ctx.stroke();
+  ctx.fillStyle = '#23364a'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  if (completo){ ctx.font = '800 32px "Baloo 2", sans-serif'; ctx.fillText(`¡Es ${d.nombre}! ${d.em}`, W/2, 50); }
+  else {
+    ctx.font = '800 28px "Baloo 2", sans-serif';
+    const txt = siguiente === 0 ? 'Empezá por el' : 'Ahora tocá el';
+    ctx.fillText(txt, W/2 - 40, 50);
+    ctx.font = '800 50px "Baloo 2", sans-serif'; ctx.fillStyle = '#e4572e'; ctx.fillText(puntos[siguiente].valor, W/2 + 110, 52);
+  }
+  // progreso: una estrella por dibujo del nivel
+  const tot = NIVELES[nivel].dibujos.length;
+  ctx.font = '26px "Segoe UI Emoji","Apple Color Emoji",sans-serif'; ctx.textAlign = 'center';
+  for (let i=0;i<tot;i++){ ctx.globalAlpha = (i < dib || (i===dib && completo)) ? 1 : .3; ctx.fillText('⭐', W/2-(tot-1)*17+i*34, 106); }
+  ctx.globalAlpha = 1;
+  // carteles flotantes
+  carteles = carteles.filter(c=> ahora - c.t0 < 1300);
+  carteles.forEach(c=>{ const k = (ahora - c.t0)/1300;
+    ctx.globalAlpha = 1-k; ctx.font = '800 26px "Baloo 2", sans-serif'; ctx.textAlign = 'center';
+    ctx.lineWidth = 6; ctx.strokeStyle = '#fff'; ctx.strokeText(c.txt, c.x, c.y - k*30);
+    ctx.fillStyle = c.color; ctx.fillText(c.txt, c.x, c.y - k*30); ctx.globalAlpha = 1; });
+  requestAnimationFrame(cuadro);
+}
+
+// ---------- Tocar puntos ----------
+cv.addEventListener('pointerdown', e=>{
+  if (completo) return;
+  const r = cv.getBoundingClientRect(), x = (e.clientX-r.left)*W/r.width, y = (e.clientY-r.top)*H/r.height;
+  // el punto más cercano al clic (se puede tocar el punto o su número)
+  let mejor = -1, dist = 1e9;
+  puntos.forEach((p,i)=>{ const dd = Math.min(Math.hypot(x-p.x,y-p.y), Math.hypot(x-p.lx,y-p.ly)); if (dd < dist){ dist = dd; mejor = i; } });
+  if (mejor < 0 || dist > 26) return;
+  if (mejor === siguiente){
+    siguiente++;
+    if (siguiente === puntos.length){ // se cierra el dibujo
+      completo = true; t0Fin = performance.now(); setTimeout(terminoDibujo, 1500);
+    }
+  } else if (mejor >= siguiente){
+    sacudir = {i:mejor, t:performance.now()};
+    const p = puntos[mejor];
+    carteles.push({txt:`Ese es el ${p.valor}. Buscá el ${puntos[siguiente].valor}`, x:p.lx, y:p.ly-30, t0:performance.now(), color:'#e4572e'});
+  }
+});
+function terminoDibujo(){
+  const nv = NIVELES[nivel], d = DIBUJOS[nv.dibujos[dib]], ultimoDib = dib === nv.dibujos.length-1, ultimoNiv = nivel === NIVELES.length-1;
+  document.getElementById('festejoEmoji').textContent = d.em;
+  document.getElementById('festejoTit').textContent = ultimoDib ? '¡Excelente!' : '¡Muy bien!';
+  document.getElementById('festejoTxt').textContent = ultimoDib
+    ? (ultimoNiv ? '¡Terminaste todos los niveles!' : `Pasaste el nivel "${nv.nombre}"`)
+    : `Descubriste ${d.nombre}`;
+  document.getElementById('seguir').textContent = ultimoDib ? (ultimoNiv ? 'Jugar otra vez' : 'Siguiente nivel ▶') : 'Otro dibujo ▶';
+  document.getElementById('festejo').hidden = false;
+}
+document.getElementById('seguir').onclick = ()=>{
+  document.getElementById('festejo').hidden = true;
+  if (dib < NIVELES[nivel].dibujos.length-1){ dib++; cargarDibujo(); }
+  else { nivel = (nivel + 1) % NIVELES.length; pintarNiveles(); empezarNivel(); }
+};
+function pintarNiveles(){
+  const cont = document.getElementById('niveles'); cont.innerHTML = '';
+  NIVELES.forEach((n,i)=>{ const b = document.createElement('button'); b.className = 'opc' + (i===nivel?' on':''); b.textContent = n.nombre;
+    b.onclick = ()=>{ nivel = i; pintarNiveles(); empezarNivel(); }; cont.appendChild(b); });
+}
+addEventListener('resize', ajustar);
+pintarNiveles(); ajustar(); empezarNivel(); requestAnimationFrame(cuadro);
+
+// ---------- Intro del robotito y panel ¿Qué aprendemos? ----------
+(function(){
+  const intro = document.getElementById('intro'), panel = document.getElementById('panel');
+  if (intro) document.getElementById('jugar').onclick = ()=>{ intro.hidden = true; };
+  document.getElementById('abrirPanel').onclick = ()=>{ panel.classList.add('abierto'); panel.setAttribute('aria-hidden','false'); };
+  document.getElementById('cerrarPanel').onclick = ()=>{ panel.classList.remove('abierto'); panel.setAttribute('aria-hidden','true'); };
+  addEventListener('keydown', e=>{
+    if (e.key === 'Escape') document.getElementById('cerrarPanel').click();
+    if (intro && !intro.hidden && (e.key === 'Enter' || e.key === ' ')){ e.preventDefault(); e.stopImmediatePropagation(); intro.hidden = true; }
+  }, true);
+})();
+// para las pruebas automáticas
+window.__juego = {puntos:()=>puntos, estado:()=>({nivel,dib,siguiente,completo}), W, H};
+</script>
+
+<a class="sd-casa" href="index.html" aria-label="Volver a todos los juegos" title="Todos los juegos">🏠</a>
+</html>
