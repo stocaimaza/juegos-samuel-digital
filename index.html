@@ -99,11 +99,6 @@ footer{text-align:center; color:#fff; font-weight:700; text-shadow:0 2px 0 var(-
     <a class="grado" href="actividades/grado-6.html" style="--g:#f08c00"><span class="em">🏆</span><span class="n">6°</span><span class="t">grado</span></a>
   </div>
   <h2 class="seccion" id="juegos-titulo">🎮 Juegos</h2>
-  <div class="filtros" id="filtros">
-    <button class="on" data-g="todos">Todos</button>
-    <button data-g="1">1° grado</button>
-    <button data-g="2">2° grado</button>
-  </div>
   <div class="juegos" id="juegos"></div>
   <footer>Hecho por Samuel Digital</footer>
 </main>
@@ -138,10 +133,6 @@ function pintar(g){
         <div class="chips">${j.nuevo ? '<span class="chip nuevo">✨ Nuevo</span>' : ''}${j.chips.map(c=>`<span class="chip">${c}</span>`).join('')}</div></div>
     </a>`).join('');
 }
-document.querySelectorAll('#filtros button').forEach(b=> b.onclick = ()=>{
-  document.querySelectorAll('#filtros button').forEach(x=> x.classList.toggle('on', x === b));
-  pintar(b.dataset.g);
-});
 pintar('todos');
 </script>
 
