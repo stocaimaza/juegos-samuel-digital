@@ -930,7 +930,7 @@ async function ejecutar(){
   if(!r.ok){
     fallos++;
     let txt = MOTIVOS[r.motivo] + ' Tocá "Volver a empezar" y corregí el programa.';
-    if(fallos>=3) txt += ' 💡 Pista: ' + mision.pista;
+    if(fallos>=2) txt += ' 💡 Pista: ' + mision.pista;
     decir(txt, 'mal');
     return;
   }
@@ -938,32 +938,28 @@ async function ejecutar(){
   if(mision.gen){
     let otro=null;
     for(let i=0;i<80 && !otro;i++){ const m=mision.gen(); if(!probar(m).ok) otro=m; }
-    if(otro){
-      fallos++;
-      await pausa(900);
-      mapaActual=otro; dibujarTablero(mapaActual);
-      let txt='¡En ese tablero funcionó! 🎲 Pero los tableros cambian, y encontré este otro donde tu programa falla. Tocá Ejecutar para verlo.';
-      if(fallos>=3) txt += ' 💡 Pista: ' + mision.pista;
-      decir(txt, 'mal');
-      return;
-    }
+    // Si solo funciona en este tablero, igual pasa de misión (con 1 estrella) y se le muestra la pista
+    if(otro){ ganar(otro); return; }
   }
   ganar();
 }
 
-function ganar(){
-  const n = totalBloques(), est = n <= mision.optimo ? 3 : 2;
+let tableroQueFalla = null;
+function ganar(falla){
+  tableroQueFalla = falla || null;
+  const n = totalBloques(), est = falla ? 1 : (n <= mision.optimo ? 3 : 2);
   progreso.estrellas[mIdx] = Math.max(progreso.estrellas[mIdx], est); guardarProgreso();
   registrar({nombre:alumno.nombre, grado:alumno.grado, actividad:'Misiones del Robotito', mision:mIdx+1, estrellas:est, bloques:n});
   decir('¡Lo logramos! 🎉', 'bien');
   const ultima = mIdx===N_MIS-1, todas = progreso.estrellas.every(x=>x>0);
-  const msj = est===3 ? `¡Solución perfecta con ${n} bloques! Sos un/a crack de la programación.`
+  const msj = falla ? `Tu programa funcionó en este tablero, pero los tableros cambian y en otros falla. Podés seguir, o mejorarlo para ganar más estrellas. 💡 Pista: ${mision.pista}`
+    : est===3 ? `¡Solución perfecta con ${n} bloques! Sos un/a crack de la programación.`
     : `¡Lo lograste con ${n} bloques! Pero se puede hacer con ${mision.optimo} o menos. ¿Te animás a buscar la 3° estrella?`;
   abrirModal(`<h2>¡Misión cumplida!</h2>
     <div class="grandes">${estrellasHtml(est)}</div>
     <p>${msj}</p>
     <div class="acciones">
-      ${est<3 ? '<button class="btn btn-sol" data-a="mejorar" type="button">⭐ Buscar la 3° estrella</button>' : ''}
+      ${est<3 ? `<button class="btn btn-sol" data-a="mejorar" type="button">⭐ ${falla ? 'Buscar más estrellas' : 'Buscar la 3° estrella'}</button>` : ''}
       ${ultima && todas ? '<button class="btn btn-sol" data-a="diploma" type="button">🎓 Ver mi diploma</button>'
         : !ultima ? '<button class="btn btn-ok" data-a="sig" type="button">Siguiente misión ▶</button>' : ''}
       <button class="btn btn-blanco" data-a="mapa" type="button">🗺 Misiones</button>
@@ -979,7 +975,11 @@ $('capa').addEventListener('click', e=>{
   if(!a) return;
   cerrarModal();
   if(a==='sig') abrirMision(mIdx+1);
-  if(a==='mejorar'){ fallos=0; dibujarTablero(mapaActual); decir('¡Vamos por la 3° estrella! Buscá cómo usar menos bloques.'); }
+  if(a==='mejorar'){
+    fallos=0;
+    if(tableroQueFalla){ mapaActual=tableroQueFalla; dibujarTablero(mapaActual); decir('🎲 Este es un tablero donde tu programa falla. Cambialo para que funcione en todos. 💡 Pista: ' + mision.pista); }
+    else { dibujarTablero(mapaActual); decir('¡Vamos por la 3° estrella! Buscá cómo usar menos bloques.'); }
+  }
   if(a==='mapa') irMapa();
   if(a==='diploma') verDiploma();
 });
