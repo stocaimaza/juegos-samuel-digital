@@ -7,42 +7,82 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap">
 <style>
-/* Layout: escenario con el robotito a la izquierda, ropero de accesorios a la derecha; en celulares se apila */
-:root{--cielo:#7ec8f0;--panel:#fff;--tinta:#23364a;--sol:#ffb627;--sombra:#3d86b3;
+/* Layout: arriba los modos, a la izquierda el escenario con el robotito y su globito, a la derecha el ropero */
+:root{--cielo:#7ec8f0;--panel:#fff;--tinta:#23364a;--sol:#ffb627;--sombra:#3d86b3;--verde:#5cc96b;--rojo:#e4572e;
   --display:"Baloo 2","Comic Sans MS",system-ui,sans-serif;
   --emoji:"Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif;color-scheme:light}
 [hidden]{display:none!important}
 html,body{min-height:100%}
 body{margin:0;background:var(--cielo);color:var(--tinta);font-family:var(--display);box-sizing:border-box;
-  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:12px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:12px 70px;
   user-select:none;-webkit-user-select:none}
 button{font-family:var(--display);cursor:pointer;border:none;color:var(--tinta)}
 button:focus-visible{outline:4px solid var(--sombra);outline-offset:2px}
-header{max-width:1000px;margin:0 auto 12px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+header{max-width:1040px;margin:0 auto 12px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
 h1{margin:0;font-size:clamp(22px,4vw,32px);font-weight:800;color:#fff;text-shadow:0 2px 0 var(--sombra)}
-.acciones{display:flex;gap:8px}
+.modos{display:flex;background:#fff;border-radius:999px;padding:4px;box-shadow:0 3px 0 var(--sombra)}
+.modos button{background:none;border-radius:999px;padding:5px 16px;font-size:18px;font-weight:800}
+.modos button.on{background:var(--sol)}
 .chico{background:var(--panel);border-radius:999px;padding:6px 16px;font-size:18px;font-weight:700;box-shadow:0 3px 0 var(--sombra)}
-main{max-width:1000px;margin:0 auto;display:flex;gap:16px;align-items:flex-start;justify-content:center;flex-wrap:wrap}
-#escenario{position:relative;width:min(420px,90vw);aspect-ratio:3/4;background:linear-gradient(#bfe6fb 0 72%,#9fd96b 72%);border-radius:22px;box-shadow:0 6px 0 var(--sombra);overflow:hidden;touch-action:none}
+main{max-width:1040px;margin:0 auto;display:flex;gap:16px;align-items:flex-start;justify-content:center;flex-wrap:wrap}
+.lado{display:flex;flex-direction:column;gap:10px;width:min(440px,100%)}
+@media (min-width:760px){.lado{position:sticky;top:10px}}   /* el robotito queda a la vista mientras se baja por el ropero */
+/* globito del robotito y tarjeta de misión */
+.globo{background:#fff;border-radius:18px;padding:10px 14px;font-size:clamp(18px,2.4vw,21px);font-weight:700;line-height:1.25;box-shadow:0 4px 0 var(--sombra);position:relative;min-height:52px;display:flex;gap:10px;align-items:center}
+.globo::after{content:"";position:absolute;left:46px;bottom:-14px;border:9px solid transparent;border-top:12px solid #fff}
+.globo .cara{font-size:28px;line-height:1;flex:none}
+.globo.mal{background:#ffe8e1}.globo.mal::after{border-top-color:#ffe8e1}
+.globo.ok{background:#e3f7e6}.globo.ok::after{border-top-color:#e3f7e6}
+.mision{background:#fff;border-radius:18px;padding:10px 14px;box-shadow:0 4px 0 #c98400;border:3px solid var(--sol)}
+.mision .tit{display:flex;justify-content:space-between;align-items:center;gap:8px;font-weight:800;color:#c98400;font-size:16px;letter-spacing:.5px}
+.mision .pedido{font-size:clamp(20px,2.8vw,24px);font-weight:800;line-height:1.2;margin:4px 0 8px}
+.mision .fila{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.listo{background:var(--verde);color:#fff;border-radius:999px;padding:6px 22px;font-size:22px;font-weight:800;box-shadow:0 4px 0 #2e8b57}
+.estrellas{font-family:var(--emoji);font-size:18px;letter-spacing:1px}
+.estrellas span{opacity:.25}.estrellas span.si{opacity:1}
+#escenario{position:relative;width:100%;aspect-ratio:3/4;border-radius:22px;box-shadow:0 6px 0 var(--sombra);overflow:hidden;touch-action:none;background:#bfe6fb}
+#escenario svg{position:absolute;inset:0;width:100%;height:100%;display:block}
 #escenario.encima{outline:5px dashed var(--sol);outline-offset:-8px}
-#escenario svg{position:absolute;inset:0;width:100%;height:100%}
-.puesto{position:absolute;transform:translate(-50%,-50%);font-family:var(--emoji);line-height:1;cursor:pointer;animation:pop .3s ease-out;filter:drop-shadow(0 3px 0 rgba(0,0,0,.15))}
-@keyframes pop{from{transform:translate(-50%,-50%) scale(.3)}to{transform:translate(-50%,-50%) scale(1)}}
-.ropero{flex:1;min-width:280px;max-width:520px;background:var(--panel);border-radius:22px;padding:12px;box-shadow:0 6px 0 var(--sombra);display:flex;flex-direction:column;gap:10px}
-.grupo h2{margin:0 0 4px;font-size:18px;color:#3d86b3;letter-spacing:.5px}
+.zona{fill:rgba(255,182,39,.28);stroke:#ffb627;stroke-width:4;stroke-dasharray:10 7;animation:latido 1s ease-in-out infinite}
+@keyframes latido{50%{fill:rgba(255,182,39,.5)}}
+.puesto{cursor:pointer}
+.puesto.pop{animation:pop .35s ease-out;transform-box:fill-box;transform-origin:center}
+@keyframes pop{from{transform:scale(.3)}to{transform:scale(1)}}
+.salta{animation:salta .5s ease-out}
+@keyframes salta{30%{transform:translateY(-12px)}60%{transform:translateY(0)}80%{transform:translateY(-4px)}}
+.parpado{animation:parpadeo 4s infinite;transform-box:fill-box;transform-origin:center}
+@keyframes parpadeo{0%,94%,100%{transform:scaleY(1)}97%{transform:scaleY(.1)}}
+.cae{animation:cae linear infinite}
+@keyframes cae{from{transform:translateY(-420px)}to{transform:translateY(0)}}
+/* ropero */
+.ropero{flex:1;min-width:280px;max-width:560px;background:var(--panel);border-radius:22px;padding:12px;box-shadow:0 6px 0 var(--sombra);display:flex;flex-direction:column;gap:10px}
+.grupo h2{margin:0 0 4px;font-size:17px;color:#3d86b3;letter-spacing:.5px}
 .items{display:flex;flex-wrap:wrap;gap:8px}
-.item{width:64px;height:64px;border-radius:16px;background:#eef6fb;font-family:var(--emoji);font-size:38px;display:flex;align-items:center;justify-content:center;touch-action:none}
+.item{width:62px;height:62px;border-radius:16px;background:#eef6fb;display:flex;align-items:center;justify-content:center;touch-action:none;padding:4px;border:3px solid transparent}
+.item svg{width:100%;height:100%;pointer-events:none}
+.item:hover{background:#fff3d6}
+.item.elegido{border-color:var(--sol);background:#fff3d6}
 .item:active{transform:scale(.95)}
+.lugar{background:#eef6fb;border-radius:14px;padding:6px 12px;font-size:16px;font-weight:800;display:flex;align-items:center;gap:6px}
+.lugar b{font-family:var(--emoji);font-size:22px;font-weight:400}
+.lugar.on{background:var(--sol)}
+.lugar:disabled{opacity:.45;cursor:default}
 .color{width:44px;height:44px;border-radius:50%;border:3px solid rgba(35,54,74,.15)}
 .color.on{border:4px solid var(--tinta)}
-#arrastre{position:fixed;pointer-events:none;font-family:var(--emoji);font-size:54px;transform:translate(-50%,-50%);z-index:30}
-@media (prefers-reduced-motion:reduce){.puesto{animation:none}}
+#arrastre{position:fixed;pointer-events:none;width:80px;height:80px;transform:translate(-50%,-50%) scale(1.1);z-index:30;filter:drop-shadow(0 6px 6px rgba(0,0,0,.25))}
+#arrastre svg{width:100%;height:100%}
+#festejo{position:fixed;inset:0;z-index:35;display:flex;align-items:center;justify-content:center;background:rgba(35,54,74,.45);padding:16px}
+#festejo .card{background:#fff;border-radius:24px;padding:20px 26px;text-align:center;box-shadow:0 8px 0 #c98400;max-width:440px}
+#festejo h2{margin:0;font-size:34px}
+#festejo p{font-size:20px;margin:6px 0 14px}
+.grande{background:var(--sol);border-radius:999px;padding:10px 26px;font-size:22px;font-weight:800;box-shadow:0 4px 0 #c98400;margin:4px}
+@media (prefers-reduced-motion:reduce){.puesto.pop,.salta,.parpado,.zona,.cae{animation:none}}
 
 /* ---- Robotito que explica + panel ¿Qué aprendemos? ---- */
 .ayuda-btn{font-family:"Baloo 2","Comic Sans MS",system-ui,sans-serif; border:none; cursor:pointer; background:#fff; border-radius:999px; padding:6px 16px; font-size:18px; font-weight:800; color:#23364a; box-shadow:0 3px 0 #3d86b3}
 #intro{position:fixed; inset:0; z-index:40; display:flex; align-items:center; justify-content:center; background:rgba(35,54,74,.5); padding:16px}
 .intro-card{background:#fff; border-radius:28px; padding:22px 26px; box-shadow:0 8px 0 #c98400; display:flex; gap:18px; align-items:center; max-width:640px; flex-wrap:wrap; justify-content:center; font-family:"Baloo 2","Comic Sans MS",system-ui,sans-serif; color:#23364a}
-.intro-card svg{width:150px; height:auto; flex:none}
+.intro-card > svg{width:150px; height:auto; flex:none}
 .burbuja{position:relative; background:#fff3d6; border-radius:22px; padding:14px 18px; min-width:0; flex:1 1 260px; text-align:center}
 .burbuja::before{content:""; position:absolute; left:-14px; top:40%; border:10px solid transparent; border-right:14px solid #fff3d6}
 .burbuja h2{margin:0; font-size:clamp(24px,4vw,32px); line-height:1.1; color:#23364a; text-shadow:none}
@@ -70,46 +110,54 @@ main{max-width:1000px;margin:0 auto;display:flex;gap:16px;align-items:flex-start
 
 <header>
   <h1>🤖 Vestí al Robotito</h1>
+  <div class="modos" role="tablist"><button id="modoLibre" class="on">🎨 Libre</button><button id="modoMisiones">📋 Misiones</button></div>
   <button class="ayuda-btn" id="abrirPanel">📘 ¿Qué aprendemos?</button>
-  <div class="acciones">
-    <button class="chico" id="sorpresa">🎲 Sorpresa</button>
-    <button class="chico" id="sacar">🧹 Sacar todo</button>
-  </div>
 </header>
-
 <main>
-  <div id="escenario">
-    <svg viewBox="0 0 300 400" aria-label="Robotito">
-      <ellipse cx="150" cy="392" rx="90" ry="10" fill="rgba(0,0,0,.15)"/>
-      <!-- antena -->
-      <line x1="150" y1="58" x2="150" y2="30" stroke="#23364a" stroke-width="6"/>
-      <circle cx="150" cy="26" r="10" fill="#e4572e"/>
-      <!-- piernas -->
-      <rect x="112" y="300" width="26" height="72" rx="10" fill="#9aa5b1" stroke="#23364a" stroke-width="5"/>
-      <rect x="162" y="300" width="26" height="72" rx="10" fill="#9aa5b1" stroke="#23364a" stroke-width="5"/>
-      <!-- brazos -->
-      <rect x="52" y="190" width="40" height="22" rx="10" fill="#9aa5b1" stroke="#23364a" stroke-width="5" transform="rotate(20 72 200)"/>
-      <rect x="208" y="190" width="40" height="22" rx="10" fill="#9aa5b1" stroke="#23364a" stroke-width="5" transform="rotate(-20 228 200)"/>
-      <circle cx="56" cy="222" r="14" fill="#9aa5b1" stroke="#23364a" stroke-width="5"/>
-      <circle cx="244" cy="222" r="14" fill="#9aa5b1" stroke="#23364a" stroke-width="5"/>
-      <!-- cuerpo y cabeza (cambian de color) -->
-      <rect class="pinta" x="88" y="176" width="124" height="130" rx="26" fill="#ffb627" stroke="#23364a" stroke-width="6"/>
-      <rect x="118" y="214" width="64" height="44" rx="10" fill="#fff" stroke="#23364a" stroke-width="4"/>
-      <circle cx="134" cy="236" r="7" fill="#5cc96b"/><circle cx="150" cy="236" r="7" fill="#e4572e"/><circle cx="166" cy="236" r="7" fill="#3fa7f5"/>
-      <rect class="pinta" x="76" y="56" width="148" height="118" rx="34" fill="#ffb627" stroke="#23364a" stroke-width="6"/>
-      <circle cx="122" cy="108" r="20" fill="#fff"/><circle cx="178" cy="108" r="20" fill="#fff"/>
-      <circle cx="126" cy="110" r="9" fill="#23364a"/><circle cx="182" cy="110" r="9" fill="#23364a"/>
-      <path d="M126 140 Q150 160 174 140" fill="none" stroke="#23364a" stroke-width="6" stroke-linecap="round"/>
-      <circle cx="98" cy="136" r="9" fill="#ff8fab" opacity=".7"/><circle cx="202" cy="136" r="9" fill="#ff8fab" opacity=".7"/>
-    </svg>
+  <div class="lado">
+    <div class="mision" id="mision" hidden>
+      <div class="tit"><span id="misionNum">MISIÓN 1 DE 10</span><span class="estrellas" id="estrellas"></span></div>
+      <div class="pedido" id="pedido"></div>
+      <div class="fila"><button class="listo" id="listo">¡Listo! ✓</button><button class="chico" id="saltear">Otra misión ▶</button></div>
+    </div>
+    <div class="globo" id="globo"><span class="cara">🤖</span><span id="dice">¡Hola! Elegí ropa del ropero y ponémela.</span></div>
+    <div id="escenario">
+      <svg viewBox="0 0 300 400" id="svg" aria-label="Robotito">
+        <g id="fondo"></g>
+        <g id="robot">
+          <ellipse cx="150" cy="392" rx="90" ry="10" fill="rgba(0,0,0,.15)"/>
+          <line x1="150" y1="58" x2="150" y2="30" stroke="#23364a" stroke-width="6"/>
+          <circle cx="150" cy="26" r="10" fill="#e4572e"/>
+          <rect x="112" y="300" width="26" height="72" rx="10" fill="#9aa5b1" stroke="#23364a" stroke-width="5"/>
+          <rect x="162" y="300" width="26" height="72" rx="10" fill="#9aa5b1" stroke="#23364a" stroke-width="5"/>
+          <rect x="52" y="190" width="40" height="22" rx="10" fill="#9aa5b1" stroke="#23364a" stroke-width="5" transform="rotate(20 72 200)"/>
+          <rect x="208" y="190" width="40" height="22" rx="10" fill="#9aa5b1" stroke="#23364a" stroke-width="5" transform="rotate(-20 228 200)"/>
+          <rect class="pinta" x="88" y="176" width="124" height="130" rx="26" fill="#ffb627" stroke="#23364a" stroke-width="6"/>
+          <rect x="118" y="214" width="64" height="44" rx="10" fill="#fff" stroke="#23364a" stroke-width="4"/>
+          <circle cx="134" cy="236" r="7" fill="#5cc96b"/><circle cx="150" cy="236" r="7" fill="#e4572e"/><circle cx="166" cy="236" r="7" fill="#3fa7f5"/>
+          <rect class="pinta" x="76" y="56" width="148" height="118" rx="34" fill="#ffb627" stroke="#23364a" stroke-width="6"/>
+          <g class="parpado"><circle cx="122" cy="108" r="20" fill="#fff"/><circle cx="126" cy="110" r="9" fill="#23364a"/></g>
+          <g class="parpado"><circle cx="178" cy="108" r="20" fill="#fff"/><circle cx="182" cy="110" r="9" fill="#23364a"/></g>
+          <path id="boca" d="M126 140 Q150 160 174 140" fill="none" stroke="#23364a" stroke-width="6" stroke-linecap="round"/>
+          <circle cx="98" cy="136" r="9" fill="#ff8fab" opacity=".7"/><circle cx="202" cy="136" r="9" fill="#ff8fab" opacity=".7"/>
+          <g id="puestos"></g>
+          <!-- las manos van arriba de lo que agarran -->
+          <circle cx="56" cy="222" r="14" fill="#9aa5b1" stroke="#23364a" stroke-width="5"/>
+          <circle cx="244" cy="222" r="14" fill="#9aa5b1" stroke="#23364a" stroke-width="5"/>
+        </g>
+        <g id="zonas"></g>
+        <g id="clima"></g>
+      </svg>
+    </div>
   </div>
-
   <div class="ropero" id="ropero">
+    <div class="grupo" id="grupoLugar"><h2>¿DÓNDE ESTAMOS?</h2><div class="items" id="lugares"></div></div>
     <div class="grupo"><h2>COLOR</h2><div class="items" id="colores"></div></div>
+    <div class="items" style="gap:8px"><button class="chico" id="sorpresa">🎲 Sorpresa</button><button class="chico" id="sacar">🧹 Sacar todo</button></div>
   </div>
 </main>
 <div id="arrastre" hidden></div>
-
+<div id="festejo" hidden><div class="card"><div style="font-size:60px;line-height:1" class="emo">🎉</div><h2 id="festejoTit">¡Misión cumplida!</h2><p id="festejoTxt"></p><button class="grande" id="seguir">Siguiente misión ▶</button></div></div>
 
 <!-- El robotito explica el juego antes de empezar -->
 <div id="intro">
@@ -127,8 +175,8 @@ main{max-width:1000px;margin:0 auto;display:flex;gap:16px;align-items:flex-start
       <rect x="66" y="130" width="14" height="16" rx="4" fill="#9aa5b1" stroke="#23364a" stroke-width="3"/>
     </svg>
     <div class="burbuja">
-      <h2>¡Vestime como quieras!</h2>
-      <div class="pictos"><div><b>👑</b>elegí</div><div><b>👆</b>tocá o arrastrá</div><div><b>🤖</b>al robotito</div><div><b>🎲</b>sorpresa</div></div>
+      <h2>¡Vestime! Pero cada cosa en su lugar</h2>
+      <div class="pictos"><div><b>🎩</b>elegí algo del ropero</div><div><b>✋</b>arrastralo a su lugar</div><div><b>🏖️</b>pensá a dónde vamos</div><div><b>📋</b>cumplí misiones</div></div>
       <button id="jugar">¡Jugar!</button>
     </div>
   </div>
@@ -139,96 +187,348 @@ main{max-width:1000px;margin:0 auto;display:flex;gap:16px;align-items:flex-start
   <button id="cerrarPanel" aria-label="Cerrar">✕</button>
   <h2>📘 ¿Qué aprendemos?</h2>
   <p class="sub">Con Vestí al Robotito aprendemos a…</p>
-  <div class="logros"><div><b>🖱️</b>Arrastrar y soltar con el mouse</div><div><b>🧍</b>Conocer las partes del cuerpo</div><div><b>🎨</b>Combinar y crear</div><div><b>🧠</b>Decidir dónde va cada cosa</div></div>
+  <div class="logros"><div><b>🧍</b>Conocer las partes del cuerpo</div><div><b>📖</b>Leer un pedido y cumplirlo</div><div><b>🧠</b>Pensar qué ropa sirve en cada lugar</div><div><b>🖱️</b>Arrastrar y soltar con el mouse</div></div>
   <h3>Palabras nuevas</h3>
-  <div class="palabras"><span>🙂 cabeza</span><span>🧣 cuello</span><span>✋ mano</span><span>🦶 pies</span><span>👆 arrastrar</span></div>
+  <div class="palabras"><span>🙂 cabeza</span><span>🧣 cuello</span><span>✋ mano</span><span>🦶 pies</span><span>❄️ frío</span><span>☀️ calor</span><span>🌧️ lluvia</span></div>
   <h3>¿Sabías que…?</h3>
-  <p class="dato">"Arrastrar y soltar" se usa en la compu para mover fotos, archivos y un montón de cosas más. ¡Ya sabés hacerlo! 🖱️</p>
+  <p class="dato">Las antiparras protegen los ojos del sol fuerte que rebota en la nieve. ¡Por eso los esquiadores siempre las usan! ⛷️</p>
   <h3>Para charlar en familia</h3>
-  <ul><li>¿Dónde va el sombrero? ¿Y los zapatos?</li><li>¿Cómo vestirías al robotito para ir a la playa?</li><li>¿Y para ir a la nieve?</li></ul>
+  <ul><li>¿Qué te ponés cuando llueve? ¿Y cuando hace mucho calor?</li><li>¿Por qué no vamos a la nieve con ojotas?</li><li>¿Qué ropa usás para ir a un cumpleaños?</li></ul>
   <h3>Para jugar en casa</h3>
   <p class="dato">🧥 <b>¿Qué me pongo hoy?:</b> mirar por la ventana cómo está el día y elegir juntos la ropa que hace falta. ¡También vale disfrazarse!</p>
 </aside>
 
 <script>
-// Lugares del cuerpo (en % del escenario) y qué va en cada uno
-const LUGARES = {
-  cabeza: {nombre:'SOMBREROS', pos:[[50,10]], tam:24, items:['👑','🎩','🧢','🎓','🥳','⛑️']},
-  ojos:   {nombre:'ANTEOJOS', pos:[[50,27]], tam:20, items:['🕶️','👓','🥽']},
-  cuello: {nombre:'CUELLO', pos:[[50,46]], tam:14, items:['🎀','🧣','👔']},
-  pecho:  {nombre:'MEDALLAS', pos:[[50,66]], tam:10, items:['🏅','⭐','❤️','🏆']},
-  mano:   {nombre:'EN LA MANO', pos:[[86,52]], tam:17, items:['⚽','🎈','🍦','☂️','🌻','🍭']},
-  pies:   {nombre:'ZAPATOS', pos:[[42,93],[58,93]], tam:12, items:['👟','👢','🩰','🧦']},
-  amigo:  {nombre:'MASCOTA', pos:[[15,89]], tam:16, items:['🐶','🐱','🐰','🐢','🦜','🐹']}
+// =================== Accesorios dibujados (cada uno centrado en 0,0) ===================
+const T = '#23364a';   // color de los bordes, igual que el robotito
+const ITEMS = {
+  // ---- cabeza (el ala del sombrero queda en y = 8) ----
+  galera:  {cat:'cabeza', nombre:'la galera', svg:`<ellipse cx="0" cy="6" rx="36" ry="7" fill="${T}"/><rect x="-22" y="-40" width="44" height="46" rx="4" fill="${T}"/><rect x="-22" y="-6" width="44" height="8" fill="#e4572e"/>`},
+  corona:  {cat:'cabeza', nombre:'la corona', svg:`<path d="M-30 8 L-30 -20 L-15 -6 L0 -30 L15 -6 L30 -20 L30 8 Z" fill="#ffd23f" stroke="${T}" stroke-width="4" stroke-linejoin="round"/><circle cx="0" cy="-2" r="5" fill="#e4572e"/><circle cx="-18" cy="0" r="4" fill="#3fa7f5"/><circle cx="18" cy="0" r="4" fill="#5cc96b"/>`},
+  gorra:   {cat:'cabeza', nombre:'la gorra', svg:`<path d="M-30 6 Q-30 -28 0 -28 Q30 -28 30 6 Z" fill="#3fa7f5" stroke="${T}" stroke-width="4"/><ellipse cx="0" cy="8" rx="38" ry="7" fill="#1f6fb5" stroke="${T}" stroke-width="4"/><circle cx="0" cy="-28" r="4" fill="${T}"/>`},
+  lana:    {cat:'cabeza', nombre:'el gorro de lana', svg:`<path d="M-30 6 Q-32 -32 0 -34 Q32 -32 30 6 Z" fill="#e4572e" stroke="${T}" stroke-width="4"/><path d="M-14 -28 L-14 2 M0 -32 L0 2 M14 -28 L14 2" stroke="#c63d1a" stroke-width="4"/><rect x="-34" y="-2" width="68" height="13" rx="6" fill="#fff" stroke="${T}" stroke-width="4"/><circle cx="0" cy="-38" r="9" fill="#fff" stroke="${T}" stroke-width="4"/>`},
+  playa:   {cat:'cabeza', nombre:'el sombrero de playa', svg:`<ellipse cx="0" cy="6" rx="50" ry="10" fill="#f4d58d" stroke="${T}" stroke-width="4"/><path d="M-24 4 Q-24 -28 0 -28 Q24 -28 24 4 Z" fill="#f4d58d" stroke="${T}" stroke-width="4"/><path d="M-24 -4 Q0 2 24 -4 L24 2 Q0 8 -24 2 Z" fill="#ff8fab"/>`},
+  cumple:  {cat:'cabeza', nombre:'el gorrito de cumpleaños', svg:`<path d="M-22 8 L0 -46 L22 8 Z" fill="#9b5de5" stroke="${T}" stroke-width="4" stroke-linejoin="round"/><circle cx="-6" cy="-6" r="4" fill="#ffd23f"/><circle cx="8" cy="-18" r="4" fill="#5cc96b"/><circle cx="-2" cy="-28" r="3.5" fill="#ff8fab"/><circle cx="0" cy="-48" r="7" fill="#ffd23f" stroke="${T}" stroke-width="3"/>`},
+  // ---- ojos (los vidrios quedan sobre los ojos del robotito) ----
+  sol:     {cat:'ojos', nombre:'los anteojos de sol', svg:`<path d="M-6 -2 Q0 -6 6 -2" fill="none" stroke="${T}" stroke-width="4"/><rect x="-36" y="-12" width="30" height="24" rx="10" fill="${T}"/><rect x="6" y="-12" width="30" height="24" rx="10" fill="${T}"/><path d="M-30 -6 L-22 -6 M12 -6 L20 -6" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".6"/>`},
+  redondos:{cat:'ojos', nombre:'los anteojos redondos', svg:`<circle cx="-20" cy="0" r="15" fill="rgba(255,255,255,.25)" stroke="#9b5de5" stroke-width="5"/><circle cx="20" cy="0" r="15" fill="rgba(255,255,255,.25)" stroke="#9b5de5" stroke-width="5"/><path d="M-5 -2 Q0 -6 5 -2" fill="none" stroke="#9b5de5" stroke-width="4"/>`},
+  antiparras:{cat:'ojos', nombre:'las antiparras', svg:`<rect x="-48" y="-5" width="96" height="10" fill="#e4572e"/><rect x="-40" y="-15" width="80" height="30" rx="15" fill="#3fa7f5" fill-opacity=".85" stroke="${T}" stroke-width="4"/><path d="M-26 -6 L-14 -6" stroke="#fff" stroke-width="4" stroke-linecap="round" opacity=".7"/>`},
+  // ---- cuello ----
+  mono:    {cat:'cuello', nombre:'el moño', svg:`<path d="M0 0 L-24 -13 L-24 13 Z M0 0 L24 -13 L24 13 Z" fill="#e4572e" stroke="${T}" stroke-width="4" stroke-linejoin="round"/><circle cx="0" cy="0" r="7" fill="#c63d1a" stroke="${T}" stroke-width="4"/>`},
+  bufanda: {cat:'cuello', nombre:'la bufanda', svg:`<rect x="-40" y="-9" width="80" height="18" rx="9" fill="#5cc96b" stroke="${T}" stroke-width="4"/><rect x="12" y="2" width="16" height="44" rx="5" fill="#5cc96b" stroke="${T}" stroke-width="4"/><path d="M12 22 L28 22 M12 32 L28 32" stroke="#fff" stroke-width="4"/><path d="M14 46 L14 54 M20 46 L20 54 M26 46 L26 54" stroke="${T}" stroke-width="3"/>`},
+  corbata: {cat:'cuello', nombre:'la corbata', svg:`<path d="M-8 -6 L8 -6 L5 4 L-5 4 Z" fill="#1f4fd1" stroke="${T}" stroke-width="4" stroke-linejoin="round"/><path d="M-5 4 L5 4 L10 34 L0 44 L-10 34 Z" fill="#3fa7f5" stroke="${T}" stroke-width="4" stroke-linejoin="round"/>`},
+  // ---- pecho ----
+  medalla: {cat:'pecho', nombre:'la medalla', svg:`<path d="M-12 -30 L-4 -8 L4 -8 L12 -30" fill="#3fa7f5" stroke="${T}" stroke-width="3"/><circle cx="0" cy="6" r="16" fill="#ffd23f" stroke="${T}" stroke-width="4"/><path d="M0 -3 L3 3 L9 4 L4 8 L6 14 L0 11 L-6 14 L-4 8 L-9 4 L-3 3 Z" fill="#c98400"/>`},
+  estrella:{cat:'pecho', nombre:'la estrella', svg:`<path d="M0 -20 L6 -6 L21 -6 L9 3 L13 18 L0 9 L-13 18 L-9 3 L-21 -6 L-6 -6 Z" fill="#ffd23f" stroke="${T}" stroke-width="4" stroke-linejoin="round"/>`},
+  corazon: {cat:'pecho', nombre:'el corazón', svg:`<path d="M0 16 C-24 0 -20 -18 -8 -18 C-3 -18 0 -14 0 -10 C0 -14 3 -18 8 -18 C20 -18 24 0 0 16 Z" fill="#e4572e" stroke="${T}" stroke-width="4" stroke-linejoin="round"/>`},
+  // ---- manos (el mango queda en 0,0) ----
+  paraguas:{cat:'mano', nombre:'el paraguas', svg:`<path d="M0 6 L0 -66" stroke="${T}" stroke-width="5"/><path d="M0 6 Q0 14 -8 12" fill="none" stroke="${T}" stroke-width="5" stroke-linecap="round"/><path d="M-44 -64 Q0 -112 44 -64 Q33 -72 22 -64 Q11 -72 0 -64 Q-11 -72 -22 -64 Q-33 -72 -44 -64 Z" fill="#e4572e" stroke="${T}" stroke-width="4" stroke-linejoin="round"/><path d="M0 -100 L0 -64 M-22 -64 Q-18 -92 0 -100 M22 -64 Q18 -92 0 -100" fill="none" stroke="#c63d1a" stroke-width="3"/>`},
+  globo:   {cat:'mano', nombre:'el globo', svg:`<path d="M0 0 Q10 -24 -4 -44 Q-12 -58 0 -66" fill="none" stroke="${T}" stroke-width="2.5"/><ellipse cx="0" cy="-90" rx="20" ry="25" fill="#ff8fab" stroke="${T}" stroke-width="4"/><path d="M-4 -66 L4 -66 L0 -70 Z" fill="#ff8fab" stroke="${T}" stroke-width="3"/><path d="M-8 -100 Q-6 -108 0 -110" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round"/>`},
+  helado:  {cat:'mano', nombre:'el helado', svg:`<g transform="translate(0 -12)"><path d="M-12 -14 L12 -14 L0 10 Z" fill="#f4b860" stroke="${T}" stroke-width="4" stroke-linejoin="round"/><circle cx="-6" cy="-20" r="10" fill="#ff8fab" stroke="${T}" stroke-width="4"/><circle cx="6" cy="-22" r="10" fill="#9be0c4" stroke="${T}" stroke-width="4"/><circle cx="0" cy="-32" r="9" fill="#fff3d6" stroke="${T}" stroke-width="4"/></g>`},
+  pelota:  {cat:'mano', nombre:'la pelota', svg:`<g transform="translate(0 -18)"><circle cx="0" cy="-12" r="18" fill="#fff" stroke="${T}" stroke-width="4"/><path d="M0 -20 L7 -15 L5 -7 L-5 -7 L-7 -15 Z" fill="${T}"/><path d="M0 -20 L0 -30 M7 -15 L16 -18 M5 -7 L10 2 M-5 -7 L-10 2 M-7 -15 L-16 -18" stroke="${T}" stroke-width="2.5"/></g>`},
+  flor:    {cat:'mano', nombre:'la flor', svg:`<path d="M0 8 Q-4 -20 0 -44" fill="none" stroke="#2e8b57" stroke-width="5"/><path d="M-1 -18 Q-16 -24 -18 -14 Q-8 -10 -1 -18 Z" fill="#5cc96b" stroke="${T}" stroke-width="2.5"/>${[0,1,2,3,4,5].map(i=>`<circle cx="${(Math.cos(i*Math.PI/3)*11).toFixed(1)}" cy="${(-50+Math.sin(i*Math.PI/3)*11).toFixed(1)}" r="8" fill="#ffd23f" stroke="${T}" stroke-width="2.5"/>`).join('')}<circle cx="0" cy="-50" r="7" fill="#e4572e" stroke="${T}" stroke-width="2.5"/>`},
+  balde:   {cat:'mano', nombre:'el balde', svg:`<g transform="translate(0 -14)"><path d="M-14 -12 Q0 -36 14 -12" fill="none" stroke="${T}" stroke-width="4"/><path d="M-20 -12 L20 -12 L15 22 L-15 22 Z" fill="#3fa7f5" stroke="${T}" stroke-width="4" stroke-linejoin="round"/><rect x="-20" y="-14" width="40" height="8" rx="3" fill="#ffd23f" stroke="${T}" stroke-width="3"/></g>`},
+  // ---- pies (vista de frente, la suela queda en y = 8) ----
+  zapatillas:{cat:'pies', nombre:'las zapatillas', svg:`<path d="M-17 8 Q-19 -10 0 -12 Q19 -10 17 8 Z" fill="#e4572e" stroke="${T}" stroke-width="4"/><rect x="-20" y="2" width="40" height="9" rx="4" fill="#fff" stroke="${T}" stroke-width="4"/><path d="M-6 -6 L6 -6 M-7 -1 L7 -1" stroke="#fff" stroke-width="3" stroke-linecap="round"/>`},
+  lluvia:  {cat:'pies', nombre:'las botas de lluvia', svg:`<rect x="-15" y="-34" width="30" height="42" rx="7" fill="#ffd23f" stroke="${T}" stroke-width="4"/><rect x="-18" y="2" width="36" height="9" rx="4" fill="#c98400" stroke="${T}" stroke-width="4"/><rect x="-15" y="-34" width="30" height="8" rx="4" fill="#ffe680"/>`},
+  ojotas:  {cat:'pies', nombre:'las ojotas', svg:`<ellipse cx="0" cy="7" rx="19" ry="5" fill="#3fa7f5" stroke="${T}" stroke-width="4"/><path d="M-12 4 L0 -6 L12 4" fill="none" stroke="#ff8fab" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>`},
+  nieve:   {cat:'pies', nombre:'las botas de nieve', svg:`<rect x="-16" y="-26" width="32" height="34" rx="9" fill="#8d5524" stroke="${T}" stroke-width="4"/><rect x="-19" y="-32" width="38" height="12" rx="6" fill="#fff" stroke="${T}" stroke-width="4"/><rect x="-19" y="3" width="38" height="8" rx="4" fill="#4a2f1a" stroke="${T}" stroke-width="3"/>`},
+  // ---- mascota (al lado, en el piso) ----
+  perro:   {cat:'mascota', nombre:'el perrito', svg:`<text x="0" y="0" font-size="52" text-anchor="middle" dominant-baseline="central" font-family="Segoe UI Emoji,Apple Color Emoji,Noto Color Emoji,sans-serif">🐶</text>`},
+  gato:    {cat:'mascota', nombre:'el gatito', svg:`<text x="0" y="0" font-size="52" text-anchor="middle" dominant-baseline="central" font-family="Segoe UI Emoji,Apple Color Emoji,Noto Color Emoji,sans-serif">🐱</text>`},
+  tortuga: {cat:'mascota', nombre:'la tortuga', svg:`<text x="0" y="0" font-size="52" text-anchor="middle" dominant-baseline="central" font-family="Segoe UI Emoji,Apple Color Emoji,Noto Color Emoji,sans-serif">🐢</text>`},
+  pinguino:{cat:'mascota', nombre:'el pingüino', svg:`<text x="0" y="0" font-size="52" text-anchor="middle" dominant-baseline="central" font-family="Segoe UI Emoji,Apple Color Emoji,Noto Color Emoji,sans-serif">🐧</text>`}
 };
-const COLORES = ['#ffb627','#e4572e','#ff8fab','#5cc96b','#3fa7f5','#9b5de5','#ffffff','#23364a'];
-const esc = document.getElementById('escenario');
-const puesto = {};   // lugar -> emoji puesto
+// Lugares del cuerpo: dónde se dibuja cada cosa y dónde se puede soltar (en coordenadas del dibujo, 300 x 400)
+const LUGARES = {
+  cabeza: {titulo:'SOMBREROS', donde:'en la cabeza', slots:[{x:150, y:50, s:1.45}], zona:{x:60, y:0, w:180, h:118}},
+  ojos:   {titulo:'ANTEOJOS', donde:'en los ojos', slots:[{x:150, y:108, s:1.4}], zona:{x:76, y:70, w:148, h:76}},
+  cuello: {titulo:'CUELLO', donde:'en el cuello', slots:[{x:150, y:178, s:1.25}], zona:{x:96, y:158, w:108, h:44}},
+  pecho:  {titulo:'MEDALLAS', donde:'en el pecho', slots:[{x:150, y:282, s:1}], zona:{x:88, y:200, w:124, h:106}},
+  mano:   {titulo:'EN LA MANO', donde:'en una mano', slots:[{x:56, y:222, s:1.05, k:'manoIzq'}, {x:244, y:222, s:1.05, k:'manoDer'}]},
+  pies:   {titulo:'ZAPATOS', donde:'en los pies', slots:[{x:125, y:368, s:1.05}, {x:175, y:368, s:1.05, espejo:true}], zona:{x:96, y:322, w:108, h:78}},
+  mascota:{titulo:'MASCOTA', donde:'al lado del robotito', slots:[{x:40, y:356, s:1}], zona:{x:0, y:0, w:0, h:0}}
+};
+const ZONAS_MANO = {manoIzq:{cx:56, cy:222, r:42}, manoDer:{cx:244, cy:222, r:42}};
+const COLORES = ['#ffb627','#e4572e','#ff8fab','#5cc96b','#3fa7f5','#9b5de5','#ffffff','#9aa5b1'];
+const NOMBRE_COLOR = {'#ffb627':'naranja','#e4572e':'rojo','#ff8fab':'rosa','#5cc96b':'verde','#3fa7f5':'celeste','#9b5de5':'violeta','#ffffff':'blanco','#9aa5b1':'gris'};
 
-// Paleta de colores del robotito
-const cont = document.getElementById('colores');
-COLORES.forEach((c,i)=>{
-  const b = document.createElement('button'); b.className = 'color' + (i===0?' on':''); b.style.background = c; b.setAttribute('aria-label','Color '+c);
-  b.onclick = ()=>{ esc.querySelectorAll('.pinta').forEach(p=>p.setAttribute('fill', c)); cont.querySelectorAll('.color').forEach(x=>x.classList.toggle('on', x===b)); };
-  cont.appendChild(b);
-});
+// =================== Escenarios ===================
+const ESCENAS = {
+  plaza:  {nombre:'Plaza', em:'🌳'},
+  playa:  {nombre:'Playa', em:'🏖️'},
+  nieve:  {nombre:'Nieve', em:'❄️'},
+  lluvia: {nombre:'Lluvia', em:'🌧️'},
+  fiesta: {nombre:'Fiesta', em:'🎉'}
+};
+function dibujoEscena(k){
+  const sol = `<circle cx="258" cy="46" r="24" fill="#ffd23f"/><circle cx="258" cy="46" r="34" fill="#ffd23f" opacity=".25"/>`;
+  const nube = (x,y,c='#fff')=> `<g fill="${c}"><ellipse cx="${x}" cy="${y}" rx="26" ry="14"/><ellipse cx="${x+20}" cy="${y-8}" rx="20" ry="14"/><ellipse cx="${x+38}" cy="${y}" rx="22" ry="12"/></g>`;
+  const pino = (x,y,n)=> `<rect x="${x-4}" y="${y-6}" width="8" height="14" fill="#6b4226"/><path d="M${x-22} ${y-6} L${x} ${y-56} L${x+22} ${y-6} Z" fill="#2e8b57"/>${n?`<path d="M${x-10} ${y-36} L${x} ${y-56} L${x+10} ${y-36} Z" fill="#fff"/>`:''}`;
+  if (k === 'playa') return `<rect width="300" height="400" fill="#8fd3fb"/>${sol}${nube(30,60)}<rect y="250" width="300" height="42" fill="#3fa7f5"/><path d="M0 252 Q20 246 40 252 T80 252 T120 252 T160 252 T200 252 T240 252 T280 252 T320 252" fill="none" stroke="#fff" stroke-width="3" opacity=".7"/><rect y="288" width="300" height="112" fill="#f4d58d"/><circle cx="268" cy="330" r="3" fill="#e0b860"/><circle cx="240" cy="380" r="3" fill="#e0b860"/><circle cx="20" cy="300" r="3" fill="#e0b860"/>`;
+  if (k === 'nieve') return `<rect width="300" height="400" fill="#cfe3f0"/>${nube(20,50)}${nube(190,40)}<path d="M0 270 L60 200 L110 270 Z" fill="#e8f1f7"/><path d="M180 270 L250 180 L320 270 Z" fill="#e8f1f7"/>${pino(36,290,true)}${pino(272,296,true)}<rect y="290" width="300" height="110" fill="#fff"/>`;
+  if (k === 'lluvia') return `<rect width="300" height="400" fill="#a9b6c3"/>${nube(10,46,'#7d8b99')}${nube(110,30,'#8794a2')}${nube(210,52,'#7d8b99')}<rect y="290" width="300" height="110" fill="#7fae5c"/><ellipse cx="250" cy="372" rx="40" ry="10" fill="#6a8fae" opacity=".7"/><ellipse cx="40" cy="388" rx="30" ry="7" fill="#6a8fae" opacity=".6"/>`;
+  if (k === 'fiesta') return `<rect width="300" height="400" fill="#ffe6f0"/><path d="M0 30 Q150 70 300 30" fill="none" stroke="${T}" stroke-width="2"/>${[0,1,2,3,4,5,6,7,8].map(i=>{ const x = 16+i*34, y = 30 + Math.sin(i/8*Math.PI)*36; return `<path d="M${x-11} ${y} L${x+11} ${y} L${x} ${y+22} Z" fill="${['#e4572e','#ffd23f','#3fa7f5','#5cc96b','#9b5de5'][i%5]}"/>`; }).join('')}<rect y="290" width="300" height="110" fill="#d9b48a"/><path d="M0 330 L300 330 M0 370 L300 370" stroke="#c49a6c" stroke-width="2"/>${[[30,110,'#ffd23f'],[270,140,'#3fa7f5'],[40,200,'#e4572e'],[262,240,'#5cc96b']].map(([x,y,c])=>`<circle cx="${x}" cy="${y}" r="4" fill="${c}"/>`).join('')}`;
+  // plaza
+  return `<rect width="300" height="400" fill="#bfe6fb"/>${sol}${nube(26,58)}${nube(150,34)}<rect y="288" width="300" height="112" fill="#9fd96b"/><rect x="262" y="210" width="12" height="84" fill="#8d5524"/><circle cx="268" cy="196" r="30" fill="#5cc96b"/><circle cx="250" cy="216" r="20" fill="#4cb85c"/><circle cx="20" cy="320" r="5" fill="#ff8fab"/><circle cx="34" cy="330" r="5" fill="#ffd23f"/>`;
+}
+function climaEscena(k){
+  // lluvia y nieve caen (dibujadas encima de todo)
+  if (k === 'lluvia') return Array.from({length:26},(_,i)=>{ const x = (i*47)%300, y = (i*83)%400, d = (0.7 + (i%5)*.12).toFixed(2);
+    return `<line class="cae" style="animation-duration:${d}s;animation-delay:-${(i*.13).toFixed(2)}s" x1="${x}" y1="${y}" x2="${x-4}" y2="${y+14}" stroke="#e7f2fb" stroke-width="2.5" stroke-linecap="round" opacity=".8"/>`; }).join('');
+  if (k === 'nieve') return Array.from({length:22},(_,i)=>{ const x = (i*53)%300, y = (i*71)%400, d = (4 + (i%5)).toFixed(1);
+    return `<circle class="cae" style="animation-duration:${d}s;animation-delay:-${(i*.6).toFixed(1)}s" cx="${x}" cy="${y}" r="${2+i%3}" fill="#fff"/>`; }).join('');
+  return '';
+}
 
-// Ropero: un grupo por lugar
-const ropero = document.getElementById('ropero');
-Object.entries(LUGARES).forEach(([clave, l])=>{
+// =================== Misiones ===================
+// necesita: cosas que tiene que tener puestas; o "una de": [opciones]; no: cosas que no van (con el motivo)
+const MISIONES = [
+  {escena:'plaza',  pedido:'Poneme la corona.', necesita:[['corona']]},
+  {escena:'plaza',  pedido:'Quiero una gorra y una pelota en la mano.', necesita:[['gorra'],['pelota']]},
+  {escena:'plaza',  pedido:'Poneme un moño en el cuello y zapatillas.', necesita:[['mono'],['zapatillas']]},
+  {escena:'fiesta', pedido:'¡Hoy es mi cumpleaños! Poneme el gorrito de cumpleaños y dame un globo.', necesita:[['cumple'],['globo']]},
+  {escena:'plaza',  pedido:'Pintame de verde y poneme una medalla en el pecho.', necesita:[['medalla']], color:'#5cc96b'},
+  {escena:'plaza',  pedido:'Tengo dos manos: dame un helado y una flor.', necesita:[['helado'],['flor']]},
+  {escena:'playa',  pedido:'¡Vamos a la playa! ¿Qué me pongo para el sol? Elegí algo para la cabeza, los ojos y los pies.',
+    necesita:[['playa','gorra'],['sol'],['ojotas']], no:{lana:'¡Con gorro de lana me muero de calor!', bufanda:'¡Con bufanda en la playa me muero de calor!', nieve:'¡Las botas de nieve no son para la arena!', lluvia:'No está lloviendo: mejor ojotas.'}},
+  {escena:'nieve',  pedido:'¡Brrr, qué frío! Abrigame la cabeza, el cuello y los pies.',
+    necesita:[['lana'],['bufanda'],['nieve']], no:{ojotas:'¡Con ojotas en la nieve se me congelan los pies!', playa:'Ese sombrero es para la playa, no abriga.', helado:'¡Un helado con este frío no!'}},
+  {escena:'lluvia', pedido:'¡Está lloviendo y quiero salir! ¿Qué necesito para no mojarme?',
+    necesita:[['paraguas'],['lluvia']], no:{ojotas:'¡Con ojotas se me mojan los pies!', sol:'¡Está nublado, no necesito anteojos de sol!'}},
+  {escena:'nieve',  pedido:'Vamos a esquiar con mi amigo el pingüino. Protegeme los ojos del sol de la nieve y abrigame los pies.',
+    necesita:[['pinguino'],['antiparras'],['nieve']], no:{ojotas:'¡Con ojotas en la nieve se me congelan los pies!'}}
+];
+// pistas cuando falta algo (por grupo)
+function faltaTexto(op){
+  const it = ITEMS[op[0]];
+  if (op.length > 1) return 'algo ' + LUGARES[it.cat].donde.replace('en una mano','para la mano');
+  return it.nombre;
+}
+// =================== Estado ===================
+const svg = document.getElementById('svg'), esc = document.getElementById('escenario');
+const puesto = {};          // lugar -> id del accesorio (cabeza, ojos, cuello, pecho, manoIzq, manoDer, pies, mascota)
+let ladoMascota = 'izq';   // la mascota queda del lado donde la soltaron
+let color = COLORES[0], escena = 'plaza', modo = 'libre', mIdx = 0, hechas = [], elegido = null;
+try { hechas = JSON.parse(localStorage.getItem('vesti:hechas') || '[]'); } catch(e){ hechas = []; }
+
+function decir(txt, tipo, cara){
+  document.getElementById('dice').textContent = txt;
+  document.querySelector('#globo .cara').textContent = cara || (tipo === 'mal' ? '🤔' : tipo === 'ok' ? '😄' : '🤖');
+  document.getElementById('globo').className = 'globo ' + (tipo || '');
+}
+function saltar(){ const r = document.getElementById('robot'); r.classList.remove('salta'); void r.getBoundingClientRect(); r.classList.add('salta'); }
+
+// =================== Dibujar lo puesto ===================
+function dibujarPuestos(nuevo){
+  let s = '';
+  // orden: mascota, pies, pecho, cuello, ojos, cabeza, manos
+  const orden = ['mascota','pies','pecho','cuello','ojos','cabeza','manoIzq','manoDer'];
+  orden.forEach(k=>{
+    const id = puesto[k]; if (!id) return;
+    const it = ITEMS[id], l = LUGARES[it.cat];
+    const slots = it.cat === 'mano' ? l.slots.filter(sl=> sl.k === k) : l.slots;
+    slots.forEach(sl=>{
+      if (k === 'mascota' && ladoMascota === 'der') sl = {...sl, x:262};
+      s += `<g class="puesto${nuevo === k ? ' pop' : ''}" data-k="${k}" transform="translate(${sl.x} ${sl.y}) scale(${sl.espejo ? -sl.s : sl.s} ${sl.s})">${it.svg}</g>`;
+    });
+  });
+  document.getElementById('puestos').innerHTML = s;
+}
+function pintar(c){
+  color = c;
+  svg.querySelectorAll('.pinta').forEach(p=> p.setAttribute('fill', c));
+  document.querySelectorAll('.color').forEach(b=> b.classList.toggle('on', b.dataset.c === c));
+}
+function ponerEscena(k){
+  escena = k;
+  document.getElementById('fondo').innerHTML = dibujoEscena(k);
+  document.getElementById('clima').innerHTML = climaEscena(k);
+  document.querySelectorAll('.lugar').forEach(b=> b.classList.toggle('on', b.dataset.k === k));
+}
+
+// =================== Poner y sacar ===================
+function lugarDe(id, k){ // a qué lugar va, según dónde se soltó (k) o el primero libre
+  const cat = ITEMS[id].cat;
+  if (cat !== 'mano') return cat;
+  if (k === 'manoIzq' || k === 'manoDer') return k;
+  return !puesto.manoDer ? 'manoDer' : !puesto.manoIzq ? 'manoIzq' : 'manoDer';
+}
+function poner(id, k){
+  const lugar = lugarDe(id, k);
+  // un mismo objeto no puede estar en las dos manos
+  if (ITEMS[id].cat === 'mano'){ ['manoIzq','manoDer'].forEach(m=>{ if (puesto[m] === id && m !== lugar) delete puesto[m]; }); }
+  puesto[lugar] = id;
+  dibujarPuestos(lugar); saltar();
+  comentar(id);
+}
+function sacar(k){ delete puesto[k]; dibujarPuestos(); }
+// comentarios del robotito en modo libre: ¿tiene sentido lo que me pusiste acá?
+const COMENTARIOS = {
+  nieve:  {ojotas:'¡Brrr! Con ojotas en la nieve se me congelan los pies.', playa:'Ese sombrero es para la playa… acá hace frío.', helado:'¿Un helado con este frío? ¡Brrr!', lana:'¡Qué calentito este gorro!', bufanda:'¡Gracias, ya no tengo frío en el cuello!', antiparras:'¡Listo para esquiar!', pinguino:'¡El pingüino está feliz en la nieve!'},
+  playa:  {lana:'¡Uf! Con gorro de lana en la playa me muero de calor.', bufanda:'¿Bufanda en la playa? ¡Qué calor!', nieve:'Las botas de nieve no son para la arena…', ojotas:'¡Ojotas! Perfectas para la arena.', sol:'¡Ahora el sol no me molesta!', balde:'¡Vamos a hacer un castillo de arena!', pinguino:'Al pingüino le hace falta el frío…'},
+  lluvia: {paraguas:'¡Ya no me mojo!', lluvia:'¡Ahora puedo saltar en los charcos!', ojotas:'Con ojotas se me mojan los pies…', sol:'¿Anteojos de sol con este día nublado?'},
+  fiesta: {cumple:'¡Que los cumplas feliz!', globo:'¡Un globo para la fiesta!', mono:'¡Qué elegante para la fiesta!'},
+  plaza:  {pelota:'¡Juguemos a la pelota!', perro:'¡Vamos a pasear al perrito!'}
+};
+function comentar(id){
+  const it = ITEMS[id];
+  const c = (COMENTARIOS[escena] || {})[id];
+  if (modo === 'misiones') return decir(`¡Me pusiste ${it.nombre}!`, '', '🤖');
+  if (c) decir(c, /muero|congelan|mojan|no son|falta|\?/.test(c) ? 'mal' : 'ok');
+  else decir(`¡Me pusiste ${it.nombre}!`, 'ok');
+}
+
+// =================== Soltar sobre el robotito ===================
+function aDibujo(cx, cy){ const p = svg.createSVGPoint(); p.x = cx; p.y = cy; return p.matrixTransform(svg.getScreenCTM().inverse()); }
+function dentro(z, x, y){ return x >= z.x && x <= z.x + z.w && y >= z.y && y <= z.y + z.h; }
+function lugarEn(x, y){ // qué parte del cuerpo hay en ese punto (para avisar si no corresponde)
+  for (const [k, z] of Object.entries(ZONAS_MANO)) if (Math.hypot(x-z.cx, y-z.cy) <= z.r) return k;
+  for (const k of ['ojos','cuello','pecho','pies','cabeza']) if (dentro(LUGARES[k].zona, x, y)) return k;
+  return null;
+}
+const NOMBRE_PARTE = {cabeza:'la cabeza', ojos:'los ojos', cuello:'el cuello', pecho:'el pecho', manoIzq:'la mano', manoDer:'la mano', pies:'los pies', mascota:'el piso'};
+function soltarEn(id, cx, cy){
+  const {x, y} = aDibujo(cx, cy), it = ITEMS[id], cat = it.cat;
+  let ok = false, k = null;
+  if (cat === 'mano'){ for (const [m, z] of Object.entries(ZONAS_MANO)) if (Math.hypot(x-z.cx, y-z.cy) <= z.r){ ok = true; k = m; } }
+  else if (cat === 'mascota'){ ok = !lugarEn(x, y) || lugarEn(x, y) === 'mascota'; if (ok) ladoMascota = x > 150 ? 'der' : 'izq'; }
+  else ok = dentro(LUGARES[cat].zona, x, y);
+  if (ok){ poner(id, k); return true; }
+  const parte = lugarEn(x, y);
+  if (parte) decir(`¡Mmm, ${it.nombre} no va en ${NOMBRE_PARTE[parte]}! Va ${LUGARES[cat].donde}.`, 'mal');
+  else decir(`Soltalo justo ${LUGARES[cat].donde}.`, 'mal');
+  return false;
+}
+function mostrarZonas(id){
+  const g = document.getElementById('zonas');
+  if (!id){ g.innerHTML = ''; return; }
+  const cat = ITEMS[id].cat;
+  if (cat === 'mano') g.innerHTML = Object.values(ZONAS_MANO).map(z=>`<circle class="zona" cx="${z.cx}" cy="${z.cy}" r="${z.r-6}"/>`).join('');
+  else if (cat === 'mascota') g.innerHTML = `<rect class="zona" x="6" y="250" width="84" height="144" rx="18"/><rect class="zona" x="210" y="250" width="84" height="144" rx="18"/>`;
+  else { const z = LUGARES[cat].zona; g.innerHTML = `<rect class="zona" x="${z.x+4}" y="${z.y+4}" width="${z.w-8}" height="${z.h-8}" rx="18"/>`; }
+}
+
+// =================== Ropero ===================
+const ropero = document.getElementById('ropero'), fantasma = document.getElementById('arrastre');
+const icono = (id, vb)=> `<svg viewBox="${vb}">${ITEMS[id].svg}</svg>`;
+// encuadre de cada miniatura del ropero (calculado de antemano, así se ve igual aunque la página cargue oculta)
+const VISTA = {"galera":"-46 -60 92 92", "corona":"-39 -50 78 78", "gorra":"-49 -57 97 97", "lana":"-44 -62 88 88", "playa":"-63 -69 126 126", "cumple":"-41 -64 82 82", "sol":"-46 -46 92 92", "redondos":"-45 -45 90 90", "antiparras":"-61 -61 121 121", "mono":"-32 -32 64 64", "bufanda":"-51 -28 102 102", "corbata":"-33 -14 66 66", "medalla":"-34 -38 68 68", "estrella":"-28 -29 56 56", "corazon":"-24 -25 48 48", "paraguas":"-70 -114 141 141", "globo":"-72 -129 144 144", "helado":"-34 -61 67 67", "pelota":"-25 -55 49 49", "flor":"-48 -78 97 97", "balde":"-31 -46 61 61", "zapatillas":"-27 -27 54 54", "lluvia":"-30 -41 60 60", "ojotas":"-26 -23 52 52", "nieve":"-29 -39 58 58", "perro":"-42 -43 84 84", "gato":"-42 -43 84 84", "tortuga":"-42 -43 84 84", "pinguino":"-42 -43 84 84"};
+Object.entries(LUGARES).forEach(([cat, l])=>{
   const g = document.createElement('div'); g.className = 'grupo';
-  g.innerHTML = `<h2>${l.nombre}</h2><div class="items"></div>`;
-  l.items.forEach(em=>{
-    const b = document.createElement('button'); b.className = 'item'; b.textContent = em; b.setAttribute('aria-label', 'Poner ' + em);
-    b.addEventListener('pointerdown', e=> empezarArrastre(e, em, clave));
-    b.addEventListener('keydown', e=>{ if (e.key==='Enter'||e.key===' '){ e.preventDefault(); poner(clave, em); } });
+  g.innerHTML = `<h2>${l.titulo}</h2><div class="items"></div>`;
+  Object.entries(ITEMS).filter(([,it])=> it.cat === cat).forEach(([id, it])=>{
+    const b = document.createElement('button'); b.className = 'item'; b.dataset.id = id; b.innerHTML = icono(id, VISTA[id]);
+    b.setAttribute('aria-label', 'Poner ' + it.nombre);
+    b.addEventListener('pointerdown', e=> empezarArrastre(e, id, b));
+    b.addEventListener('keydown', e=>{ if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); poner(id); } });
     g.querySelector('.items').appendChild(b);
   });
-  ropero.appendChild(g);
+  ropero.insertBefore(g, ropero.lastElementChild);
+});
+// lugares (escenarios)
+Object.entries(ESCENAS).forEach(([k, e])=>{
+  const b = document.createElement('button'); b.className = 'lugar'; b.dataset.k = k; b.innerHTML = `<b>${e.em}</b>${e.nombre}`;
+  b.onclick = ()=>{ ponerEscena(k); decir(`¡Estamos en ${k === 'lluvia' ? 'un día de lluvia' : k === 'fiesta' ? 'una fiesta' : 'la ' + e.nombre.toLowerCase()}! ¿Qué me pongo?`); };
+  document.getElementById('lugares').appendChild(b);
+});
+// colores
+COLORES.forEach(c=>{
+  const b = document.createElement('button'); b.className = 'color'; b.dataset.c = c; b.style.background = c; b.setAttribute('aria-label', 'Color ' + NOMBRE_COLOR[c]);
+  b.onclick = ()=>{ pintar(c); saltar(); };
+  document.getElementById('colores').appendChild(b);
 });
 
-// Poner y sacar cosas
-function poner(clave, em){
-  esc.querySelectorAll(`[data-lugar="${clave}"]`).forEach(n=>n.remove());
-  puesto[clave] = em;
-  const l = LUGARES[clave];
-  l.pos.forEach(([x,y])=>{
-    const s = document.createElement('span'); s.className = 'puesto'; s.dataset.lugar = clave; s.textContent = em;
-    s.style.left = x + '%'; s.style.top = y + '%'; s.style.fontSize = `calc(${l.tam/100} * min(420px, 90vw))`;
-    s.title = 'Tocá para sacar';
-    s.onclick = ()=> sacar(clave);
-    esc.appendChild(s);
-  });
-}
-function sacar(clave){ esc.querySelectorAll(`[data-lugar="${clave}"]`).forEach(n=>n.remove()); delete puesto[clave]; }
-document.getElementById('sacar').onclick = ()=> Object.keys(LUGARES).forEach(sacar);
-document.getElementById('sorpresa').onclick = ()=>{
-  Object.entries(LUGARES).forEach(([k,l])=>{ if (Math.random() < .8) poner(k, l.items[Math.floor(Math.random()*l.items.length)]); else sacar(k); });
-  const b = cont.children[Math.floor(Math.random()*COLORES.length)]; b.click();
-};
-
-// Arrastrar: también funciona con un solo clic
-const fantasma = document.getElementById('arrastre');
+// arrastrar, o tocar el accesorio y después tocar la parte del cuerpo
 let arr = null;
-function empezarArrastre(e, em, clave){
+function empezarArrastre(e, id, boton){
   e.preventDefault();
-  arr = {em, clave, x0:e.clientX, y0:e.clientY, movio:false};
-  fantasma.textContent = em; fantasma.style.left = e.clientX+'px'; fantasma.style.top = e.clientY+'px';
+  arr = {id, boton, x0:e.clientX, y0:e.clientY, movio:false};
+  fantasma.innerHTML = boton.innerHTML;
 }
 addEventListener('pointermove', e=>{
   if (!arr) return;
-  if (Math.hypot(e.clientX-arr.x0, e.clientY-arr.y0) > 8){ arr.movio = true; fantasma.hidden = false; }
-  fantasma.style.left = e.clientX+'px'; fantasma.style.top = e.clientY+'px';
-  const r = esc.getBoundingClientRect();
-  esc.classList.toggle('encima', arr.movio && e.clientX>r.left && e.clientX<r.right && e.clientY>r.top && e.clientY<r.bottom);
+  if (!arr.movio && Math.hypot(e.clientX-arr.x0, e.clientY-arr.y0) > 8){ arr.movio = true; fantasma.hidden = false; mostrarZonas(arr.id); elegir(null); }
+  fantasma.style.left = e.clientX + 'px'; fantasma.style.top = e.clientY + 'px';
 });
 addEventListener('pointerup', e=>{
   if (!arr) return;
+  const a = arr; arr = null; fantasma.hidden = true;
+  if (!a.movio){ elegir(elegido === a.id ? null : a.id); return; }
+  mostrarZonas(null);
   const r = esc.getBoundingClientRect();
-  const adentro = e.clientX>r.left && e.clientX<r.right && e.clientY>r.top && e.clientY<r.bottom;
-  if (!arr.movio || adentro) poner(arr.clave, arr.em);   // clic o soltar sobre el robot
-  arr = null; fantasma.hidden = true; esc.classList.remove('encima');
+  if (e.clientX > r.left && e.clientX < r.right && e.clientY > r.top && e.clientY < r.bottom) soltarEn(a.id, e.clientX, e.clientY);
 });
+function elegir(id){
+  elegido = id;
+  document.querySelectorAll('.item').forEach(b=> b.classList.toggle('elegido', b.dataset.id === id));
+  mostrarZonas(id);
+  if (id) decir(`Ahora tocá dónde va ${ITEMS[id].nombre}.`);
+}
+esc.addEventListener('click', e=>{
+  if (elegido){ if (soltarEn(elegido, e.clientX, e.clientY)) elegir(null); return; }
+  const g = e.target.closest('.puesto');
+  if (g){ const k = g.dataset.k; decir(`Me sacaste ${ITEMS[puesto[k]].nombre}.`); sacar(k); }
+});
+
+document.getElementById('sacar').onclick = ()=>{ Object.keys(puesto).forEach(k=> delete puesto[k]); dibujarPuestos(); decir('¡Quedé sin nada! Vestime de nuevo.'); };
+document.getElementById('sorpresa').onclick = ()=>{
+  Object.keys(puesto).forEach(k=> delete puesto[k]);
+  const azar = a => a[Math.floor(Math.random()*a.length)];
+  ['cabeza','ojos','cuello','pecho','pies','mascota'].forEach(cat=>{ if (Math.random() < .8) puesto[cat] = azar(Object.keys(ITEMS).filter(id=> ITEMS[id].cat === cat)); });
+  const manos = Object.keys(ITEMS).filter(id=> ITEMS[id].cat === 'mano').sort(()=>Math.random()-.5);
+  puesto.manoDer = manos[0]; if (Math.random() < .5) puesto.manoIzq = manos[1];
+  pintar(azar(COLORES)); dibujarPuestos(); saltar(); decir('¡Sorpresa! ¿Te gusta cómo quedé?', 'ok');
+};
+
+// =================== Modo misiones ===================
+function pintarEstrellas(){ document.getElementById('estrellas').innerHTML = MISIONES.map((_,i)=>`<span class="${hechas.includes(i)?'si':''}">⭐</span>`).join(''); }
+function cargarMision(i){
+  mIdx = i; const m = MISIONES[i];
+  Object.keys(puesto).forEach(k=> delete puesto[k]); dibujarPuestos(); pintar(COLORES[0]);
+  ponerEscena(m.escena);
+  document.getElementById('misionNum').textContent = `MISIÓN ${i+1} DE ${MISIONES.length}`;
+  document.getElementById('pedido').textContent = m.pedido;
+  pintarEstrellas();
+  decir('Leé el pedido, vestime y tocá "¡Listo!".');
+}
+function revisar(){
+  const m = MISIONES[mIdx], tengo = new Set(Object.values(puesto));
+  // primero, lo que no tiene sentido
+  for (const [id, msg] of Object.entries(m.no || {})) if (tengo.has(id)) return decir(msg + ` Sacame ${ITEMS[id].nombre}.`, 'mal');
+  const faltan = m.necesita.filter(op=> !op.some(id=> tengo.has(id)));
+  if (m.color && color !== m.color) faltan.push(null);
+  if (faltan.length){
+    const txt = faltan.map(op=> op ? faltaTexto(op) : `pintarme de ${NOMBRE_COLOR[m.color]}`);
+    return decir(`Casi… todavía ${txt.length > 1 ? 'me faltan' : 'me falta'} ${txt.length > 1 ? txt.slice(0,-1).join(', ') + ' y ' + txt.slice(-1) : txt[0]}.`, 'mal');
+  }
+  if (!hechas.includes(mIdx)){ hechas.push(mIdx); try { localStorage.setItem('vesti:hechas', JSON.stringify(hechas)); } catch(e){} }
+  pintarEstrellas(); saltar(); decir('¡Gracias! ¡Quedé perfecto!', 'ok');
+  const todas = hechas.length >= MISIONES.length;
+  document.getElementById('festejoTit').textContent = todas && mIdx === MISIONES.length-1 ? '¡Cumpliste todas las misiones!' : '¡Misión cumplida!';
+  document.getElementById('festejoTxt').textContent = `Misión ${mIdx+1}: ⭐`;
+  document.getElementById('seguir').textContent = mIdx < MISIONES.length-1 ? 'Siguiente misión ▶' : 'Volver a empezar';
+  setTimeout(()=>{ document.getElementById('festejo').hidden = false; }, 500);
+}
+document.getElementById('listo').onclick = revisar;
+document.getElementById('seguir').onclick = ()=>{ document.getElementById('festejo').hidden = true; cargarMision((mIdx+1) % MISIONES.length); };
+document.getElementById('saltear').onclick = ()=> cargarMision((mIdx+1) % MISIONES.length);
+function cambiarModo(m){
+  modo = m;
+  document.getElementById('modoLibre').classList.toggle('on', m === 'libre');
+  document.getElementById('modoMisiones').classList.toggle('on', m === 'misiones');
+  document.getElementById('mision').hidden = m !== 'misiones';
+  document.getElementById('sorpresa').hidden = m === 'misiones';
+  document.querySelectorAll('.lugar').forEach(b=> b.disabled = m === 'misiones');
+  if (m === 'misiones'){ const prox = MISIONES.findIndex((_,i)=> !hechas.includes(i)); cargarMision(prox < 0 ? 0 : prox); }
+  else decir('¡Modo libre! Vestime como quieras, pero cada cosa en su lugar.');
+}
+document.getElementById('modoLibre').onclick = ()=> cambiarModo('libre');
+document.getElementById('modoMisiones').onclick = ()=> cambiarModo('misiones');
+
+ponerEscena('plaza'); pintar(COLORES[0]); dibujarPuestos();
+// para las pruebas automáticas
+window.__vesti = {puesto, poner, soltarEn, cargarMision, revisar, MISIONES, ITEMS, pintar, estado:()=>({modo, mIdx, escena, color, hechas:[...hechas]})};
 
 // ---------- Intro del robotito y panel ¿Qué aprendemos? ----------
 (function(){
@@ -237,7 +537,7 @@ addEventListener('pointerup', e=>{
   document.getElementById('abrirPanel').onclick = ()=>{ panel.classList.add('abierto'); panel.setAttribute('aria-hidden','false'); };
   document.getElementById('cerrarPanel').onclick = ()=>{ panel.classList.remove('abierto'); panel.setAttribute('aria-hidden','true'); };
   addEventListener('keydown', e=>{
-    if (e.key === 'Escape') document.getElementById('cerrarPanel').click();
+    if (e.key === 'Escape'){ document.getElementById('cerrarPanel').click(); elegir(null); }
     if (intro && !intro.hidden && (e.key === 'Enter' || e.key === ' ')){ e.preventDefault(); e.stopImmediatePropagation(); intro.hidden = true; }
   }, true);
 })();

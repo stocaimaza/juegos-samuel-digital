@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><link rel="icon" href="favicon.svg" type="image/svg+xml"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}[hidden]{display:none!important}img{max-width:100%}
+.sd-casa{position:fixed;left:max(10px,env(safe-area-inset-left,0px));bottom:max(10px,env(safe-area-inset-bottom,0px));z-index:50;width:50px;height:50px;border-radius:50%;background:#fff;box-shadow:0 4px 0 #3d86b3;display:flex;align-items:center;justify-content:center;font-size:26px;text-decoration:none}
+.sd-casa:focus-visible{outline:4px solid #ffb627;outline-offset:2px}</style>
+<title>Robotito Corredor</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap">
+<style>
+/* Layout: niveles arriba, cielo de juego en canvas con la consigna dibujada adentro */
+:root{--cielo:#7ec8f0;--panel:#fff;--tinta:#23364a;--sol:#ffb627;--sombra:#3d86b3;
+  --display:"Baloo 2","Comic Sans MS",system-ui,sans-serif;color-scheme:light}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{margin:0;background:var(--cielo);color:var(--tinta);font-family:var(--display);box-sizing:border-box;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:12px;
+  display:flex;flex-direction:column;align-items:center;gap:10px;user-select:none;-webkit-user-select:none}
+button{font-family:var(--display);cursor:pointer;border:none;color:var(--tinta)}
+button:focus-visible{outline:4px solid #fff;outline-offset:2px}
+header{width:100%;max-width:1000px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+h1{margin:0;font-size:clamp(22px,4vw,32px);font-weight:800;color:#fff;text-shadow:0 2px 0 var(--sombra)}
+.pildora{display:flex;gap:4px;background:var(--panel);border-radius:999px;padding:4px;box-shadow:0 3px 0 var(--sombra);flex-wrap:wrap}
+.opc{background:transparent;border-radius:999px;padding:5px 14px;font-size:17px;font-weight:700}
+.opc.on{background:var(--sol)}
+#zona{width:100%;max-width:1000px;flex:1;min-height:0;display:flex;align-items:center;justify-content:center}
+canvas{display:block;border-radius:18px;box-shadow:0 6px 0 var(--sombra);touch-action:none;cursor:pointer;max-width:100%}
+#festejo{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(35,54,74,.45);z-index:20}
+.card{background:#fff;border-radius:24px;padding:24px 32px;text-align:center;box-shadow:0 8px 0 #c98400;max-width:90vw}
+.card h2{margin:0;font-size:44px;color:var(--sol);text-shadow:0 2px 0 #c98400}
+.card p{font-size:22px;margin:4px 0 16px}
+.grande{background:var(--sol);border-radius:999px;padding:10px 28px;font-size:24px;font-weight:800;box-shadow:0 4px 0 #c98400;margin:4px}
+
+/* ---- Robotito que explica + panel ¿Qué aprendemos? ---- */
+.ayuda-btn{font-family:"Baloo 2","Comic Sans MS",system-ui,sans-serif; border:none; cursor:pointer; background:#fff; border-radius:999px; padding:6px 16px; font-size:18px; font-weight:800; color:#23364a; box-shadow:0 3px 0 #3d86b3}
+#intro{position:fixed; inset:0; z-index:40; display:flex; align-items:center; justify-content:center; background:rgba(35,54,74,.5); padding:16px}
+.intro-card{background:#fff; border-radius:28px; padding:22px 26px; box-shadow:0 8px 0 #c98400; display:flex; gap:18px; align-items:center; max-width:640px; flex-wrap:wrap; justify-content:center; font-family:"Baloo 2","Comic Sans MS",system-ui,sans-serif; color:#23364a}
+.intro-card svg{width:150px; height:auto; flex:none}
+.burbuja{position:relative; background:#fff3d6; border-radius:22px; padding:14px 18px; min-width:0; flex:1 1 260px; text-align:center}
+.burbuja::before{content:""; position:absolute; left:-14px; top:40%; border:10px solid transparent; border-right:14px solid #fff3d6}
+.burbuja h2{margin:0; font-size:clamp(24px,4vw,32px); line-height:1.1; color:#23364a; text-shadow:none}
+.pictos{display:flex; justify-content:center; gap:14px; margin:12px 0 4px; flex-wrap:wrap}
+.pictos div{display:flex; flex-direction:column; align-items:center; font-size:15px; font-weight:700; gap:2px; max-width:90px; line-height:1.1}
+.pictos b{font-size:36px; line-height:1; font-family:"Segoe UI Emoji","Apple Color Emoji",sans-serif}
+#jugar{font-family:inherit; border:none; cursor:pointer; background:#ffb627; border-radius:999px; padding:10px 34px; font-size:26px; font-weight:800; color:#23364a; box-shadow:0 4px 0 #c98400; margin-top:8px}
+#panel{position:fixed; top:0; right:0; bottom:0; width:min(400px,100%); background:#fff; z-index:45; box-shadow:-8px 0 30px rgba(35,54,74,.3); color:#23364a; text-align:left;
+  font-family:"Baloo 2","Comic Sans MS",system-ui,sans-serif; overflow:auto; padding:20px max(20px, env(safe-area-inset-right,0px)) 30px 22px; box-sizing:border-box; transform:translateX(105%); transition:transform .25s}
+#panel.abierto{transform:none}
+#panel h2{margin:0 0 4px; font-size:26px; color:#23364a; text-shadow:none}
+#panel .sub{margin:0 0 6px; color:#4d6175; font-size:19px; font-weight:700}
+#panel h3{margin:16px 0 6px; font-size:16px; letter-spacing:1px; color:#3d86b3; text-transform:uppercase}
+#panel ul{margin:0; padding-left:20px; font-size:17px; line-height:1.4}
+#panel li{margin-bottom:4px}
+.logros{display:grid; gap:8px; margin-top:6px}
+.logros div{display:flex; align-items:center; gap:12px; background:#eef6fb; border-radius:16px; padding:8px 12px; font-size:18px; font-weight:700; line-height:1.2}
+.logros b{font-size:30px; flex:none; font-family:"Segoe UI Emoji","Apple Color Emoji",sans-serif}
+.palabras{display:flex; flex-wrap:wrap; gap:8px}
+.palabras span{background:#fff3d6; border-radius:999px; padding:4px 12px; font-size:18px; font-weight:800}
+.dato{margin:0; font-size:17px; line-height:1.45; background:#f4fbef; border-radius:16px; padding:10px 14px}
+#cerrarPanel{font-family:inherit; border:none; cursor:pointer; position:absolute; top:12px; right:max(12px, env(safe-area-inset-right,0px)); width:40px; height:40px; border-radius:50%; background:#eef6fb; font-size:20px; color:#23364a}
+@media (prefers-reduced-motion:reduce){#panel{transition:none}}
+</style>
+<style>
+/* ---- Piezas comunes de los juegos nuevos ---- */
+#progreso{font-size:clamp(18px,4.6vw,26px);gap:2px;min-height:34px;display:flex;flex-wrap:wrap;justify-content:center;max-width:100%;font-family:"Segoe UI Emoji","Apple Color Emoji",sans-serif}
+#progreso span{opacity:.3}#progreso span.si{opacity:1}
+#juego{width:100%;max-width:1000px;flex:1;background:#fffdf6;border-radius:24px;box-shadow:0 6px 0 var(--sombra);padding:18px;box-sizing:border-box;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;min-height:0;position:relative}
+.consigna{font-size:clamp(22px,3.4vw,32px);font-weight:800;text-align:center;margin:0;line-height:1.15}
+.mensaje{min-height:36px;font-size:clamp(20px,3vw,26px);font-weight:800;text-align:center}
+.mensaje.ok{color:#2e8b57}.mensaje.mal{color:#e4572e}
+.opciones{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
+.opcion{background:#fff;border-radius:20px;min-width:90px;padding:8px 20px;font-size:40px;font-weight:800;box-shadow:0 5px 0 #3d86b3;border:3px solid #d5e6f3}
+.opcion:active{transform:translateY(3px);box-shadow:0 2px 0 #3d86b3}
+.opcion.mal{background:#ffe1d8;border-color:#e4572e}.opcion.bien{background:#d9f5dc;border-color:#2e8b57}
+.emo{font-family:"Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif}
+.sacude{animation:sacude .4s}
+@keyframes sacude{20%{transform:translateX(-10px)}40%{transform:translateX(9px)}60%{transform:translateX(-6px)}80%{transform:translateX(4px)}}
+@media (prefers-reduced-motion:reduce){.sacude{animation:none}}
+</style>
+<style>
+#pista{width:100%;flex:1;min-height:280px;border-radius:18px;display:block;touch-action:none;cursor:pointer}
+.hud{display:flex;justify-content:space-between;align-items:center;width:100%;font-size:22px;font-weight:800;gap:10px;flex-wrap:wrap}
+.vidas{font-family:"Segoe UI Emoji","Apple Color Emoji",sans-serif;font-size:26px;letter-spacing:2px}
+.pregunta{background:#fff3d6;border-radius:14px;padding:0 18px;font-size:30px}
+.saltar{background:#ffb627;border-radius:999px;padding:10px 40px;font-size:24px;font-weight:800;box-shadow:0 4px 0 #c98400}
+</style>
+
+<header>
+  <h1>🏃 Robotito Corredor</h1>
+  <button class="ayuda-btn" id="abrirPanel">📘 ¿Qué aprendemos?</button>
+  <div class="pildora" id="niveles"></div>
+</header>
+<div id="progreso"></div>
+<main id="juego">
+<div class="hud"><span class="vidas" id="vidas">❤️❤️❤️</span><span class="pregunta" id="pregunta" hidden></span><span id="metros">0 m</span></div>
+<canvas id="pista"></canvas>
+<button class="saltar" id="btnSaltar">⬆️ Saltar</button>
+<div id="mensaje" class="mensaje"></div>
+</main>
+
+<div id="festejo" hidden>
+  <div class="card"><h2>¡Excelente!</h2><div style="font-size:40px" class="emo">⭐⭐⭐</div><p id="festejoTxt"></p>
+    <button class="grande" id="seguir">Siguiente nivel ▶</button></div>
+</div>
+
+<!-- El robotito explica el juego antes de empezar -->
+<div id="intro">
+  <div class="intro-card">
+    <svg viewBox="0 0 120 150" aria-hidden="true">
+      <line x1="60" y1="22" x2="60" y2="8" stroke="#23364a" stroke-width="4"/><circle cx="60" cy="7" r="6" fill="#e4572e"/>
+      <rect x="22" y="22" width="76" height="60" rx="18" fill="#ffb627" stroke="#23364a" stroke-width="4"/>
+      <circle cx="45" cy="48" r="10" fill="#fff"/><circle cx="75" cy="48" r="10" fill="#fff"/>
+      <circle cx="47" cy="49" r="5" fill="#23364a"/><circle cx="77" cy="49" r="5" fill="#23364a"/>
+      <path d="M46 64 Q60 74 74 64" fill="none" stroke="#23364a" stroke-width="4" stroke-linecap="round"/>
+      <rect x="32" y="86" width="56" height="44" rx="12" fill="#ffb627" stroke="#23364a" stroke-width="4"/>
+      <rect x="10" y="92" width="22" height="10" rx="5" fill="#9aa5b1" stroke="#23364a" stroke-width="3" transform="rotate(-30 21 97)"/>
+      <rect x="88" y="92" width="22" height="10" rx="5" fill="#9aa5b1" stroke="#23364a" stroke-width="3" transform="rotate(30 99 97)"/>
+      <rect x="40" y="130" width="14" height="16" rx="4" fill="#9aa5b1" stroke="#23364a" stroke-width="3"/>
+      <rect x="66" y="130" width="14" height="16" rx="4" fill="#9aa5b1" stroke="#23364a" stroke-width="3"/>
+    </svg>
+    <div class="burbuja">
+      <h2>¡Saltá las piedras y juntá estrellas!</h2>
+      <div class="pictos"><div><b>⬆️</b>espacio o clic = saltar</div><div><b>🪨</b>esquivá las piedras</div><div><b>⭐</b>juntá estrellas</div><div><b>🔢</b>agarrá el resultado</div></div>
+      <button id="jugar">¡Jugar!</button>
+    </div>
+  </div>
+</div>
+
+<!-- Panel "¿Qué aprendemos?" para los chicos y sus familias -->
+<aside id="panel" aria-label="Qué aprendemos" aria-hidden="true">
+  <button id="cerrarPanel" aria-label="Cerrar">✕</button>
+  <h2>📘 ¿Qué aprendemos?</h2>
+<p class="sub">Con Robotito Corredor aprendemos a…</p>
+  <div class="logros"><div><b>⏱️</b>Calcular cuándo saltar</div><div><b>👀</b>Mirar adelante y anticiparnos</div><div><b>➕</b>Resolver cuentas mientras corremos</div><div><b>💪</b>Volver a intentar sin rendirnos</div></div>
+  <h3>Palabras nuevas</h3>
+  <div class="palabras"><span>⬆️ saltar</span><span>⏱️ a tiempo</span><span>❤️ vidas</span><span>🔢 resultado</span></div>
+  <h3>¿Sabías que…?</h3>
+  <p class="dato">En los videojuegos, el personaje parece correr, pero muchas veces está quieto: ¡lo que se mueve es el fondo! Así se crea la ilusión de movimiento. 🎮</p>
+  <h3>Para charlar en familia</h3>
+  <ul><li>¿Qué fue lo más difícil: saltar a tiempo o hacer la cuenta?</li><li>¿Cuántas estrellas juntaste?</li><li>¿Qué hacés cuando perdés en un juego?</li></ul>
+  <h3>Para jugar en casa</h3>
+  <p class="dato">🦘 <b>Saltar la soga contando:</b> saltar mientras otro dice una cuenta; ¡hay que decir el resultado antes del próximo salto!</p>
+</aside>
+
+<script>
+
+// ---------- Piezas comunes: niveles, estrellas, mensajes y festejo ----------
+const $ = id => document.getElementById(id);
+let nivel = 0, aciertos = 0, bloqueado = false;
+function mezclar(a){ for (let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function azar(a, b){ return a + Math.floor(Math.random()*(b-a+1)); }
+function elegir(a){ return a[Math.floor(Math.random()*a.length)]; }
+function meta(){ return NIVELES[nivel].meta || META; }
+function pintarProgreso(){ $('progreso').innerHTML = Array.from({length:meta()}, (_,i)=>`<span class="${i<aciertos?'si':''}">⭐</span>`).join(''); }
+function decir(txt, tipo){ const m = $('mensaje'); m.textContent = txt; m.className = 'mensaje ' + (tipo||''); }
+function sacudir(el){ el.classList.remove('sacude'); void el.offsetWidth; el.classList.add('sacude'); }
+// un acierto suma una estrella; al llegar a la meta se pasa de nivel
+function bien(txt, espera){
+  aciertos++; pintarProgreso(); decir(txt || elegir(['¡Bien!','¡Muy bien!','¡Genial!','¡Eso!','¡Excelente!']), 'ok'); bloqueado = true;
+  if (aciertos >= meta()) setTimeout(ganar, 900);
+  else setTimeout(()=>{ bloqueado = false; nueva(); }, espera ?? 1000);
+}
+function ganar(){
+  const ultimo = nivel === NIVELES.length-1;
+  $('festejoTxt').textContent = ultimo ? '¡Terminaste todos los niveles!' : `Pasaste el nivel "${NIVELES[nivel].nombre}"`;
+  $('seguir').textContent = ultimo ? 'Jugar otra vez' : 'Siguiente nivel ▶';
+  $('festejo').hidden = false;
+}
+$('seguir').onclick = ()=>{ $('festejo').hidden = true; nivel = (nivel+1) % NIVELES.length; pintarNiveles(); empezar(); };
+function empezar(){ aciertos = 0; bloqueado = false; pintarProgreso(); decir(''); if (typeof alEmpezar === 'function') alEmpezar(); nueva(); }
+function pintarNiveles(){
+  const cont = $('niveles'); cont.innerHTML = '';
+  NIVELES.forEach((n,i)=>{ const b = document.createElement('button'); b.className = 'opc' + (i===nivel?' on':''); b.textContent = n.nombre;
+    b.onclick = ()=>{ nivel = i; pintarNiveles(); empezar(); }; cont.appendChild(b); });
+}
+
+// En los niveles con cuentas aparecen dos burbujas: una baja (se agarra corriendo) y una alta (hay que saltar)
+const NIVELES = [
+  {nombre:'Saltar',      vel:4.2, cuentas:null},
+  {nombre:'Más rápido',  vel:5.6, cuentas:null, meta:15},
+  {nombre:'Sumas',       vel:4.2, cuentas:()=>{ const a = azar(2,10), b = azar(1,10); return [`${a} + ${b}`, a+b]; }, meta:8},
+  {nombre:'Restas',      vel:4.4, cuentas:()=>{ const a = azar(6,20), b = azar(1,a-1); return [`${a} − ${b}`, a-b]; }, meta:8},
+  {nombre:'Tablas',      vel:4.6, cuentas:()=>{ const a = azar(2,9), b = azar(2,9); return [`${a} × ${b}`, a*b]; }, meta:8}
+];
+const META = 10;
+const cv = $('pista'), ctx = cv.getContext('2d');
+const PISO = .78;   // altura del piso (proporción del alto)
+let cw = 800, ch = 360, robot, cosas = [], dist = 0, vidas = 3, invul = 0, jugando = false, proxima = 0, cuenta = null, chispas = [];
+
+function ajustar(){ const r = cv.getBoundingClientRect(), d = devicePixelRatio || 1; cw = r.width; ch = r.height; cv.width = cw*d; cv.height = ch*d; ctx.setTransform(d,0,0,d,0,0); }
+addEventListener('resize', ajustar);
+function piso(){ return ch*PISO; }
+function alEmpezar(){ ajustar(); robot = {x: Math.min(140, cw*.18), y: 0, vy: 0, paso: 0}; cosas = []; dist = 0; vidas = 3; invul = 0; proxima = 60; chispas = []; pintarVidas(); }
+function alJugar(){ jugando = true; }
+function nueva(){
+  const n = NIVELES[nivel];
+  if (!n.cuentas){ $('pregunta').hidden = true; return; }
+  const [txt, r] = n.cuentas(); cuenta = {txt, r};
+  $('pregunta').hidden = false; $('pregunta').textContent = `${txt} = ?`;
+  // las dos burbujas: la correcta va arriba o abajo al azar
+  let otro; do { otro = r + elegir([-3,-2,-1,1,2,3,10]); } while (otro < 0 || otro === r);
+  const arriba = Math.random() < .5;
+  cosas = cosas.filter(c=> c.tipo !== 'num');
+  cosas.push({tipo:'num', x: cw + 80, v: arriba ? r : otro, alto: true}, {tipo:'num', x: cw + 80, v: arriba ? otro : r, alto: false});
+  proxima = Math.max(proxima, 140);
+}
+function pintarVidas(){ $('vidas').textContent = '❤️'.repeat(vidas) + '🤍'.repeat(3 - vidas); }
+function saltar(){
+  if (!jugando || !$('festejo').hidden) return;
+  if (robot.y === 0){ robot.vy = 13.5; }
+}
+addEventListener('keydown', e=>{ if ((e.key === ' ' || e.key === 'ArrowUp') && $('intro').hidden){ e.preventDefault(); saltar(); } });
+cv.addEventListener('pointerdown', ()=> saltar());
+$('btnSaltar').addEventListener('pointerdown', e=>{ e.preventDefault(); saltar(); });
+
+function golpe(txt){
+  vidas--; invul = 70; pintarVidas(); decir(txt, 'mal'); sacudir(cv);
+  if (vidas <= 0){ jugando = false; decir('¡Ups! Te quedaste sin vidas. ¡Probá otra vez!', 'mal'); setTimeout(()=>{ empezar(); jugando = true; }, 1600); }
+}
+function chocan(a, b){ return Math.abs(a.x - b.x) < (a.w + b.w)/2 && Math.abs(a.y - b.y) < (a.h + b.h)/2; }
+function actualizar(){
+  const n = NIVELES[nivel], v = n.vel * Math.max(1, cw/800);
+  dist += v/30; $('metros').textContent = Math.floor(dist) + ' m';
+  robot.vy -= .7; robot.y = Math.max(0, robot.y + robot.vy); if (robot.y === 0) robot.vy = 0;
+  robot.paso += v*.02;
+  if (invul > 0) invul--;
+  // aparecen piedras y estrellas
+  if (--proxima <= 0){
+    const r = Math.random();
+    if (r < .55) cosas.push({tipo:'piedra', x: cw + 40, w: 34 + Math.random()*18});
+    else cosas.push({tipo:'estrella', x: cw + 40, alto: Math.random() < .5});
+    proxima = (n.cuentas ? 95 : 70) + Math.random()*60;
+  }
+  cosas.forEach(c=> c.x -= v);
+  // choques: el robotito ocupa una cajita
+  const R = {x: robot.x, y: piso() - robot.y - 38, w: 40, h: 64};
+  for (const c of cosas.slice()){
+    const caja = c.tipo === 'piedra' ? {x:c.x, y:piso() - 16, w:c.w - 8, h:28}
+               : {x:c.x, y: piso() - (c.alto ? 150 : 34), w:44, h:44};
+    if (!chocan(R, caja)) continue;
+    if (c.tipo === 'piedra'){ if (!invul){ c.golpeo = true; golpe('¡Auch, una piedra! Saltá antes'); } continue; }
+    cosas.splice(cosas.indexOf(c), 1);
+    if (c.tipo === 'estrella'){
+      for (let k=0;k<10;k++) chispas.push({x:c.x, y:caja.y, vx:(Math.random()-.5)*6, vy:(Math.random()-.5)*6, v:1});
+      if (!n.cuentas){ aciertos++; pintarProgreso(); decir(elegir(['¡Estrella!','¡Muy bien!','¡Genial!']), 'ok'); if (aciertos >= meta()){ jugando = false; setTimeout(()=>{ ganar(); }, 500); } }
+    } else if (c.tipo === 'num'){
+      if (c.v === cuenta.r){
+        for (let k=0;k<16;k++) chispas.push({x:c.x, y:caja.y, vx:(Math.random()-.5)*7, vy:(Math.random()-.5)*7, v:1});
+        cosas = cosas.filter(o=> o.tipo !== 'num');
+        aciertos++; pintarProgreso(); decir(`¡Sí! ${cuenta.txt} = ${cuenta.r}`, 'ok');
+        if (aciertos >= meta()){ jugando = false; setTimeout(()=> ganar(), 500); } else nueva();
+      } else {
+        cosas = cosas.filter(o=> o.tipo !== 'num');
+        golpe(`${cuenta.txt} no es ${c.v}. ¡Ahí viene otra!`); if (jugando) nueva();
+      }
+    }
+  }
+  // si las dos burbujas se fueron sin agarrar ninguna, vuelven a salir
+  if (n.cuentas && !cosas.some(c=> c.tipo === 'num')) nueva();
+  cosas = cosas.filter(c=> c.x > -80);
+}
+function dibujarRobot(){
+  const x = robot.x, y = piso() - robot.y;
+  if (invul > 0 && Math.floor(invul/6) % 2) return;   // parpadea después de un golpe
+  const pierna = robot.y > 0 ? 6 : Math.sin(robot.paso*6)*9;
+  ctx.fillStyle = 'rgba(0,0,0,.18)'; ctx.beginPath(); ctx.ellipse(x, piso()+2, 24 - Math.min(14, robot.y/8), 5, 0, 0, Math.PI*2); ctx.fill();
+  ctx.lineWidth = 3.5; ctx.strokeStyle = '#23364a';
+  // piernas
+  ctx.fillStyle = '#9aa5b1';
+  ctx.beginPath(); ctx.roundRect(x-12+pierna*.4, y-20, 9, 20, 4); ctx.fill(); ctx.stroke();
+  ctx.beginPath(); ctx.roundRect(x+3-pierna*.4, y-20, 9, 20, 4); ctx.fill(); ctx.stroke();
+  // cuerpo y cabeza
+  ctx.fillStyle = '#ffb627';
+  ctx.beginPath(); ctx.roundRect(x-17, y-46, 34, 28, 8); ctx.fill(); ctx.stroke();
+  ctx.beginPath(); ctx.roundRect(x-20, y-80, 40, 32, 10); ctx.fill(); ctx.stroke();
+  // brazo que se balancea
+  ctx.fillStyle = '#9aa5b1'; ctx.beginPath(); ctx.roundRect(x-26, y-42 + pierna*.3, 10, 16, 4); ctx.fill(); ctx.stroke();
+  // cara mirando hacia adelante
+  ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(x-2, y-66, 6, 0, Math.PI*2); ctx.arc(x+12, y-66, 6, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#23364a'; ctx.beginPath(); ctx.arc(x, y-66, 3, 0, Math.PI*2); ctx.arc(x+14, y-66, 3, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(x+6, y-58, 5, .15*Math.PI, .85*Math.PI); ctx.stroke();
+  // antena
+  ctx.beginPath(); ctx.moveTo(x, y-80); ctx.lineTo(x, y-90); ctx.stroke();
+  ctx.fillStyle = '#e4572e'; ctx.beginPath(); ctx.arc(x, y-92, 4, 0, Math.PI*2); ctx.fill();
+}
+function estrellaDib(cx, cy, r){
+  ctx.beginPath();
+  for (let i=0;i<10;i++){ const a = -Math.PI/2 + i*Math.PI/5, rr = i%2 ? r*.45 : r; ctx.lineTo(cx + rr*Math.cos(a), cy + rr*Math.sin(a)); }
+  ctx.closePath(); ctx.fillStyle = '#ffd23f'; ctx.fill(); ctx.strokeStyle = '#c98400'; ctx.lineWidth = 3; ctx.stroke();
+}
+function cuadro(t){
+  const corre = jugando && $('festejo').hidden && $('intro').hidden && !$('panel').classList.contains('abierto');
+  if (corre && robot) actualizar();
+  // cielo y fondo con capas que se mueven a distinta velocidad
+  const g = ctx.createLinearGradient(0,0,0,ch); g.addColorStop(0,'#8fd3fb'); g.addColorStop(1,'#d8f1ff');
+  ctx.fillStyle = g; ctx.fillRect(0,0,cw,ch);
+  const off = dist*30;
+  ctx.fillStyle = 'rgba(255,255,255,.9)';
+  for (let i=0;i<5;i++){ const x = ((i*260 - off*.1) % (cw+260) + cw+260) % (cw+260) - 130; ctx.beginPath(); ctx.ellipse(x, 50 + (i%3)*24, 40, 14, 0, 0, Math.PI*2); ctx.ellipse(x+28, 42 + (i%3)*24, 28, 14, 0, 0, Math.PI*2); ctx.fill(); }
+  ctx.fillStyle = '#a5dba0';
+  for (let i=-1;i<6;i++){ const x = i*240 - (off*.3) % 240; ctx.beginPath(); ctx.ellipse(x, piso(), 150, 90, 0, Math.PI, 0); ctx.fill(); }
+  ctx.fillStyle = '#7cc576';
+  for (let i=-1;i<8;i++){ const x = i*170 - (off*.55) % 170; ctx.beginPath(); ctx.ellipse(x, piso(), 90, 50, 0, Math.PI, 0); ctx.fill(); }
+  // piso
+  ctx.fillStyle = '#8bd66b'; ctx.fillRect(0, piso(), cw, 12);
+  ctx.fillStyle = '#c99a6b'; ctx.fillRect(0, piso()+12, cw, ch - piso());
+  ctx.fillStyle = '#b5875a'; for (let i=-1;i<cw/40+2;i++){ const x = i*40 - off % 40; ctx.fillRect(x, piso()+26, 18, 6); }
+  if (robot){
+    cosas.forEach(c=>{
+      if (c.tipo === 'piedra'){
+        ctx.fillStyle = '#8a95a3'; ctx.strokeStyle = '#23364a'; ctx.lineWidth = 3.5;
+        ctx.beginPath(); ctx.moveTo(c.x - c.w/2, piso()+2); ctx.quadraticCurveTo(c.x - c.w/2, piso()-26, c.x, piso()-30); ctx.quadraticCurveTo(c.x + c.w/2, piso()-26, c.x + c.w/2, piso()+2); ctx.closePath(); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = 'rgba(255,255,255,.35)'; ctx.beginPath(); ctx.ellipse(c.x - 6, piso()-18, 6, 4, -.5, 0, Math.PI*2); ctx.fill();
+      } else if (c.tipo === 'estrella'){
+        estrellaDib(c.x, piso() - (c.alto ? 150 : 34) + Math.sin(t/200 + c.x)*4, 18);
+      } else {
+        const y = piso() - (c.alto ? 150 : 34);
+        ctx.fillStyle = '#fff'; ctx.strokeStyle = c.alto ? '#9b5de5' : '#3fa7f5'; ctx.lineWidth = 5;
+        ctx.beginPath(); ctx.arc(c.x, y, 26, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = '#23364a'; ctx.font = '800 26px "Baloo 2", sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(c.v, c.x, y + 1);
+      }
+    });
+    dibujarRobot();
+  }
+  chispas = chispas.filter(s=> s.v > 0);
+  chispas.forEach(s=>{ s.x += s.vx; s.y += s.vy; s.v -= .035; ctx.globalAlpha = Math.max(0, s.v); ctx.fillStyle = '#ffd23f'; ctx.beginPath(); ctx.arc(s.x, s.y, 4, 0, Math.PI*2); ctx.fill(); ctx.globalAlpha = 1; });
+  if (!jugando && $('intro').hidden && $('festejo').hidden && vidas > 0){
+    ctx.fillStyle = 'rgba(35,54,74,.55)'; ctx.fillRect(0,0,cw,ch);
+    ctx.fillStyle = '#fff'; ctx.font = '800 30px "Baloo 2", sans-serif'; ctx.textAlign = 'center'; ctx.fillText('Tocá "Saltar" para empezar', cw/2, ch/2);
+  }
+  requestAnimationFrame(cuadro);
+}
+// después de pasar de nivel, se arranca con el botón Saltar
+const saltarViejo = saltar;
+saltar = function(){ if (!jugando && $('intro').hidden && $('festejo').hidden){ jugando = true; return; } saltarViejo(); };
+requestAnimationFrame(cuadro);
+window.__juego = {estado:()=>({robot, cosas, vidas, jugando, cuenta}), saltar:()=>saltar()};
+
+pintarNiveles(); empezar();
+// ---------- Intro del robotito y panel ¿Qué aprendemos? ----------
+(function(){
+  const intro = $('intro'), panel = $('panel');
+  $('jugar').onclick = ()=>{ intro.hidden = true; if (typeof alJugar === 'function') alJugar(); };
+  $('abrirPanel').onclick = ()=>{ panel.classList.add('abierto'); panel.setAttribute('aria-hidden','false'); };
+  $('cerrarPanel').onclick = ()=>{ panel.classList.remove('abierto'); panel.setAttribute('aria-hidden','true'); };
+  addEventListener('keydown', e=>{
+    if (e.key === 'Escape') $('cerrarPanel').click();
+    if (!intro.hidden && (e.key === 'Enter' || e.key === ' ')){ e.preventDefault(); e.stopImmediatePropagation(); $('jugar').click(); }
+  }, true);
+})();
+
+</script>
+
+<a class="sd-casa" href="index.html" aria-label="Volver a todos los juegos" title="Todos los juegos">🏠</a>
+</html>

@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><link rel="icon" href="favicon.svg" type="image/svg+xml"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}[hidden]{display:none!important}img{max-width:100%}
+.sd-casa{position:fixed;left:max(10px,env(safe-area-inset-left,0px));bottom:max(10px,env(safe-area-inset-bottom,0px));z-index:50;width:50px;height:50px;border-radius:50%;background:#fff;box-shadow:0 4px 0 #3d86b3;display:flex;align-items:center;justify-content:center;font-size:26px;text-decoration:none}
+.sd-casa:focus-visible{outline:4px solid #ffb627;outline-offset:2px}</style>
+<title>Partes de la Compu</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap">
+<style>
+/* Layout: niveles arriba, cielo de juego en canvas con la consigna dibujada adentro */
+:root{--cielo:#7ec8f0;--panel:#fff;--tinta:#23364a;--sol:#ffb627;--sombra:#3d86b3;
+  --display:"Baloo 2","Comic Sans MS",system-ui,sans-serif;color-scheme:light}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{margin:0;background:var(--cielo);color:var(--tinta);font-family:var(--display);box-sizing:border-box;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:12px;
+  display:flex;flex-direction:column;align-items:center;gap:10px;user-select:none;-webkit-user-select:none}
+button{font-family:var(--display);cursor:pointer;border:none;color:var(--tinta)}
+button:focus-visible{outline:4px solid #fff;outline-offset:2px}
+header{width:100%;max-width:1000px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+h1{margin:0;font-size:clamp(22px,4vw,32px);font-weight:800;color:#fff;text-shadow:0 2px 0 var(--sombra)}
+.pildora{display:flex;gap:4px;background:var(--panel);border-radius:999px;padding:4px;box-shadow:0 3px 0 var(--sombra);flex-wrap:wrap}
+.opc{background:transparent;border-radius:999px;padding:5px 14px;font-size:17px;font-weight:700}
+.opc.on{background:var(--sol)}
+#zona{width:100%;max-width:1000px;flex:1;min-height:0;display:flex;align-items:center;justify-content:center}
+canvas{display:block;border-radius:18px;box-shadow:0 6px 0 var(--sombra);touch-action:none;cursor:pointer;max-width:100%}
+#festejo{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(35,54,74,.45);z-index:20}
+.card{background:#fff;border-radius:24px;padding:24px 32px;text-align:center;box-shadow:0 8px 0 #c98400;max-width:90vw}
+.card h2{margin:0;font-size:44px;color:var(--sol);text-shadow:0 2px 0 #c98400}
+.card p{font-size:22px;margin:4px 0 16px}
+.grande{background:var(--sol);border-radius:999px;padding:10px 28px;font-size:24px;font-weight:800;box-shadow:0 4px 0 #c98400;margin:4px}
+
+/* ---- Robotito que explica + panel ¿Qué aprendemos? ---- */
+.ayuda-btn{font-family:"Baloo 2","Comic Sans MS",system-ui,sans-serif; border:none; cursor:pointer; background:#fff; border-radius:999px; padding:6px 16px; font-size:18px; font-weight:800; color:#23364a; box-shadow:0 3px 0 #3d86b3}
+#intro{position:fixed; inset:0; z-index:40; display:flex; align-items:center; justify-content:center; background:rgba(35,54,74,.5); padding:16px}
+.intro-card{background:#fff; border-radius:28px; padding:22px 26px; box-shadow:0 8px 0 #c98400; display:flex; gap:18px; align-items:center; max-width:640px; flex-wrap:wrap; justify-content:center; font-family:"Baloo 2","Comic Sans MS",system-ui,sans-serif; color:#23364a}
+.intro-card svg{width:150px; height:auto; flex:none}
+.burbuja{position:relative; background:#fff3d6; border-radius:22px; padding:14px 18px; min-width:0; flex:1 1 260px; text-align:center}
+.burbuja::before{content:""; position:absolute; left:-14px; top:40%; border:10px solid transparent; border-right:14px solid #fff3d6}
+.burbuja h2{margin:0; font-size:clamp(24px,4vw,32px); line-height:1.1; color:#23364a; text-shadow:none}
+.pictos{display:flex; justify-content:center; gap:14px; margin:12px 0 4px; flex-wrap:wrap}
+.pictos div{display:flex; flex-direction:column; align-items:center; font-size:15px; font-weight:700; gap:2px; max-width:90px; line-height:1.1}
+.pictos b{font-size:36px; line-height:1; font-family:"Segoe UI Emoji","Apple Color Emoji",sans-serif}
+#jugar{font-family:inherit; border:none; cursor:pointer; background:#ffb627; border-radius:999px; padding:10px 34px; font-size:26px; font-weight:800; color:#23364a; box-shadow:0 4px 0 #c98400; margin-top:8px}
+#panel{position:fixed; top:0; right:0; bottom:0; width:min(400px,100%); background:#fff; z-index:45; box-shadow:-8px 0 30px rgba(35,54,74,.3); color:#23364a; text-align:left;
+  font-family:"Baloo 2","Comic Sans MS",system-ui,sans-serif; overflow:auto; padding:20px max(20px, env(safe-area-inset-right,0px)) 30px 22px; box-sizing:border-box; transform:translateX(105%); transition:transform .25s}
+#panel.abierto{transform:none}
+#panel h2{margin:0 0 4px; font-size:26px; color:#23364a; text-shadow:none}
+#panel .sub{margin:0 0 6px; color:#4d6175; font-size:19px; font-weight:700}
+#panel h3{margin:16px 0 6px; font-size:16px; letter-spacing:1px; color:#3d86b3; text-transform:uppercase}
+#panel ul{margin:0; padding-left:20px; font-size:17px; line-height:1.4}
+#panel li{margin-bottom:4px}
+.logros{display:grid; gap:8px; margin-top:6px}
+.logros div{display:flex; align-items:center; gap:12px; background:#eef6fb; border-radius:16px; padding:8px 12px; font-size:18px; font-weight:700; line-height:1.2}
+.logros b{font-size:30px; flex:none; font-family:"Segoe UI Emoji","Apple Color Emoji",sans-serif}
+.palabras{display:flex; flex-wrap:wrap; gap:8px}
+.palabras span{background:#fff3d6; border-radius:999px; padding:4px 12px; font-size:18px; font-weight:800}
+.dato{margin:0; font-size:17px; line-height:1.45; background:#f4fbef; border-radius:16px; padding:10px 14px}
+#cerrarPanel{font-family:inherit; border:none; cursor:pointer; position:absolute; top:12px; right:max(12px, env(safe-area-inset-right,0px)); width:40px; height:40px; border-radius:50%; background:#eef6fb; font-size:20px; color:#23364a}
+@media (prefers-reduced-motion:reduce){#panel{transition:none}}
+</style>
+<style>
+/* ---- Piezas comunes de los juegos nuevos ---- */
+#progreso{font-size:clamp(18px,4.6vw,26px);gap:2px;min-height:34px;display:flex;flex-wrap:wrap;justify-content:center;max-width:100%;font-family:"Segoe UI Emoji","Apple Color Emoji",sans-serif}
+#progreso span{opacity:.3}#progreso span.si{opacity:1}
+#juego{width:100%;max-width:1000px;flex:1;background:#fffdf6;border-radius:24px;box-shadow:0 6px 0 var(--sombra);padding:18px;box-sizing:border-box;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;min-height:0;position:relative}
+.consigna{font-size:clamp(22px,3.4vw,32px);font-weight:800;text-align:center;margin:0;line-height:1.15}
+.mensaje{min-height:36px;font-size:clamp(20px,3vw,26px);font-weight:800;text-align:center}
+.mensaje.ok{color:#2e8b57}.mensaje.mal{color:#e4572e}
+.opciones{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
+.opcion{background:#fff;border-radius:20px;min-width:90px;padding:8px 20px;font-size:40px;font-weight:800;box-shadow:0 5px 0 #3d86b3;border:3px solid #d5e6f3}
+.opcion:active{transform:translateY(3px);box-shadow:0 2px 0 #3d86b3}
+.opcion.mal{background:#ffe1d8;border-color:#e4572e}.opcion.bien{background:#d9f5dc;border-color:#2e8b57}
+.emo{font-family:"Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif}
+.sacude{animation:sacude .4s}
+@keyframes sacude{20%{transform:translateX(-10px)}40%{transform:translateX(9px)}60%{transform:translateX(-6px)}80%{transform:translateX(4px)}}
+@media (prefers-reduced-motion:reduce){.sacude{animation:none}}
+</style>
+<style>
+#escena{width:100%;max-width:820px;height:auto;touch-action:none;user-select:none}
+#escena [data-p]{cursor:pointer;transition:opacity .2s}
+#escena [data-p].apagada{opacity:.25}
+#escena [data-p].brilla{filter:drop-shadow(0 0 8px #ffb627) drop-shadow(0 0 4px #ffb627)}
+#escena [data-p].listo{filter:drop-shadow(0 0 6px #5cc96b)}
+.carteles{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;min-height:52px}
+.cartel{background:#ffb627;border-radius:12px;padding:6px 16px;font-size:20px;font-weight:800;box-shadow:0 4px 0 #c98400;touch-action:none}
+.cartel.elegido{outline:4px solid #23364a}
+.fantasma{position:fixed;z-index:30;pointer-events:none;transform:translate(-50%,-50%) rotate(-4deg);background:#ffb627;border-radius:12px;padding:6px 16px;font-size:20px;font-weight:800;box-shadow:0 6px 12px rgba(0,0,0,.25)}
+.botones{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
+.botones button{border-radius:18px;padding:10px 26px;font-size:24px;font-weight:800;color:#fff}
+#bEntrada{background:#3fa7f5;box-shadow:0 5px 0 #1f6fb5}
+#bSalida{background:#9b5de5;box-shadow:0 5px 0 #6b3fb0}
+</style>
+
+<header>
+  <h1>🖥️ Partes de la Compu</h1>
+  <button class="ayuda-btn" id="abrirPanel">📘 ¿Qué aprendemos?</button>
+  <div class="pildora" id="niveles"></div>
+</header>
+<div id="progreso"></div>
+<main id="juego">
+<p class="consigna" id="consigna"></p>
+<svg id="escena" viewBox="0 0 800 440" aria-label="Una computadora sobre un escritorio">
+  <!-- pared y escritorio -->
+  <rect width="800" height="440" fill="#eef6fb"/>
+  <rect x="0" y="300" width="800" height="90" fill="#c99a6b"/><rect x="0" y="300" width="800" height="10" fill="#b5875a"/>
+  <rect x="30" y="390" width="26" height="50" fill="#a97c50"/><rect x="744" y="390" width="26" height="50" fill="#a97c50"/>
+  <!-- cables -->
+  <path d="M575 318 Q600 300 640 310 L680 300" fill="none" stroke="#5b6b7b" stroke-width="4"/>
+  <path d="M520 340 Q620 380 680 296" fill="none" stroke="#5b6b7b" stroke-width="4"/>
+  <!-- impresora -->
+  <g data-p="impresora"><rect x="40" y="200" width="140" height="100" rx="12" fill="#dfe6ee" stroke="#23364a" stroke-width="4"/><rect x="62" y="176" width="96" height="30" fill="#fff" stroke="#23364a" stroke-width="3"/><path d="M74 186 L146 186 M74 194 L130 194" stroke="#9aa5b1" stroke-width="3"/><rect x="58" y="252" width="104" height="12" rx="4" fill="#23364a"/><circle cx="160" cy="224" r="6" fill="#5cc96b"/></g>
+  <!-- parlantes -->
+  <g data-p="parlantes"><rect x="196" y="186" width="52" height="110" rx="10" fill="#23364a"/><circle cx="222" cy="214" r="12" fill="#5b6b7b"/><circle cx="222" cy="256" r="18" fill="#5b6b7b"/><circle cx="222" cy="256" r="7" fill="#9aa5b1"/>
+    <rect x="552" y="186" width="52" height="110" rx="10" fill="#23364a"/><circle cx="578" cy="214" r="12" fill="#5b6b7b"/><circle cx="578" cy="256" r="18" fill="#5b6b7b"/><circle cx="578" cy="256" r="7" fill="#9aa5b1"/></g>
+  <!-- monitor -->
+  <g data-p="monitor"><rect x="380" y="236" width="40" height="50" fill="#5b6b7b"/><ellipse cx="400" cy="292" rx="70" ry="10" fill="#5b6b7b"/>
+    <rect x="258" y="64" width="284" height="180" rx="14" fill="#23364a"/><rect x="272" y="78" width="256" height="150" rx="4" fill="#8fd3fb"/>
+    <path d="M272 200 Q340 160 400 196 Q460 170 528 196 L528 228 L272 228 Z" fill="#5cc96b"/><circle cx="480" cy="112" r="16" fill="#ffd23f"/></g>
+  <!-- cámara web -->
+  <g data-p="camara"><rect x="382" y="40" width="36" height="26" rx="9" fill="#23364a"/><circle cx="400" cy="53" r="7" fill="#3fa7f5"/><circle cx="403" cy="50" r="2" fill="#fff"/></g>
+  <!-- micrófono -->
+  <g data-p="microfono"><rect x="604" y="290" width="40" height="10" rx="4" fill="#23364a"/><rect x="621" y="246" width="6" height="46" fill="#5b6b7b"/><rect x="608" y="210" width="32" height="46" rx="16" fill="#9aa5b1" stroke="#23364a" stroke-width="4"/><path d="M612 226 L636 226 M612 236 L636 236" stroke="#23364a" stroke-width="2"/></g>
+  <!-- gabinete -->
+  <g data-p="gabinete"><rect x="664" y="120" width="112" height="180" rx="10" fill="#9aa5b1" stroke="#23364a" stroke-width="4"/><rect x="680" y="140" width="80" height="14" rx="3" fill="#5b6b7b"/><rect x="680" y="162" width="80" height="14" rx="3" fill="#5b6b7b"/><circle cx="720" cy="226" r="12" fill="#23364a"/><circle cx="720" cy="226" r="5" fill="#5cc96b"/><path d="M684 262 L756 262 M684 272 L756 272 M684 282 L756 282" stroke="#5b6b7b" stroke-width="3"/></g>
+  <!-- auriculares -->
+  <g data-p="auriculares"><path d="M140 362 Q140 316 182 316 Q224 316 224 362" fill="none" stroke="#23364a" stroke-width="8"/><rect x="128" y="346" width="24" height="34" rx="10" fill="#e4572e" stroke="#23364a" stroke-width="3"/><rect x="212" y="346" width="24" height="34" rx="10" fill="#e4572e" stroke="#23364a" stroke-width="3"/></g>
+  <!-- teclado -->
+  <g data-p="teclado"><rect x="252" y="320" width="270" height="52" rx="8" fill="#dfe6ee" stroke="#23364a" stroke-width="4"/>
+    <g fill="#fff" stroke="#9aa5b1" stroke-width="1.5"></g></g>
+  <!-- mouse -->
+  <g data-p="mouse"><ellipse cx="578" cy="346" rx="19" ry="27" fill="#dfe6ee" stroke="#23364a" stroke-width="4"/><path d="M578 320 L578 340" stroke="#23364a" stroke-width="3"/></g>
+  <g id="etiquetas" pointer-events="none"></g>
+</svg>
+<div class="carteles" id="carteles"></div>
+<div class="botones" id="botones" hidden><button id="bEntrada">⬅️ Entrada</button><button id="bSalida">Salida ➡️</button></div>
+<div id="mensaje" class="mensaje"></div>
+</main>
+
+<div id="festejo" hidden>
+  <div class="card"><h2>¡Excelente!</h2><div style="font-size:40px" class="emo">⭐⭐⭐</div><p id="festejoTxt"></p>
+    <button class="grande" id="seguir">Siguiente nivel ▶</button></div>
+</div>
+
+<!-- El robotito explica el juego antes de empezar -->
+<div id="intro">
+  <div class="intro-card">
+    <svg viewBox="0 0 120 150" aria-hidden="true">
+      <line x1="60" y1="22" x2="60" y2="8" stroke="#23364a" stroke-width="4"/><circle cx="60" cy="7" r="6" fill="#e4572e"/>
+      <rect x="22" y="22" width="76" height="60" rx="18" fill="#ffb627" stroke="#23364a" stroke-width="4"/>
+      <circle cx="45" cy="48" r="10" fill="#fff"/><circle cx="75" cy="48" r="10" fill="#fff"/>
+      <circle cx="47" cy="49" r="5" fill="#23364a"/><circle cx="77" cy="49" r="5" fill="#23364a"/>
+      <path d="M46 64 Q60 74 74 64" fill="none" stroke="#23364a" stroke-width="4" stroke-linecap="round"/>
+      <rect x="32" y="86" width="56" height="44" rx="12" fill="#ffb627" stroke="#23364a" stroke-width="4"/>
+      <rect x="10" y="92" width="22" height="10" rx="5" fill="#9aa5b1" stroke="#23364a" stroke-width="3" transform="rotate(-30 21 97)"/>
+      <rect x="88" y="92" width="22" height="10" rx="5" fill="#9aa5b1" stroke="#23364a" stroke-width="3" transform="rotate(30 99 97)"/>
+      <rect x="40" y="130" width="14" height="16" rx="4" fill="#9aa5b1" stroke="#23364a" stroke-width="3"/>
+      <rect x="66" y="130" width="14" height="16" rx="4" fill="#9aa5b1" stroke="#23364a" stroke-width="3"/>
+    </svg>
+    <div class="burbuja">
+      <h2>¡Conocé las partes de la computadora!</h2>
+      <div class="pictos"><div><b>🏷️</b>agarrá un cartel</div><div><b>🖱️</b>llevalo a su parte</div><div><b>⬅️➡️</b>¿entrada o salida?</div><div><b>⭐</b>juntá estrellas</div></div>
+      <button id="jugar">¡Jugar!</button>
+    </div>
+  </div>
+</div>
+
+<!-- Panel "¿Qué aprendemos?" para los chicos y sus familias -->
+<aside id="panel" aria-label="Qué aprendemos" aria-hidden="true">
+  <button id="cerrarPanel" aria-label="Cerrar">✕</button>
+  <h2>📘 ¿Qué aprendemos?</h2>
+<p class="sub">Con Partes de la Compu aprendemos a…</p>
+  <div class="logros"><div><b>🖥️</b>Nombrar las partes de la computadora</div><div><b>⬅️</b>Reconocer los dispositivos de entrada</div><div><b>➡️</b>Reconocer los dispositivos de salida</div><div><b>🧠</b>Saber para qué sirve cada una</div></div>
+  <h3>Palabras nuevas</h3>
+  <div class="palabras"><span>🖥️ monitor</span><span>⌨️ teclado</span><span>🖱️ mouse</span><span>🗄️ gabinete</span><span>⬅️ entrada</span><span>➡️ salida</span></div>
+  <h3>¿Sabías que…?</h3>
+  <p class="dato">Los dispositivos de <b>entrada</b> le dan información a la compu (el teclado, el mouse, el micrófono, la cámara). Los de <b>salida</b> nos muestran lo que la compu hizo (el monitor, los parlantes, la impresora). Adentro del gabinete está el <b>procesador</b>, el "cerebro" que hace las cuentas. 🧠</p>
+  <h3>Para charlar en familia</h3>
+  <ul><li>¿Qué partes de la compu tienen en casa? ¿Y en el celular?</li><li>¿El celular tiene cámara y micrófono? ¿Son de entrada o de salida?</li><li>¿Qué parte de la compu usan más?</li></ul>
+  <h3>Para jugar en casa</h3>
+  <p class="dato">🔍 <b>Detectives de entrada y salida:</b> buscar aparatos en casa (tele, control remoto, radio, celular) y decidir juntos qué parte "recibe" información y cuál la "muestra".</p>
+</aside>
+
+<script>
+
+// ---------- Piezas comunes: niveles, estrellas, mensajes y festejo ----------
+const $ = id => document.getElementById(id);
+let nivel = 0, aciertos = 0, bloqueado = false;
+function mezclar(a){ for (let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function azar(a, b){ return a + Math.floor(Math.random()*(b-a+1)); }
+function elegir(a){ return a[Math.floor(Math.random()*a.length)]; }
+function meta(){ return NIVELES[nivel].meta || META; }
+function pintarProgreso(){ $('progreso').innerHTML = Array.from({length:meta()}, (_,i)=>`<span class="${i<aciertos?'si':''}">⭐</span>`).join(''); }
+function decir(txt, tipo){ const m = $('mensaje'); m.textContent = txt; m.className = 'mensaje ' + (tipo||''); }
+function sacudir(el){ el.classList.remove('sacude'); void el.offsetWidth; el.classList.add('sacude'); }
+// un acierto suma una estrella; al llegar a la meta se pasa de nivel
+function bien(txt, espera){
+  aciertos++; pintarProgreso(); decir(txt || elegir(['¡Bien!','¡Muy bien!','¡Genial!','¡Eso!','¡Excelente!']), 'ok'); bloqueado = true;
+  if (aciertos >= meta()) setTimeout(ganar, 900);
+  else setTimeout(()=>{ bloqueado = false; nueva(); }, espera ?? 1000);
+}
+function ganar(){
+  const ultimo = nivel === NIVELES.length-1;
+  $('festejoTxt').textContent = ultimo ? '¡Terminaste todos los niveles!' : `Pasaste el nivel "${NIVELES[nivel].nombre}"`;
+  $('seguir').textContent = ultimo ? 'Jugar otra vez' : 'Siguiente nivel ▶';
+  $('festejo').hidden = false;
+}
+$('seguir').onclick = ()=>{ $('festejo').hidden = true; nivel = (nivel+1) % NIVELES.length; pintarNiveles(); empezar(); };
+function empezar(){ aciertos = 0; bloqueado = false; pintarProgreso(); decir(''); if (typeof alEmpezar === 'function') alEmpezar(); nueva(); }
+function pintarNiveles(){
+  const cont = $('niveles'); cont.innerHTML = '';
+  NIVELES.forEach((n,i)=>{ const b = document.createElement('button'); b.className = 'opc' + (i===nivel?' on':''); b.textContent = n.nombre;
+    b.onclick = ()=>{ nivel = i; pintarNiveles(); empezar(); }; cont.appendChild(b); });
+}
+
+// Partes: nombre, dónde va su cartel, si es de entrada (E) o salida (S) y para qué sirve
+const PARTES = {
+  monitor:    {nombre:'Monitor',     x:400, y:150, es:'S', para:'¿Dónde veo lo que está haciendo la compu?'},
+  teclado:    {nombre:'Teclado',     x:387, y:346, es:'E', para:'¿Con qué escribo letras y números?'},
+  mouse:      {nombre:'Mouse',       x:578, y:396, es:'E', para:'¿Con qué muevo la flechita de la pantalla?'},
+  gabinete:   {nombre:'Gabinete',    x:720, y:105, es:null, para:'¿Dónde está el "cerebro" de la compu, el procesador?'},
+  parlantes:  {nombre:'Parlantes',   x:222, y:170, es:'S', para:'¿Por dónde sale la música para que la escuchen todos?'},
+  impresora:  {nombre:'Impresora',   x:110, y:160, es:'S', para:'¿Con qué paso un dibujo de la compu a una hoja de papel?'},
+  camara:     {nombre:'Cámara',      x:400, y:24,  es:'E', para:'¿Con qué me pueden ver en una videollamada?'},
+  auriculares:{nombre:'Auriculares', x:182, y:404, es:'S', para:'¿Con qué escucho música sin molestar a nadie?'},
+  microfono:  {nombre:'Micrófono',   x:624, y:194, es:'E', para:'¿Con qué me escuchan cuando hablo?'}
+};
+const NIVELES = [
+  {nombre:'Lo básico',       modo:'nombres', partes:['monitor','teclado','mouse','gabinete']},
+  {nombre:'Más partes',      modo:'nombres', partes:['parlantes','impresora','camara','auriculares','microfono'], meta:5},
+  {nombre:'¿Entrada o salida?', modo:'es', meta:8},
+  {nombre:'¿Para qué sirve?', modo:'para', meta:8}
+];
+const META = 4;
+// teclitas del teclado
+(function(){ let s = ''; for (let f=0; f<3; f++) for (let c=0; c<14; c++) s += `<rect x="${262+c*18.5}" y="${327+f*13}" width="15" height="10" rx="2"/>`;
+  document.querySelector('[data-p="teclado"] g').innerHTML = s; })();
+const escena = $('escena');
+let pendientes = [], actual = null, elegido = null, puestas = [];
+
+function etiqueta(k, color){
+  const p = PARTES[k], w = p.nombre.length * 11 + 22;
+  return `<g><rect x="${p.x - w/2}" y="${p.y - 15}" width="${w}" height="30" rx="9" fill="${color || '#5cc96b'}" stroke="#23364a" stroke-width="2.5"/><text x="${p.x}" y="${p.y + 6}" text-anchor="middle" font-size="18" font-weight="800" font-family="Baloo 2, sans-serif" fill="#fff">${p.nombre}</text></g>`;
+}
+function limpiar(){
+  escena.querySelectorAll('[data-p]').forEach(g=> g.classList.remove('apagada','brilla','listo'));
+  $('etiquetas').innerHTML = ''; $('carteles').innerHTML = ''; $('botones').hidden = true;
+}
+function alEmpezar(){
+  limpiar(); puestas = []; elegido = null;
+  const n = NIVELES[nivel];
+  if (n.modo === 'nombres'){
+    // las partes que no son de este nivel se ven apagadas
+    escena.querySelectorAll('[data-p]').forEach(g=> g.classList.toggle('apagada', !n.partes.includes(g.dataset.p)));
+    $('consigna').textContent = 'Llevá cada cartel a su parte de la compu';
+    mezclar(n.partes.slice()).forEach(k=>{
+      const c = document.createElement('button'); c.className = 'cartel'; c.textContent = PARTES[k].nombre; c.dataset.k = k;
+      arrastrable(c); $('carteles').appendChild(c);
+    });
+  } else {
+    const todas = Object.keys(PARTES).filter(k=> n.modo !== 'es' || PARTES[k].es);
+    pendientes = mezclar(todas).slice(0, meta());
+  }
+}
+function nueva(){
+  const n = NIVELES[nivel];
+  if (n.modo === 'nombres') return;
+  actual = pendientes[aciertos % pendientes.length];
+  escena.querySelectorAll('[data-p]').forEach(g=> g.classList.remove('brilla','apagada','listo'));
+  if (n.modo === 'es'){
+    escena.querySelectorAll('[data-p]').forEach(g=> g.classList.toggle('apagada', g.dataset.p !== actual));
+    escena.querySelector(`[data-p="${actual}"]`).classList.add('brilla');
+    $('consigna').innerHTML = `${PARTES[actual].nombre}: ¿es de <b>entrada</b> o de <b>salida</b>?`;
+    $('botones').hidden = false;
+  } else {
+    $('consigna').textContent = PARTES[actual].para + ' Tocala en el dibujo.';
+  }
+}
+// ---- modo nombres: arrastrar carteles (o tocar el cartel y después la parte) ----
+function parteEn(x, y){ const el = document.elementFromPoint(x, y); const g = el && el.closest && el.closest('[data-p]'); return g ? g.dataset.p : null; }
+function colocar(k, parte){
+  const n = NIVELES[nivel];
+  if (!parte || !n.partes.includes(parte)) return decir('Soltá el cartel arriba de una parte de la compu', 'mal');
+  if (parte !== k){ sacudir($('carteles')); return decir(`Ahí no va "${PARTES[k].nombre}". ¡Probá en otra parte!`, 'mal'); }
+  puestas.push(k);
+  $('etiquetas').insertAdjacentHTML('beforeend', etiqueta(k));
+  escena.querySelector(`[data-p="${k}"]`).classList.add('listo');
+  $('carteles').querySelector(`[data-k="${k}"]`).remove();
+  elegido = null;
+  bien(`¡Sí! ${PARTES[k].nombre}`, 0);
+}
+function arrastrable(c){
+  c.addEventListener('pointerdown', e=>{
+    e.preventDefault();
+    const x0 = e.clientX, y0 = e.clientY; let f = null;
+    const mover = ev=>{
+      if (!f && Math.hypot(ev.clientX-x0, ev.clientY-y0) > 8){ f = document.createElement('div'); f.className = 'fantasma'; f.textContent = c.textContent; document.body.appendChild(f); c.style.opacity = .4; }
+      if (f){ f.style.left = ev.clientX + 'px'; f.style.top = ev.clientY + 'px'; }
+    };
+    const fin = ev=>{
+      removeEventListener('pointermove', mover); removeEventListener('pointerup', fin);
+      if (f){ f.remove(); c.style.opacity = ''; colocar(c.dataset.k, parteEn(ev.clientX, ev.clientY)); }
+      else { document.querySelectorAll('.cartel').forEach(x=> x.classList.remove('elegido')); elegido = c.dataset.k; c.classList.add('elegido'); decir('Ahora tocá la parte de la compu', ''); }
+    };
+    addEventListener('pointermove', mover); addEventListener('pointerup', fin);
+  });
+}
+escena.addEventListener('click', e=>{
+  const g = e.target.closest('[data-p]'); if (!g || bloqueado) return;
+  const n = NIVELES[nivel], k = g.dataset.p;
+  if (n.modo === 'nombres'){ if (elegido) colocar(elegido, k); return; }
+  if (n.modo === 'para'){
+    if (k === actual){ g.classList.add('listo'); $('etiquetas').innerHTML = etiqueta(k); bien(`¡Sí! ${PARTES[k].nombre}`, 1200); setTimeout(()=> $('etiquetas').innerHTML = '', 1150); }
+    else { decir(`Eso es: ${PARTES[k].nombre}. Probá con otra parte`, 'mal'); }
+  }
+});
+function responderES(es){
+  if (bloqueado) return;
+  const p = PARTES[actual];
+  if (es === p.es) bien(es === 'E' ? `¡Sí! ${p.nombre}: le da información a la compu` : `¡Sí! ${p.nombre}: nos muestra lo que hace la compu`, 1500);
+  else { sacudir($('botones')); decir(p.es === 'E' ? 'Pensá: ¿le manda información a la compu, o la compu se la manda a él?' : 'Pensá: ¿la compu nos muestra algo con esto, o le mandamos información?', 'mal'); }
+}
+$('bEntrada').onclick = ()=> responderES('E');
+$('bSalida').onclick = ()=> responderES('S');
+window.__juego = {actual:()=>actual, PARTES, colocar, responderES};
+
+pintarNiveles(); empezar();
+// ---------- Intro del robotito y panel ¿Qué aprendemos? ----------
+(function(){
+  const intro = $('intro'), panel = $('panel');
+  $('jugar').onclick = ()=>{ intro.hidden = true; if (typeof alJugar === 'function') alJugar(); };
+  $('abrirPanel').onclick = ()=>{ panel.classList.add('abierto'); panel.setAttribute('aria-hidden','false'); };
+  $('cerrarPanel').onclick = ()=>{ panel.classList.remove('abierto'); panel.setAttribute('aria-hidden','true'); };
+  addEventListener('keydown', e=>{
+    if (e.key === 'Escape') $('cerrarPanel').click();
+    if (!intro.hidden && (e.key === 'Enter' || e.key === ' ')){ e.preventDefault(); e.stopImmediatePropagation(); $('jugar').click(); }
+  }, true);
+})();
+
+</script>
+
+<a class="sd-casa" href="index.html" aria-label="Volver a todos los juegos" title="Todos los juegos">🏠</a>
+</html>
