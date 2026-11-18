@@ -6,143 +6,319 @@
 <script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
 <script defer src="/_vercel/insights/script.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="Juegos educativos de Samuel Digital para 1° y 2° grado: laberintos, píxeles, memotest, letras, números y penales.">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
-<style>body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
-<title>Juegos Samuel Digital</title>
-<meta name="claude:viewport-fit-sides" content="cover">
+<title>Juegos educativos gratis para primaria | Samuel Digital</title>
+<!-- SEO: descripción, dirección oficial y tarjeta para compartir -->
+<meta name="description" content="Juegos educativos online y gratis para chicos de 1° a 6° grado: tablas de multiplicar, sumas, letras, lógica, programación con bloques y arte. Para jugar en la escuela y en casa.">
+<link rel="canonical" href="https://juegos.samueldigital.com.ar/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Samuel Digital">
+<meta property="og:title" content="Juegos educativos gratis para primaria | Samuel Digital">
+<meta property="og:description" content="Juegos educativos online y gratis para chicos de 1° a 6° grado: tablas de multiplicar, sumas, letras, lógica, programación con bloques y arte. Para jugar en la escuela y en casa.">
+<meta property="og:url" content="https://juegos.samueldigital.com.ar/">
+<meta property="og:image" content="https://juegos.samueldigital.com.ar/img/compartir.jpg">
+<meta property="og:locale" content="es_AR">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Bungee&display=swap">
 <style>
-/* Layout: franja de marca con sol ochentoso arriba, filtros por grado y grilla de juegos */
+/* Layout: franja de marca arriba; abajo, o la pantalla "¿En qué grado estás?" o los juegos del grado agrupados por tema */
 :root{
   --noche:#1b1446; --violeta:#5b2a86; --magenta:#e0457b; --naranja:#ff8a3d; --sol:#ffc93c;
   --cielo:#7ec8f0; --panel:#ffffff; --tinta:#23364a; --sombra:#3d86b3;
   --marca:"Bungee","Arial Black",system-ui,sans-serif;
   --display:"Baloo 2","Comic Sans MS",system-ui,sans-serif;
+  --emoji:"Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif;
   color-scheme:light;
 }
 [hidden]{display:none!important}
-body{background:var(--cielo); color:var(--tinta); font-family:var(--display); user-select:none; -webkit-user-select:none}
-a{color:inherit}
-.franja{background:linear-gradient(180deg,var(--noche) 0%,var(--violeta) 45%,var(--magenta) 80%,var(--naranja) 100%);
-  padding-left:max(16px,env(safe-area-inset-left,0px)); padding-right:max(16px,env(safe-area-inset-right,0px)); padding-block:28px 0; overflow:hidden; position:relative}
-.franja-in{max-width:1000px; margin:0 auto; display:flex; align-items:flex-end; gap:22px; flex-wrap:wrap}
-.sol{width:150px; height:75px; flex:none; position:relative}
-.sol svg{display:block; width:100%; height:100%}
-.marca{padding-bottom:18px; min-width:0}
-.marca h1{margin:0; font-family:var(--marca); font-weight:400; font-size:clamp(28px,6vw,52px); line-height:1; color:#fff;
-  text-shadow:3px 3px 0 var(--magenta), 6px 6px 0 rgba(27,20,70,.6); letter-spacing:1px; text-wrap:balance}
-.marca p{margin:8px 0 0; color:#ffe7c2; font-size:clamp(17px,2.4vw,22px); font-weight:700}
-.grilla-piso{height:34px; background:
-  repeating-linear-gradient(90deg, rgba(255,255,255,.35) 0 2px, transparent 2px 46px),
-  linear-gradient(180deg, var(--naranja), #ffb35c); margin:0 calc(-1 * max(16px,env(safe-area-inset-right,0px))) 0 calc(-1 * max(16px,env(safe-area-inset-left,0px)))}
-main{max-width:1000px; margin:0 auto; padding-left:max(16px,env(safe-area-inset-left,0px)); padding-right:max(16px,env(safe-area-inset-right,0px)); padding-block:20px 40px}
-.seccion{font-family:var(--display); font-size:clamp(26px,4.5vw,34px); color:#fff; text-shadow:0 3px 0 var(--sombra); margin:4px 0 12px; display:flex; align-items:center; gap:10px}
-.seccion small{font-size:17px; font-weight:700; color:#eaf6ff; text-shadow:0 2px 0 var(--sombra)}
-.grados{display:grid; grid-template-columns:repeat(6,1fr); gap:14px; margin-bottom:34px}
-.grado{display:flex; flex-direction:column; align-items:center; gap:2px; text-decoration:none; color:#fff; background:var(--g); border-radius:22px; padding:14px 6px 12px; box-shadow:0 6px 0 rgba(0,0,0,.2); transition:transform .15s}
-.grado:hover{transform:translateY(-4px)}
-.grado .em{font-size:30px; font-family:"Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif}
-.grado .n{font-family:var(--display); font-weight:800; font-size:44px; line-height:1}
-.grado .t{font-size:14px; font-weight:800; opacity:.95}
-@media (max-width:760px){ .grados{grid-template-columns:repeat(3,1fr)} }
-.filtros{display:flex; gap:6px; background:var(--panel); border-radius:999px; padding:5px; box-shadow:0 4px 0 var(--sombra); width:max-content; max-width:100%; flex-wrap:wrap; margin:0 auto 22px}
-.filtros button{font-family:var(--display); border:none; cursor:pointer; background:transparent; color:var(--tinta); border-radius:999px; padding:6px 20px; font-size:20px; font-weight:800}
-.filtros button.on{background:var(--sol)}
+html{scroll-behavior:smooth}
+body{margin:0; background:var(--cielo); color:var(--tinta); font-family:var(--display); -webkit-user-select:none; user-select:none}
+a{color:inherit; text-decoration:none}
+button{font-family:var(--display); border:none; cursor:pointer; color:var(--tinta)}
 button:focus-visible,a:focus-visible{outline:4px solid #fff; outline-offset:3px}
-.juegos{display:grid; grid-template-columns:repeat(auto-fill,minmax(max(220px,calc((100% - 36px)/3)),1fr)); gap:18px}
+/* ---- franja de marca ---- */
+.franja{background:linear-gradient(180deg,var(--noche) 0%,var(--violeta) 45%,var(--magenta) 80%,var(--naranja) 100%);
+  padding-left:max(16px,env(safe-area-inset-left,0px)); padding-right:max(16px,env(safe-area-inset-right,0px)); padding-block:20px 0; overflow:hidden}
+.franja-in{max-width:1080px; margin:0 auto; display:flex; align-items:flex-end; gap:18px}
+.sol{width:110px; height:55px; flex:none}
+.sol svg{display:block; width:100%; height:100%}
+.marca{padding-bottom:12px; min-width:0}
+.marca h1{margin:0; font-family:var(--marca); font-weight:400; font-size:clamp(24px,5vw,44px); line-height:1; color:#fff; text-shadow:3px 3px 0 var(--magenta), 5px 5px 0 rgba(27,20,70,.6); letter-spacing:1px}
+.marca p{margin:6px 0 0; color:#ffe7c2; font-size:clamp(15px,2.2vw,20px); font-weight:700}
+.grilla-piso{height:24px; background:repeating-linear-gradient(90deg, rgba(255,255,255,.35) 0 2px, transparent 2px 46px), linear-gradient(180deg, var(--naranja), #ffb35c);
+  margin:0 calc(-1 * max(16px,env(safe-area-inset-right,0px))) 0 calc(-1 * max(16px,env(safe-area-inset-left,0px)))}
+@media (max-width:520px){ .sol{width:70px; height:35px} }
+main{max-width:1080px; margin:0 auto; padding-left:max(16px,env(safe-area-inset-left,0px)); padding-right:max(16px,env(safe-area-inset-right,0px)); padding-block:20px 50px}
+/* ---- ¿En qué grado estás? ---- */
+.elegir{text-align:center; padding-top:8px}
+.elegir h2{margin:0 0 4px; font-size:clamp(30px,6vw,48px); color:#fff; text-shadow:0 4px 0 var(--sombra); line-height:1.1}
+.elegir p{margin:0 0 22px; font-size:20px; font-weight:700; color:#eaf6ff; text-shadow:0 2px 0 var(--sombra)}
+.grados{display:grid; grid-template-columns:repeat(3,1fr); gap:18px; max-width:760px; margin:0 auto}
+.grado{display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0; color:#fff; background:var(--g); border-radius:28px; padding:18px 8px 16px; box-shadow:0 8px 0 rgba(0,0,0,.22); transition:transform .15s; min-height:150px}
+.grado:hover{transform:translateY(-5px) rotate(-1deg)}
+.grado:active{transform:translateY(3px)}
+.grado .em{font-size:40px; font-family:var(--emoji); line-height:1.1}
+.grado .n{font-weight:800; font-size:clamp(54px,9vw,72px); line-height:.95}
+.grado .t{font-size:20px; font-weight:800}
+.ver-todos{margin-top:26px; background:rgba(255,255,255,.9); border-radius:999px; padding:8px 22px; font-size:18px; font-weight:800; box-shadow:0 4px 0 var(--sombra)}
+/* ---- barra del grado ---- */
+.barra{display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:18px}
+.mi-grado{display:flex; align-items:center; gap:10px; background:var(--g,#fff); color:#fff; border-radius:999px; padding:6px 20px 6px 8px; box-shadow:0 5px 0 rgba(0,0,0,.2)}
+.mi-grado .bola{width:52px; height:52px; border-radius:50%; background:rgba(255,255,255,.25); display:flex; align-items:center; justify-content:center; font-size:30px; font-family:var(--emoji)}
+.mi-grado b{font-size:30px; line-height:1}
+.chico{background:#fff; border-radius:999px; padding:8px 18px; font-size:17px; font-weight:800; box-shadow:0 4px 0 var(--sombra)}
+.atajos{display:flex; gap:8px; flex-wrap:wrap; margin-left:auto}
+.atajos a{display:flex; align-items:center; gap:6px; text-decoration:none; background:#fff; border-radius:999px; padding:6px 14px; font-size:16px; font-weight:800; box-shadow:0 3px 0 var(--sombra)}
+.atajos a span{font-family:var(--emoji); font-size:20px}
+@media (max-width:700px){ .atajos{margin-left:0} }
+/* ---- secciones ---- */
+.tema, .bloque{margin-bottom:30px; scroll-margin-top:12px}
+.tema h2, .bloque h2{display:flex; align-items:center; gap:12px; margin:0 0 12px; font-size:clamp(24px,4vw,32px); color:#fff; text-shadow:0 3px 0 var(--sombra)}
+.tema-ico{width:52px; height:52px; border-radius:16px; background:var(--t,#fff); display:inline-flex; align-items:center; justify-content:center; font-size:30px; font-family:var(--emoji); text-shadow:none; box-shadow:0 4px 0 rgba(0,0,0,.18); flex:none}
+.juegos{display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:18px}
 .juego{display:flex; flex-direction:column; background:var(--panel); border-radius:24px; overflow:hidden; text-decoration:none; box-shadow:0 6px 0 var(--sombra); transition:transform .15s}
-.juego:hover{transform:translateY(-4px)}
+.juego:hover{transform:translateY(-5px)}
 .juego:active{transform:translateY(2px)}
-.icono{height:120px; display:flex; align-items:center; justify-content:center; font-size:68px; font-family:"Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif; position:relative}
-.icono::after{content:""; position:absolute; inset:auto 0 0; height:14px; background:repeating-linear-gradient(90deg, rgba(255,255,255,.3) 0 10px, transparent 10px 20px)}
-.texto{padding:12px 16px 16px; display:flex; flex-direction:column; gap:6px; flex:1}
-.texto h2{margin:0; font-size:23px; line-height:1.1}
-.texto p{margin:0; font-size:16px; color:#4d6175; line-height:1.3}
-.chips{display:flex; gap:6px; margin-top:auto; padding-top:4px; flex-wrap:wrap}
-.chip{font-size:14px; font-weight:800; border-radius:999px; padding:1px 10px; background:#eef6fb; color:#3d86b3}
-.chip.nuevo{background:#ffb627; color:#23364a}
-.destacado{grid-column:1 / -1; flex-direction:row}
-.destacado .icono{width:200px; height:auto; min-height:150px; flex:none; font-size:84px}
-.destacado .icono::after{inset:0 0 0 auto; width:14px; height:auto; background:repeating-linear-gradient(180deg, rgba(255,255,255,.3) 0 10px, transparent 10px 20px)}
-.destacado h2{font-size:30px}
+.foto{position:relative; display:block; aspect-ratio:16/10; background:#d5e6f3; overflow:hidden; border-bottom:5px solid var(--t,#3fa7f5)}
+.foto img{width:100%; height:100%; object-fit:cover; display:block}
+.nuevo, .ya{position:absolute; top:10px; border-radius:999px; padding:2px 12px; font-size:15px; font-weight:800; box-shadow:0 2px 6px rgba(0,0,0,.2)}
+.nuevo{left:10px; background:#ffb627}
+.ya{right:10px; background:#5cc96b; color:#fff}
+.texto{display:flex; flex-direction:column; gap:3px; padding:10px 16px 14px; flex:1}
+.texto b{font-size:22px; line-height:1.1}
+.texto span{font-size:16px; color:#4d6175; line-height:1.3}
+.texto small{margin-top:auto; padding-top:4px; font-size:14px; font-weight:800; color:#3d86b3}
+/* tarjeta de actividades del grado */
+.juego.clase .foto{display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg,var(--g),#1b1446); font-size:64px; font-family:var(--emoji); border-bottom-color:#ffc93c}
+.vacio{background:rgba(255,255,255,.85); border-radius:18px; padding:14px 18px; font-size:18px; font-weight:700}
+.sobre{background:rgba(255,255,255,.88); border-radius:22px; padding:16px 22px; margin-top:34px; box-shadow:0 5px 0 var(--sombra)}
+.sobre h2{margin:0 0 6px; font-size:22px}
+.sobre p{margin:0; font-size:17px; line-height:1.5; color:#34495e}
 footer{text-align:center; color:#fff; font-weight:700; text-shadow:0 2px 0 var(--sombra); margin-top:28px; font-size:16px}
-@media (max-width:560px){ .destacado{flex-direction:column} .destacado .icono{width:auto; min-height:120px} .destacado .icono::after{inset:auto 0 0; width:auto; height:14px} }
-@media (prefers-reduced-motion:reduce){.juego{transition:none}}
+@media (prefers-reduced-motion:reduce){ .juego,.grado{transition:none} html{scroll-behavior:auto} }
 </style>
-
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"Juegos Samuel Digital","url":"https://juegos.samueldigital.com.ar/","inLanguage":"es-AR","description":"Juegos educativos gratis para chicos de primaria, de 1° a 6° grado.","publisher":{"@type":"Organization","name":"Samuel Digital"}}</script>
+</head>
+<body>
 <header class="franja">
   <div class="franja-in">
     <div class="sol" aria-hidden="true">
       <svg viewBox="0 0 150 75">
         <defs>
           <linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe066"/><stop offset="1" stop-color="#ff5e7e"/></linearGradient>
-          <mask id="rayas"><rect width="150" height="75" fill="#fff"/>
-            <rect y="40" width="150" height="4" fill="#000"/><rect y="50" width="150" height="5" fill="#000"/><rect y="61" width="150" height="6" fill="#000"/></mask>
+          <mask id="rayas"><rect width="150" height="75" fill="#fff"/><rect y="40" width="150" height="4" fill="#000"/><rect y="50" width="150" height="5" fill="#000"/><rect y="61" width="150" height="6" fill="#000"/></mask>
         </defs>
         <path d="M0 75 A75 75 0 0 1 150 75 Z" fill="url(#g)" mask="url(#rayas)"/>
       </svg>
     </div>
-    <div class="marca">
-      <h1>SAMUEL DIGITAL</h1>
-      <p>Juegos y actividades para aprender jugando 🎮</p>
-    </div>
+    <div class="marca"><h1>SAMUEL DIGITAL</h1><p>Juegos y actividades para aprender jugando 🎮</p></div>
   </div>
   <div class="grilla-piso"></div>
 </header>
 
 <main>
-  <h2 class="seccion" id="actividades">📚 Actividades <small>Elegí tu grado</small></h2>
-  <div class="grados">
-    <a class="grado" href="actividades/grado-1.html" style="--g:#e8590c"><span class="em">🧩</span><span class="n">1°</span><span class="t">grado</span></a>
-    <a class="grado" href="actividades/grado-2.html" style="--g:#d6336c"><span class="em">🎨</span><span class="n">2°</span><span class="t">grado</span></a>
-    <a class="grado" href="actividades/grado-3.html" style="--g:#7048e8"><span class="em">🐱</span><span class="n">3°</span><span class="t">grado</span></a>
-    <a class="grado" href="actividades/grado-4.html" style="--g:#1c7ed6"><span class="em">⚽</span><span class="n">4°</span><span class="t">grado</span></a>
-    <a class="grado" href="actividades/grado-5.html" style="--g:#0ca678"><span class="em">⚡</span><span class="n">5°</span><span class="t">grado</span></a>
-    <a class="grado" href="actividades/grado-6.html" style="--g:#f08c00"><span class="em">🏆</span><span class="n">6°</span><span class="t">grado</span></a>
+  <!-- Pantalla 1: elegir el grado -->
+  <section class="elegir" id="pantGrado">
+    <h2>¿En qué grado estás?</h2>
+    <p>Tocá tu grado para ver tus juegos</p>
+    <div class="grados">
+      <a class="grado" href="#grado-1" data-g="1" style="--g:#e8590c"><span class="em">🧩</span><span class="n">1°</span><span class="t">grado</span></a>
+      <a class="grado" href="#grado-2" data-g="2" style="--g:#d6336c"><span class="em">🎨</span><span class="n">2°</span><span class="t">grado</span></a>
+      <a class="grado" href="#grado-3" data-g="3" style="--g:#7048e8"><span class="em">🐱</span><span class="n">3°</span><span class="t">grado</span></a>
+      <a class="grado" href="#grado-4" data-g="4" style="--g:#1c7ed6"><span class="em">⚽</span><span class="n">4°</span><span class="t">grado</span></a>
+      <a class="grado" href="#grado-5" data-g="5" style="--g:#0ca678"><span class="em">⚡</span><span class="n">5°</span><span class="t">grado</span></a>
+      <a class="grado" href="#grado-6" data-g="6" style="--g:#f08c00"><span class="em">🏆</span><span class="n">6°</span><span class="t">grado</span></a>
+    </div>
+    <a class="ver-todos" href="#todos">👀 Ver todos los juegos</a>
+  </section>
+
+  <!-- Pantalla 2: los juegos (del grado elegido, o todos) -->
+  <div id="pantJuegos" hidden>
+    <div class="barra">
+      <div class="mi-grado" id="miGrado"><span class="bola" id="miGradoEm">🧩</span><b id="miGradoTxt">1° grado</b></div>
+      <a class="chico" href="#elegir" id="cambiar">🔄 Cambiar de grado</a>
+      <nav class="atajos" id="atajos" aria-label="Temas"></nav>
+    </div>
+    <section class="bloque" id="bloqueSeguir" hidden>
+      <h2><span class="tema-ico" style="--t:#ffc93c">⭐</span>Seguí jugando</h2>
+      <div class="juegos" id="seguir"></div>
+    </section>
+    <section class="bloque" id="bloqueClase" hidden>
+      <h2><span class="tema-ico" style="--t:#1b1446">📚</span>Actividades de clase</h2>
+      <div class="juegos" id="clase"></div>
+    </section>
+    <div id="temas">
+<section class="tema" data-tema="accion" style="--t:#e4572e">
+  <h2><span class="tema-ico">⚡</span>Acción</h2>
+  <div class="juegos"><a class="juego" href="penales.html" data-id="penales" data-grados="123456" data-tema="accion">
+  <span class="foto"><img src="img/juegos/penales.jpg" alt="" loading="lazy" width="480" height="300"><span class="ya" hidden>✓ Ya jugaste</span></span>
+  <span class="texto"><b>Penales Mundialistas</b><span>Elegí tu selección y jugá el Mundial. ¡Pateá y atajá!</span><small>Todos los grados</small></span>
+</a><a class="juego" href="robotito-corredor.html" data-id="robotito-corredor" data-grados="123456" data-tema="accion">
+  <span class="foto"><img src="img/juegos/robotito-corredor.jpg" alt="" loading="lazy" width="480" height="300"><span class="nuevo">✨ Nuevo</span><span class="ya" hidden>✓ Ya jugaste</span></span>
+  <span class="texto"><b>Robotito Corredor</b><span>Saltá las piedras y agarrá el resultado.</span><small>Todos los grados</small></span>
+</a></div>
+</section>
+<section class="tema" data-tema="numeros" style="--t:#3fa7f5">
+  <h2><span class="tema-ico">🔢</span>Números</h2>
+  <div class="juegos"><a class="juego" href="corta-la-fruta.html" data-id="corta-la-fruta" data-grados="123456" data-tema="numeros">
+  <span class="foto"><img src="img/juegos/corta-la-fruta.jpg" alt="" loading="lazy" width="480" height="300"><span class="nuevo">✨ Nuevo</span><span class="ya" hidden>✓ Ya jugaste</span></span>
+  <span class="texto"><b>Cortá la Fruta</b><span>Cortá la fruta que tiene el resultado.</span><small>Todos los grados</small></span>
+</a><a class="juego" href="las-tablas.html" data-id="las-tablas" data-grados="345" data-tema="numeros">
+  <span class="foto"><img src="img/juegos/las-tablas.jpg" alt="" loading="lazy" width="480" height="300"><span class="nuevo">✨ Nuevo</span><span class="ya" hidden>✓ Ya jugaste</span></span>
+  <span class="texto"><b>Las Tablas</b><span>Practicá las tablas del 2 al 10.</span><small>3° a 5°</small></span>
+</a><a class="juego" href="unir-puntos.html" data-id="unir-puntos" data-grados="12" data-tema="numeros">
+  <span class="foto"><img src="img/juegos/unir-puntos.jpg" alt="" loading="lazy" width="480" height="300"><span class="ya" hidden>✓ Ya jugaste</span></span>
+  <span class="texto"><b>Uní los Puntos</b><span>Uní los números en orden y descubrí el dibujo.</span><small>1° a 2°</small></span>
+</a><a class="juego" href="cuantos-hay.html" data-id="cuantos-hay" data-grados="12" data-tema="numeros">
+  <span class="foto"><img src="img/juegos/cuantos-hay.jpg" alt="" loading="lazy" width="480" height="300"><span class="ya" hidden>✓ Ya jugaste</span></span>
+  <span class="texto"><b>¿Cuántos Hay?</b><span>Contá los dibujos y elegí el número.</span><small>1° a 2°</small></span>
+</a><a class="juego" href="sumas-y-restas.html" data-id="sumas-y-restas" data-grados="123" data-tema="numeros">
+  <span class="foto"><img src="img/juegos/sumas-y-restas.jpg" alt="" loading="lazy" width="480" height="300"><span class="ya" hidden>✓ Ya jugaste</span></span>
+  <span class="texto"><b>Sumas y Restas</b><span>Resolvé cuentas con dibujos, hasta 50.</span><small>1° a 3°</small></span>
+</a><a class="juego" href="el-reloj.html" data-id="el-reloj" data-grados="123" data-tema="numeros">
+  <span class="foto"><img src="img/juegos/el-reloj.jpg" alt="" loading="lazy" width="480" height="300"><span class="ya" hidden>✓ Ya jugaste</span></span>
+  <span class="texto"><b>El Reloj</b><span>Leé la hora y mové las agujas.</span><small>1° a 3°</small></span>
+</a><a class="juego" href="la-plata.html" data-id="la-plata" data-grados="123" data-tema="numeros">
+  <span class="foto"><img src="img/juegos/la-plata.jpg" alt="" loading="lazy" width="480" height="300"><span class="ya" hidden>✓ Ya jugaste</span></span>
+  <span class="texto"><b>La Plata</b><span>Pagá justo con monedas y billetes.</span><small>1° a 3°</small></span>
+</a><a class="juego" href="globos.html" data-id="globos" data-grados="12" data-tema="numeros">
+  <span class="foto"><img src="img/juegos/globos.jpg" alt="" loading="lazy" width="480" height="300"><span class="ya" hidden>✓ Ya jugaste</span></span>
+  <span class="texto"><b>Globos para Contar</b><span>Reventá el globo con el número que se pide.</span><small>1° a 2°</small></span>
+</a></div>
+</section>
+<section class="tema" data-tema="letras" style="--t:#9b5de5">
+  <h2><span class="tema-ico">🔤</span>Letras</h2>
+  <div class="juegos"><a class="juego" href="letras-que-caen.html" data-id="letras-que-caen" data-grados="123" data-tema="letras">
+  <span class="foto"><img src="img/juegos/letras-que-caen.jpg" alt="" loading="lazy" width="480" height="300"><span class="ya" hidden>✓ Ya jugaste</span></span>
+  <span class="texto"><b>Letras que Caen</b><span>Apretá en el teclado la letra que cae.</span><small>1° a 3°</small></span>
+</a><a class="juego" href="forma-la-palabra.html" data-id="forma-la-palabra" data-grados="123" data-tema="letras">
+  <span class="foto"><img src="img/juegos/forma-la-palabra.jpg" alt="" loading="lazy" width="480" height="300"><span class="ya" hidden>✓ Ya jugaste</span></span>
+  <span class="texto"><b>Formá la Palabra</b><span>Mirá el dibujo y armá su nombre con letras.</span><small>1° a 3°</small></span>
+</a><a class="juego" href="atrapa-letra.html" data-id="atrapa-letra" data-grados="12" data-tema="letras">
+  <span class="foto"><img src="img/juegos/atrapa-letra.jpg" alt="" loading="lazy" width="480" height="300"><span class="ya" hidden>✓ Ya jugaste</span></span>
+  <span class="texto"><b>Atrapá la Letra</b><span>Mové la canasta y atrapá la fruta con la letra.</span><small>1° a 2°</small></span>
+</a></div>
+</section>
+<section class="tema" data-tema="compu" style="--t:#2e8b57">
+  <h2><span class="tema-ico">💻</span>Compu y programación</h2>
+  <div class="juegos"><a class="juego" href="partes-compu.html" data-id="partes-compu" data-grados="1234" data-tema="compu">
+  <span class="foto"><img src="img/juegos/partes-compu.jpg" alt="" loading="lazy" width="480" height="300"><span class="nuevo">✨ Nuevo</span><span class="ya" hidden>✓ Ya jugaste</span></span>
+  <span class="texto"><b>Partes de la Compu</b><span>Monitor, teclado, mouse… ¿entrada o salida?</span><small>1° a 4°</small></span>
+</a><a class="juego" href="pixeles-binario.html" data-id="pixeles-binario" data-grados="56" data-tema="compu">
+  <span class="foto"><img src="img/juegos/pixeles-binario.jpg" alt="" loading="lazy" width="480" height="300"><span class="nuevo">✨ Nuevo</span><span class="ya" hidden>✓ Ya jugaste</span></span>
+  <span class="texto"><b>Píxeles en Binario</b><span>Pintá dibujos leyendo ceros y unos.</span><small>5° a 6°</small></span>
+</a><a class="juego" href="actividades/misiones-robotito.html" data-id="misiones-robotito" data-grados="3456" data-tema="compu">
+  <span class="foto"><img src="img/juegos/misiones-robotito.jpg" alt="" loading="lazy" width="480" height="300"><span class="ya" hidden>✓ Ya jugaste</span></span>
+  <span class="texto"><b>Misiones del Robotito</b><span>Programá al robotito con bloques. 10 misiones por grado.</span><small>3° a 6°</small></span>
+</a><a class="juego" href="laberinto.html" data-id="laberinto" data-grados="12" data-tema="compu">
+  <span class="foto"><img src="img/juegos/laberinto.jpg" alt="" loading="lazy" width="480" height="300"><span class="ya" hidden>✓ Ya jugaste</span></span>
+  <span class="texto"><b>Laberinto</b><span>Llevá al robotito hasta su casa. 15 niveles.</span><small>1° a 2°</small></span>
+</a></div>
+</section>
+<section class="tema" data-tema="logica" style="--t:#f08c00">
+  <h2><span class="tema-ico">🧠</span>Lógica</h2>
+  <div class="juegos"><a class="juego" href="tangram.html" data-id="tangram" data-grados="123456" data-tema="logica">
+  <span class="foto"><img src="img/juegos/tangram.jpg" alt="" loading="lazy" width="480" height="300"><span class="nuevo">✨ Nuevo</span><span class="ya" hidden>✓ Ya jugaste</span></span>
+  <span class="texto"><b>Tangram</b><span>Armá figuras con las 7 piezas.</span><small>Todos los grados</small></span>
+</a><a class="juego" href="clasifica.html" data-id="clasifica" data-grados="12" data-tema="logica">
+  <span class="foto"><img src="img/juegos/clasifica.jpg" alt="" loading="lazy" width="480" height="300"><span class="ya" hidden>✓ Ya jugaste</span></span>
+  <span class="texto"><b>Clasificá</b><span>Poné cada dibujo en su caja: animales, frutas, colores.</span><small>1° a 2°</small></span>
+</a><a class="juego" href="memotest.html" data-id="memotest" data-grados="123" data-tema="logica">
+  <span class="foto"><img src="img/juegos/memotest.jpg" alt="" loading="lazy" width="480" height="300"><span class="ya" hidden>✓ Ya jugaste</span></span>
+  <span class="texto"><b>Memotest</b><span>Encontrá los pares: animales, frutas, números y camisetas.</span><small>1° a 3°</small></span>
+</a><a class="juego" href="rompecabezas.html" data-id="rompecabezas" data-grados="12" data-tema="logica">
+  <span class="foto"><img src="img/juegos/rompecabezas.jpg" alt="" loading="lazy" width="480" height="300"><span class="ya" hidden>✓ Ya jugaste</span></span>
+  <span class="texto"><b>Rompecabezas</b><span>Armá dibujos de 4 a 12 piezas.</span><small>1° a 2°</small></span>
+</a><a class="juego" href="secuencias.html" data-id="secuencias" data-grados="12" data-tema="logica">
+  <span class="foto"><img src="img/juegos/secuencias.jpg" alt="" loading="lazy" width="480" height="300"><span class="ya" hidden>✓ Ya jugaste</span></span>
+  <span class="texto"><b>Seguí la Secuencia</b><span>¿Qué sigue? Colores, formas y patrones.</span><small>1° a 2°</small></span>
+</a></div>
+</section>
+<section class="tema" data-tema="arte" style="--t:#d6336c">
+  <h2><span class="tema-ico">🎨</span>Arte</h2>
+  <div class="juegos"><a class="juego" href="pixeles.html" data-id="pixeles" data-grados="123456" data-tema="arte">
+  <span class="foto"><img src="img/juegos/pixeles.jpg" alt="" loading="lazy" width="480" height="300"><span class="ya" hidden>✓ Ya jugaste</span></span>
+  <span class="texto"><b>Pintá Píxeles</b><span>Dibujá cuadradito por cuadradito o copiá un modelo.</span><small>Todos los grados</small></span>
+</a><a class="juego" href="boceto.html" data-id="boceto" data-grados="123456" data-tema="arte">
+  <span class="foto"><img src="img/juegos/boceto.jpg" alt="" loading="lazy" width="480" height="300"><span class="ya" hidden>✓ Ya jugaste</span></span>
+  <span class="texto"><b>Boceto Libre</b><span>Una hoja grande para dibujar lo que quieras.</span><small>Todos los grados</small></span>
+</a><a class="juego" href="vesti-robotito.html" data-id="vesti-robotito" data-grados="12" data-tema="arte">
+  <span class="foto"><img src="img/juegos/vesti-robotito.jpg" alt="" loading="lazy" width="480" height="300"><span class="ya" hidden>✓ Ya jugaste</span></span>
+  <span class="texto"><b>Vestí al Robotito</b><span>Vestilo según el lugar y cumplí misiones.</span><small>1° a 2°</small></span>
+</a></div>
+</section>
+
+    </div>
   </div>
-  <h2 class="seccion" id="juegos-titulo">🎮 Juegos</h2>
-  <div class="juegos" id="juegos"></div>
-  <footer>Hecho por Samuel Digital</footer>
+  <section class="sobre" aria-label="Sobre estos juegos">
+    <h2>Juegos educativos gratis para primaria</h2>
+    <p>Samuel Digital reúne juegos educativos online y gratuitos para chicos de 1° a 6° grado, pensados para usar en la clase de informática y para seguir jugando en casa. Hay juegos para practicar <b>las tablas de multiplicar</b>, <b>sumas y restas</b>, <b>la hora</b> y <b>el dinero</b>; juegos de <b>letras y lectura</b>; de <b>lógica</b> como el tangram, el memotest y los rompecabezas; de <b>informática</b> como las partes de la computadora y el código binario; y de <b>programación con bloques</b> con las Misiones del Robotito. Funcionan en el navegador, sin instalar nada y sin registrarse.</p>
+  </section>
+  <footer>Hecho por Samuel Digital · Juegos educativos gratis para primaria</footer>
 </main>
 
 <script>
-const JUEGOS = [
-  {id:'penales', nombre:'Penales Mundialistas', txt:'Elegí tu selección y jugá el Mundial. ¡Pateá y atajá!', em:'⚽', fondo:'#123b6b', grados:['1','2','todos'], chips:['Todos los grados'], destacado:true},
-  {id:'robotito-corredor', nombre:'Robotito Corredor', txt:'Saltá las piedras y agarrá el resultado.', em:'🏃', fondo:'#3fa7f5', grados:['1','2','3','4','5','6'], chips:['1° a 6°','Habilidad'], nuevo:true},
-  {id:'corta-la-fruta', nombre:'Cortá la Fruta', txt:'Cortá la fruta que tiene el resultado.', em:'🍉', fondo:'#e4572e', grados:['2','3','4','5'], chips:['2° a 5°','Tablas'], nuevo:true},
-  {id:'las-tablas', nombre:'Las Tablas', txt:'Practicá las tablas del 2 al 10.', em:'✖️', fondo:'#9b5de5', grados:['3','4'], chips:['3°','4°','Tablas'], nuevo:true},
-  {id:'partes-compu', nombre:'Partes de la Compu', txt:'Monitor, teclado, mouse… ¿entrada o salida?', em:'🖥️', fondo:'#5cc96b', grados:['1','2','3','4'], chips:['1° a 4°','Informática'], nuevo:true},
-  {id:'tangram', nombre:'Tangram', txt:'Armá figuras con las 7 piezas.', em:'🔷', fondo:'#ffb627', grados:['1','2','3','4','5','6'], chips:['Todos','Formas'], nuevo:true},
-  {id:'pixeles-binario', nombre:'Píxeles en Binario', txt:'Pintá dibujos leyendo ceros y unos.', em:'💾', fondo:'#23364a', grados:['5','6'], chips:['5°','6°','Informática'], nuevo:true},
-  {id:'unir-puntos', nombre:'Uní los Puntos', txt:'Uní los números en orden y descubrí el dibujo.', em:'✏️', fondo:'#ffd23f', grados:['1','2'], chips:['1°','2°','Números']},
-  {id:'clasifica', nombre:'Clasificá', txt:'Poné cada dibujo en su caja: animales, frutas, colores.', em:'🗂️', fondo:'#5cc96b', grados:['1'], chips:['1°','Arrastrar']},
-  {id:'letras-que-caen', nombre:'Letras que Caen', txt:'Apretá en el teclado la letra que cae.', em:'⌨️', fondo:'#3fa7f5', grados:['1','2'], chips:['1°','2°','Teclado']},
-  {id:'cuantos-hay', nombre:'¿Cuántos Hay?', txt:'Contá los dibujos y elegí el número.', em:'🔢', fondo:'#ff8fab', grados:['1'], chips:['1°','Números']},
-  {id:'sumas-y-restas', nombre:'Sumas y Restas', txt:'Resolvé cuentas con dibujos, hasta 50.', em:'➕', fondo:'#9b5de5', grados:['2'], chips:['2°','Cuentas']},
-  {id:'el-reloj', nombre:'El Reloj', txt:'Leé la hora y mové las agujas.', em:'🕒', fondo:'#e4572e', grados:['2'], chips:['2°','La hora']},
-  {id:'la-plata', nombre:'La Plata', txt:'Pagá justo con monedas y billetes.', em:'💰', fondo:'#2e8b57', grados:['2'], chips:['2°','Cuentas']},
-  {id:'forma-la-palabra', nombre:'Formá la Palabra', txt:'Mirá el dibujo y armá su nombre con letras.', em:'🔤', fondo:'#ffb627', grados:['2'], chips:['2°','Letras']},
-  {id:'laberinto', nombre:'Laberinto', txt:'Llevá al robotito hasta su casa. 15 niveles.', em:'🌳', fondo:'#9fd96b', grados:['1','2'], chips:['1°','2°','Mouse y flechas']},
-  {id:'pixeles', nombre:'Pintá Píxeles', txt:'Dibujá cuadradito por cuadradito o copiá un modelo.', em:'🎨', fondo:'#ffb627', grados:['1','2'], chips:['1°','2°','Arte']},
-  {id:'boceto', nombre:'Boceto Libre', txt:'Una hoja grande para dibujar lo que quieras.', em:'✏️', fondo:'#ff8fab', grados:['1'], chips:['1°','Arte']},
-  {id:'memotest', nombre:'Memotest', txt:'Encontrá los pares: animales, frutas, números y camisetas.', em:'🃏', fondo:'#9b5de5', grados:['1','2'], chips:['1°','2°','Memoria']},
-  {id:'globos', nombre:'Globos para Contar', txt:'Reventá el globo con el número que se pide.', em:'🎈', fondo:'#8fd3fb', grados:['1'], chips:['1°','Números']},
-  {id:'atrapa-letra', nombre:'Atrapá la Letra', txt:'Mové la canasta y atrapá la fruta con la letra.', em:'🧺', fondo:'#5cc96b', grados:['1','2'], chips:['1°','2°','Letras']},
-  {id:'vesti-robotito', nombre:'Vestí al Robotito', txt:'Vestilo según el lugar y cumplí misiones.', em:'🤖', fondo:'#ffe14d', grados:['1'], chips:['1°','Arrastrar']},
-  {id:'rompecabezas', nombre:'Rompecabezas', txt:'Armá dibujos de 4 a 12 piezas.', em:'🧩', fondo:'#3fa7f5', grados:['1','2'], chips:['1°','2°','Arrastrar']},
-  {id:'secuencias', nombre:'Seguí la Secuencia', txt:'¿Qué sigue? Colores, formas y patrones.', em:'🔁', fondo:'#e4572e', grados:['1','2'], chips:['1°','2°','Lógica']}
-];
-const cont = document.getElementById('juegos');
-function pintar(g){
-  cont.innerHTML = JUEGOS.filter(j=> g === 'todos' || j.grados.includes(g)).map(j=>`
-    <a class="juego${j.destacado ? ' destacado' : ''}" href="${j.id}.html">
-      <div class="icono" style="background:${j.fondo}">${j.em}</div>
-      <div class="texto"><h2>${j.nombre}</h2><p>${j.txt}</p>
-        <div class="chips">${j.nuevo ? '<span class="chip nuevo">✨ Nuevo</span>' : ''}${j.chips.map(c=>`<span class="chip">${c}</span>`).join('')}</div></div>
-    </a>`).join('');
-}
-pintar('todos');
-</script>
+// ---------- Datos del grado ----------
+const GRADOS = {
+  '1':{em:'🧩', color:'#e8590c'}, '2':{em:'🎨', color:'#d6336c'}, '3':{em:'🐱', color:'#7048e8'},
+  '4':{em:'⚽', color:'#1c7ed6'}, '5':{em:'⚡', color:'#0ca678'}, '6':{em:'🏆', color:'#f08c00'}
+};
+const $ = id => document.getElementById(id);
+const leer = (k, d)=>{ try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch(e){ return d; } };
+const guardar = (k, v)=>{ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){} };
+const tarjetas = [...document.querySelectorAll('#temas .juego')];
 
+// ---------- Mostrar una pantalla según la dirección (#grado-3, #todos, #elegir) ----------
+function mostrar(){
+  const h = location.hash.replace('#','');
+  let g = (h.match(/^grado-([1-6])$/) || [])[1];
+  if (!h){ g = leer('sd:grado', null); }     // si ya eligió antes, entra directo a su grado
+  const todos = h === 'todos';
+  if (!g && !todos){ $('pantGrado').hidden = false; $('pantJuegos').hidden = true; return; }
+  if (g) guardar('sd:grado', g);
+  $('pantGrado').hidden = true; $('pantJuegos').hidden = false;
+  // barra de arriba
+  const mg = $('miGrado');
+  if (todos){ mg.style.setProperty('--g', '#23364a'); $('miGradoEm').textContent = '🎮'; $('miGradoTxt').textContent = 'Todos los juegos'; }
+  else { mg.style.setProperty('--g', GRADOS[g].color); $('miGradoEm').textContent = GRADOS[g].em; $('miGradoTxt').textContent = g + '° grado'; }
+  // tarjetas: se ven solo las del grado; el robotito de misiones abre directo en el grado
+  tarjetas.forEach(t=>{
+    t.hidden = !todos && !t.dataset.grados.includes(g);
+    if (t.dataset.id === 'misiones-robotito') t.href = 'actividades/misiones-robotito.html' + (g && '3456'.includes(g) ? '?grado=' + g : '');
+  });
+  const ya = leer('sd:jugados', []);
+  tarjetas.forEach(t=> t.querySelector('.ya').hidden = !ya.includes(t.dataset.id));
+  // temas: se esconden los que quedan vacíos, y arriba hay atajos para saltar a cada uno
+  const atajos = [];
+  document.querySelectorAll('#temas .tema').forEach(s=>{
+    const hay = [...s.querySelectorAll('.juego')].some(t=> !t.hidden);
+    s.hidden = !hay;
+    if (hay){ const h2 = s.querySelector('h2'); atajos.push(`<a href="#tema-${s.dataset.tema}" data-ir="${s.dataset.tema}"><span>${h2.querySelector('.tema-ico').textContent}</span>${h2.textContent.replace(h2.querySelector('.tema-ico').textContent,'')}</a>`); }
+  });
+  $('atajos').innerHTML = atajos.join('');
+  $('atajos').querySelectorAll('a').forEach(a=> a.onclick = e=>{ e.preventDefault(); document.querySelector(`#temas .tema[data-tema="${a.dataset.ir}"]`).scrollIntoView(); });
+  // seguí jugando: los últimos juegos que abrió en esta compu (del grado)
+  const rec = leer('sd:recientes', []).filter(id=>{ const t = tarjetas.find(x=> x.dataset.id === id); return t && !t.hidden; }).slice(0, 4);
+  $('seguir').innerHTML = rec.map(id=> tarjetas.find(x=> x.dataset.id === id).outerHTML).join('');
+  $('bloqueSeguir').hidden = !rec.length;
+  // actividades de clase del grado
+  if (g){
+    $('clase').innerHTML = `<a class="juego clase" href="actividades/grado-${g}.html" style="--g:${GRADOS[g].color}" data-id="clase-${g}"><span class="foto">📚</span>
+      <span class="texto"><b>Actividades de ${g}° grado</b><span>Las actividades que hacemos en clase con Samuel.</span><small>${g}° grado</small></span></a>`;
+    $('bloqueClase').hidden = false;
+  } else $('bloqueClase').hidden = true;
+  scrollTo(0, 0);
+}
+// al entrar a un juego se anota como "jugado" y "reciente"
+document.addEventListener('click', e=>{
+  const a = e.target.closest('a.juego'); if (!a || !a.dataset.id || a.dataset.id.startsWith('clase')) return;
+  const id = a.dataset.id;
+  guardar('sd:recientes', [id, ...leer('sd:recientes', []).filter(x=> x !== id)].slice(0, 8));
+  const ya = leer('sd:jugados', []); if (!ya.includes(id)) guardar('sd:jugados', [...ya, id]);
+});
+$('cambiar').onclick = e=>{ e.preventDefault(); guardar('sd:grado', null); try { localStorage.removeItem('sd:grado'); } catch(_){} history.pushState(null, '', location.pathname); mostrar(); };
+addEventListener('hashchange', mostrar);
+mostrar();
+</script>
+</body>
 </html>
