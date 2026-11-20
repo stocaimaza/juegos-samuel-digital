@@ -9,12 +9,12 @@
 <link rel="icon" href="../favicon.svg" type="image/svg+xml">
 <title>El Robotito Pintor – Programación con bloques y pixel art</title>
 <!-- SEO: descripción, dirección oficial y tarjeta para compartir -->
-<meta name="description" content="Programá al robotito para que pinte dibujos de píxeles con bloques: secuencias, repeticiones, condiciones y bloques propios. 8 misiones por grado, de 4° a 6°.">
+<meta name="description" content="Programá al robotito para que pinte dibujos de píxeles con bloques: secuencias, repeticiones, condiciones y bloques propios. 8 misiones por grado, de 3° a 6°.">
 <link rel="canonical" href="https://juegos.samueldigital.com.ar/actividades/robotito-pintor.html">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Samuel Digital">
 <meta property="og:title" content="El Robotito Pintor – Programación con bloques y pixel art">
-<meta property="og:description" content="Programá al robotito para que pinte dibujos de píxeles con bloques: secuencias, repeticiones, condiciones y bloques propios. 8 misiones por grado, de 4° a 6°.">
+<meta property="og:description" content="Programá al robotito para que pinte dibujos de píxeles con bloques: secuencias, repeticiones, condiciones y bloques propios. 8 misiones por grado, de 3° a 6°.">
 <meta property="og:url" content="https://juegos.samueldigital.com.ar/actividades/robotito-pintor.html">
 <meta property="og:image" content="https://juegos.samueldigital.com.ar/img/juegos/robotito-pintor.jpg">
 <meta property="og:locale" content="es_AR">
@@ -423,6 +423,33 @@ function marcoSorpresa(todo){
 
 const MOV4=['der','izq','arr','aba'], MOV=['av','gi','gd'];
 const GRADOS = {
+  '3': {nombre:'3° grado', tema:'Primeros dibujos', color:'#5cc96b', pinta:'#2e8b57', modo:'abs', sub:'Llevá al robotito con las flechas y tocá "pintar" en cada cuadradito del dibujo.',
+    misiones:[
+      {tit:'Mi primer cuadradito', txt:'Llevá al robotito al cuadradito punteado y pintalo.',
+       mapa:['Ro..','....'], bloques:[...MOV4,'pintar'], optimo:2,
+       pista:'Una flecha a la derecha y después "pintar".'},
+      {tit:'Dos puntitos', txt:'Pintá los dos cuadraditos. ¡No pintes los blancos!',
+       mapa:['R.o.o','.....'], bloques:[...MOV4,'pintar'], optimo:6,
+       pista:'Derecha, derecha, pintar. Y otra vez: derecha, derecha, pintar.'},
+      {tit:'Una línea', txt:'Pintá la línea de 3 cuadraditos.',
+       mapa:['Rooo','....'], bloques:[...MOV4,'pintar'], optimo:6, color:'#e4572e',
+       pista:'Derecha y pintar, tres veces.'},
+      {tit:'Para abajo', txt:'Ahora la línea va para abajo.',
+       mapa:['R..','o..','o..','o..'], bloques:[...MOV4,'pintar'], optimo:6, color:'#1d6fd8',
+       pista:'Abajo y pintar, tres veces.'},
+      {tit:'El cuadradito', txt:'Pintá los 3 cuadraditos que forman este dibujo.',
+       mapa:['Ro.','oo.','...'], bloques:[...MOV4,'pintar'], optimo:6, color:'#9b5de5',
+       pista:'Derecha y pintar. Abajo y pintar. Izquierda y pintar.'},
+      {tit:'La letra L', txt:'Pintá la L: primero para abajo y después a la derecha.',
+       mapa:['R...','o...','o...','ooo.'], bloques:[...MOV4,'pintar'], optimo:10, color:'#f08c00',
+       pista:'Bajá pintando 3 veces y después andá a la derecha pintando 2 veces.'},
+      {tit:'La escalerita', txt:'Pintá los escalones. ¡Mirá bien para dónde va!',
+       mapa:['..o','.oo','Ro.'], bloques:[...MOV4,'pintar'], optimo:8, color:'#d6336c',
+       pista:'Derecha, pintar, arriba, pintar… y otra vez.'},
+      {tit:'¡Llega repetir!', txt:'Una línea larga. Probá el bloque "repetir" para hacerlo con muy pocos bloques.',
+       mapa:['Rooooo','......'], bloques:[...MOV4,'pintar','rep'], optimo:3, color:'#3fa7f5',
+       pista:'Adentro de "repetir" poné: derecha y pintar. ¿Cuántos cuadraditos hay?'}
+    ]},
   '4': {nombre:'4° grado', tema:'Pintar con secuencias', color:'#3fa7f5', pinta:'#1d6fd8', modo:'abs', sub:'Mové al robotito con las flechas y pintá cada cuadradito del dibujo.',
     misiones:[
       {tit:'Primer pincelazo', txt:'Pintá los 4 cuadraditos de la línea. Llevá al robotito encima de cada uno y usá "pintar".',
@@ -974,7 +1001,8 @@ $('btn-aprendemos').onclick = ()=>{
   abrirModal(`<div class="panel">
     <h2>📘 ¿Qué aprendemos?</h2>
     <h3>Lo que vas a lograr</h3>
-    <ul><li><b>4°:</b> dar órdenes en el orden correcto para pintar un dibujo, y usar "repetir" cuando algo se repite.</li>
+    <ul><li><b>3°:</b> mover al robotito con las flechas y pintar justo los cuadraditos del dibujo.</li>
+      <li><b>4°:</b> dar órdenes en el orden correcto para pintar un dibujo, y usar "repetir" cuando algo se repite.</li>
       <li><b>5°:</b> pensar hacia dónde mira el robotito y usar "repetir", incluso uno adentro de otro.</li>
       <li><b>6°:</b> hacer que el robotito decida solo qué pintar con "si… entonces", "repetir hasta" y tus propios bloques.</li></ul>
     <h3>Palabras nuevas</h3>
