@@ -218,7 +218,7 @@ function nueva(){
   cosas.push({tipo:'num', x: cw + 80, v: arriba ? r : otro, alto: true}, {tipo:'num', x: cw + 80, v: arriba ? otro : r, alto: false});
   proxima = Math.max(proxima, 140);
 }
-function pintarVidas(){ $('vidas').textContent = '❤️'.repeat(vidas) + '🤍'.repeat(3 - vidas); }
+function pintarVidas(){ const v = Math.max(0, Math.min(3, vidas)); $('vidas').textContent = '❤️'.repeat(v) + '🤍'.repeat(3 - v); }
 function saltar(){
   if (!jugando || !$('festejo').hidden) return;
   if (robot.y === 0){ robot.vy = 13.5; }
@@ -228,6 +228,7 @@ cv.addEventListener('pointerdown', ()=> saltar());
 $('btnSaltar').addEventListener('pointerdown', e=>{ e.preventDefault(); saltar(); });
 
 function golpe(txt){
+  if (vidas <= 0) return;   // ya perdió: no seguir restando mientras espera para volver a empezar
   vidas--; invul = 70; pintarVidas(); decir(txt, 'mal'); sacudir(cv);
   if (vidas <= 0){ jugando = false; decir('¡Ups! Te quedaste sin vidas. ¡Probá otra vez!', 'mal'); setTimeout(()=>{ empezar(); jugando = true; }, 1600); }
 }
@@ -251,6 +252,7 @@ function actualizar(){
   for (const c of cosas.slice()){
     const caja = c.tipo === 'piedra' ? {x:c.x, y:piso() - 16, w:c.w - 8, h:28}
                : {x:c.x, y: piso() - (c.alto ? 150 : 34), w:44, h:44};
+    if (!jugando) break;   // si se quedó sin vidas en este mismo cuadro, no se revisa nada más
     if (!chocan(R, caja)) continue;
     if (c.tipo === 'piedra'){ if (!invul){ c.golpeo = true; golpe('¡Auch, una piedra! Saltá antes'); } continue; }
     cosas.splice(cosas.indexOf(c), 1);
@@ -304,7 +306,8 @@ function estrellaDib(cx, cy, r){
 }
 function cuadro(t){
   const corre = jugando && $('festejo').hidden && $('intro').hidden && !$('panel').classList.contains('abierto');
-  if (corre && robot) actualizar();
+  // si algo falla en un cuadro, el juego sigue andando igual
+  if (corre && robot){ try { actualizar(); } catch(e){ console.error(e); } }
   // cielo y fondo con capas que se mueven a distinta velocidad
   const g = ctx.createLinearGradient(0,0,0,ch); g.addColorStop(0,'#8fd3fb'); g.addColorStop(1,'#d8f1ff');
   ctx.fillStyle = g; ctx.fillRect(0,0,cw,ch);
@@ -346,7 +349,7 @@ function cuadro(t){
 }
 // después de pasar de nivel, se arranca con el botón Saltar
 const saltarViejo = saltar;
-saltar = function(){ if (!jugando && $('intro').hidden && $('festejo').hidden){ jugando = true; return; } saltarViejo(); };
+saltar = function(){ if (!jugando && $('intro').hidden && $('festejo').hidden){ if (vidas > 0) jugando = true; return; } saltarViejo(); };   // sin vidas, espera a que se reinicie solo
 requestAnimationFrame(cuadro);
 window.__juego = {estado:()=>({robot, cosas, vidas, jugando, cuenta}), saltar:()=>saltar()};
 
